@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:iccm_eu_app/theme/dark_theme.dart';
+import 'package:iccm_eu_app/theme/light_theme.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,27 +14,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-        useMaterial3: true,
-      ),
+      title: 'ICCM Europe App',
       home: const MyHomePage(title: 'ICCM Europe App'),
+      darkTheme: darkTheme,
+      theme: lightTheme,
     );
   }
 }
@@ -79,13 +64,17 @@ class _MyHomePageState extends State<MyHomePage> {
     // than having to individually change instances of widgets.
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      darkTheme: darkTheme,
+      theme: lightTheme,
       home: Scaffold(
-        drawer: NavBar(),
+        drawer: const NavBar(),
+        backgroundColor: Colors.green[400]!,
         appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.background,
+          foregroundColor: Theme.of(context).colorScheme.tertiary,
           // TRY THIS: Try changing the color here to a specific color (to
           // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
           // change color while the other colors stay the same.
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           // Here we take the value from the MyHomePage object that was created by
           // the App.build method, and use it to set our appbar title.
           title: Text(widget.title),
@@ -93,8 +82,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: 0,
-          fixedColor: Colors.white38,
-          backgroundColor: Colors.lightGreen,
+          fixedColor: Theme.of(context).colorScheme.secondary,
+          backgroundColor: Colors.green[400]!,
           onTap: (index) => setCurrentIndex(index),
           items: const [
             BottomNavigationBarItem(
@@ -127,11 +116,11 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               const Text(
-                'You have pushed the button this many times:',
+                'Welcome. Index:',
               ),
               Text(
                 '$_currentIndex',
-                style: Theme.of(context).textTheme.headlineMedium,
+                //style: Theme.of(context).textTheme.headlineMedium,
               ),
             ],
           ),
@@ -149,22 +138,25 @@ class NavBar extends StatelessWidget {
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
-        children: const [
+        children: [
           DrawerHeader(
-            child: Text("data",
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-            ),
             decoration: BoxDecoration(
-              color: Colors.green,
+              color: Colors.green[400]!,
+            ),
+            child: const Text("data",
+              style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+              ),
             ),
           ),
-          ListTile(
+          const ListTile(
             leading: Icon(Icons.question_mark),
             title: Text("About"),
             //onTap: () => print("Tapped"),
           ),
-          Divider(),
-          ListTile(
+          const Divider(),
+          const ListTile(
             leading: Icon(Icons.question_mark),
             title: Text("About"),
             //onTap: () => AboutDialog(
