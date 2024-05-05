@@ -74,6 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
         drawer: const NavBar(),
         backgroundColor: Colors.green[400]!,
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           backgroundColor: Theme.of(context).colorScheme.background,
           foregroundColor: Theme.of(context).colorScheme.tertiary,
           // TRY THIS: Try changing the color here to a specific color (to
@@ -82,18 +83,21 @@ class _MyHomePageState extends State<MyHomePage> {
           // Here we take the value from the MyHomePage object that was created by
           // the App.build method, and use it to set our appbar title.
           title: Row(
-            children: [
-              Builder(
-                builder: (context) => IconButton(
-                  icon: const Icon(Icons.settings),
-                  onPressed: () => Scaffold.of(context).openDrawer(),
+              children: [
+                Builder(
+                  builder: (context) => IconButton(
+                    icon: const Icon(Icons.settings),
+                    onPressed: () => Scaffold.of(context).openDrawer(),
+                  ),
                 ),
-              ),
-              Text(
-                  widget.title,
-                  textAlign: TextAlign.center
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 55),
+                  child: Text(
+                    widget.title,
+                    textAlign: TextAlign.center
+                  ),
                 ),
-            ],
+              ],
           ),
         ),
 
