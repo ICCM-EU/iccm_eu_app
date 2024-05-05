@@ -1,10 +1,16 @@
+import "package:provider/provider.dart" show ChangeNotifierProvider, Provider;
+
 import 'package:flutter/material.dart';
-import 'package:iccm_eu_app/theme/dark_theme.dart';
-import 'package:iccm_eu_app/theme/light_theme.dart';
+import 'package:iccm_eu_app/theme/theme_provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => ThemeProvider(),
+      child: const MyApp(),
+    )
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -16,8 +22,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'ICCM Europe App',
       home: const MyHomePage(title: 'ICCM Europe App'),
-      darkTheme: darkTheme,
-      theme: lightTheme,
+      theme: Provider.of<ThemeProvider>(context).themeData,
     );
   }
 }
@@ -64,8 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // than having to individually change instances of widgets.
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      darkTheme: darkTheme,
-      theme: lightTheme,
+      theme: Provider.of<ThemeProvider>(context).themeData,
       home: Scaffold(
         drawer: const NavBar(),
         backgroundColor: Colors.green[400]!,
@@ -77,7 +81,20 @@ class _MyHomePageState extends State<MyHomePage> {
           // change color while the other colors stay the same.
           // Here we take the value from the MyHomePage object that was created by
           // the App.build method, and use it to set our appbar title.
-          title: Text(widget.title),
+          title: Row(
+            children: [
+              Builder(
+                builder: (context) => IconButton(
+                  icon: const Icon(Icons.settings),
+                  onPressed: () => Scaffold.of(context).openDrawer(),
+                ),
+              ),
+              Text(
+                  widget.title,
+                  textAlign: TextAlign.center
+                ),
+            ],
+          ),
         ),
 
         bottomNavigationBar: BottomNavigationBar(
@@ -130,8 +147,21 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class NavBar extends StatelessWidget {
+class NavBar extends StatefulWidget {
   const NavBar({super.key});
+
+  @override
+  State<NavBar> createState() => _NavBarState();
+}
+
+class _NavBarState extends State<NavBar> {
+  //bool _forceDarkMode = false;
+
+  //void setForceDarkMode(bool value) {
+    // setState(() {
+    //   _forceDarkMode = value;
+    // });
+  //}
 
   @override
   Widget build(BuildContext context) {
@@ -143,13 +173,32 @@ class NavBar extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.green[400]!,
             ),
-            child: const Text("data",
-              style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-              ),
+            child: Wrap(
+              children: <Widget>[
+                const Text("Settings",
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SwitchListTile(
+                  activeColor: Colors.black,
+                  activeTrackColor: Colors.grey[800]!.withOpacity(0.4),
+                  inactiveThumbColor: Colors.grey[300]!.withOpacity(0.4),
+                  inactiveTrackColor: Colors.grey[700]!.withOpacity(0.4),
+                  splashRadius: 20,
+                  title: const Text('Dark Mode'),
+                  secondary: const Icon(Icons.lightbulb_outline),
+                  value: Provider.of<ThemeProvider>(context, listen: false).isDark(),
+                  onChanged: (value) => setState(() {
+                    //_forceDarkMode = value;
+                    Provider.of<ThemeProvider>(context, listen: false).setTheme(value);
+                  }),
+                ),              ],
             ),
           ),
+          //Switch.adaptive(
+
           const ListTile(
             leading: Icon(Icons.question_mark),
             title: Text("About"),
