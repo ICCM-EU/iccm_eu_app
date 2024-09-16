@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import "package:provider/provider.dart" show Provider;
 
 import 'package:iccm_eu_app/theme/dark_theme.dart';
 import 'package:iccm_eu_app/theme/light_theme.dart';
