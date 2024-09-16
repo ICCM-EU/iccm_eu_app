@@ -17,15 +17,15 @@ ThemeData lightTheme = ThemeData(
   //
   // This works for code too, not just values: Most code changes can be
   // tested with just a hot reload.
-  appBarTheme: AppBarTheme(
+  appBarTheme: const AppBarTheme(
     backgroundColor: Colors.black,
-    titleTextStyle: const TextStyle(
+    titleTextStyle: TextStyle(
       fontSize: 20,
       color: Colors.black,
     ),
   ),
   colorScheme: ColorScheme.light(
-    background: Colors.grey[300]!,
+    surface: Colors.grey[300]!,
     primary: Colors.grey[200]!,
     secondary: Colors.grey[300]!,
     tertiary: Colors.black,

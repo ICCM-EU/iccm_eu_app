@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import "package:provider/provider.dart" show Provider;
 
 import 'package:iccm_eu_app/theme/theme_provider.dart';
+//import 'package:iccm_eu_app/data/preferences_provider.dart';
 
 
 class SettingsDrawer extends StatefulWidget {
@@ -14,6 +15,7 @@ class SettingsDrawer extends StatefulWidget {
 class _SettingsDrawerState extends State<SettingsDrawer> {
   @override
   Widget build(BuildContext context) {
+    //final PrefsProvider prefsProvider = Provider.of<PrefsProvider>(context);
     return Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -38,9 +40,9 @@ class _SettingsDrawerState extends State<SettingsDrawer> {
                     splashRadius: 20,
                     title: const Text('Dark Mode'),
                     secondary: const Icon(Icons.lightbulb_outline),
-                    value: Provider.of<ThemeProvider>(context, listen: false).isDark(),
+                    value: Provider.of<ThemeProvider>(context, listen: false).isDarkMode,
                     onChanged: (value) => setState(() {
-                      Provider.of<ThemeProvider>(context, listen: false).setTheme(value);
+                      Provider.of<ThemeProvider>(context, listen: false).saveTheme(value);
                     }),
                   ),
                 ],
@@ -50,7 +52,7 @@ class _SettingsDrawerState extends State<SettingsDrawer> {
 
             const ListTile(
               leading: Icon(Icons.question_mark),
-              title: Text("About"),
+              title: Text("Profile"),
               //onTap: () => print("Tapped"),
             ),
             const Divider(),

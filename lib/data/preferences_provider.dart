@@ -1,46 +1,16 @@
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart' show SharedPreferences;
 
-class PrefsProvider with ChangeNotifier {
-// ---------------------------------------------------------
+class PreferencesProvider {
+  // ---------------------------------------------------------
+  static const String _isDarkThemeKey = 'isDarkTheme';
 
-  late Map<String, Object> jsonData = {};
-  late bool darkMode = false;
-
-  void updatePrefsData(String key, String value) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    // Register all preferences here
-    final updatedData = jsonData;
-    updatedData[key] = value;
-    if (!mapEquals(jsonData, updatedData)) {
-      setState(() {
-        jsonData = updatedData;
-      });
-      prefs.setString('data', jsonEncode(jsonData));
-    }
+  static Future<bool> get isDarkTheme async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_isDarkThemeKey) ?? false; // Default to false
   }
 
-  void loadData() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    setState(() {
-      var dataString = prefs.getString('data');
-      jsonData = dataString != null
-          ? Map<String, Object>.from(jsonDecode(dataString))
-          : {};
-      darkMode = jsonData['darkMode'] == true;
-    });
+  static Future<void> setDarkTheme(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_isDarkThemeKey, value);
   }
-
-  void clearPrefsData() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.clear();
-  }
-
-  void clearPrefsKey(String key) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.remove(key);
-  }
-// ---------------------------------------------------------
 }
-

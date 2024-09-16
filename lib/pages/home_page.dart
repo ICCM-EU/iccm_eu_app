@@ -1,17 +1,16 @@
-import 'dart:convert';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import "package:provider/provider.dart" show Provider;
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:iccm_eu_app/theme/theme_provider.dart';
 import 'package:iccm_eu_app/controls/settings_drawer.dart';
-import 'package:iccm_eu_app/data/preferences_provider.dart';
 
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  const MyHomePage({
+    super.key,
+    required this.title,
+    //required this.prefsProvider,
+  });
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -29,53 +28,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  // ---------------------------------------------------------
-
-  late Map<String, Object> jsonData = {};
-  late bool darkMode = false;
-
-  @override
-  void initState() {
-    Provider.of<PrefsProvider>(context, listen: false).loadData();
-    super.initState();
-  }
-
-  void updatePrefsData(String key, String value) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    // Register all preferences here
-    final updatedData = jsonData;
-    updatedData[key] = value;
-    if (!mapEquals(jsonData, updatedData)) {
-      setState(() {
-        jsonData = updatedData;
-      });
-      prefs.setString('data', jsonEncode(jsonData));
-    }
-  }
-
-  void loadData() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    setState(() {
-      var dataString = prefs.getString('data');
-      jsonData = dataString != null
-          ? Map<String, Object>.from(jsonDecode(dataString))
-          : {};
-      darkMode = jsonData['darkMode'] == true;
-    });
-  }
-
-  void clearPrefsData() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.clear();
-  }
-
-  void clearPrefsKey(String key) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.remove(key);
-  }
-  // ---------------------------------------------------------
-
   int _currentIndex = 0;
 
   void setCurrentIndex(int index) {
@@ -91,6 +43,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeProvider tp = Provider.of<ThemeProvider>(context);
+    String darkString = tp.isDarkMode.toString();
+
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -105,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Colors.green[400]!,
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          backgroundColor: Theme.of(context).colorScheme.background,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           foregroundColor: Theme.of(context).colorScheme.tertiary,
           // TRY THIS: Try changing the color here to a specific color (to
           // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
@@ -172,6 +127,9 @@ class _MyHomePageState extends State<MyHomePage> {
               Text(
                 '$_currentIndex',
                 //style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              Text(
+                'Dark Theme: $darkString',
               ),
             ],
           ),
