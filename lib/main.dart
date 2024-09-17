@@ -2,7 +2,7 @@ import "package:provider/provider.dart" show ChangeNotifierProvider, Provider;
 
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/theme/theme_provider.dart';
-import 'package:iccm_eu_app/pages/home_page.dart';
+import 'package:iccm_eu_app/pages/base_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
     //final PrefsProvider prefsProvider = Provider.of<PrefsProvider>(context);
     return MaterialApp(
       title: 'ICCM Europe App',
-      home: const MyHomePage(
+      home: const BasePage(
         title: 'ICCM Europe App',
       ),
       theme: Provider.of<ThemeProvider>(context).themeData,
