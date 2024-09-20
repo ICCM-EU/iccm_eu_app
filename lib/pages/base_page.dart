@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/pages/home_page.dart';
+import 'package:iccm_eu_app/pages/preferences_page.dart';
 import 'package:iccm_eu_app/pages/rooms_page.dart';
 import 'package:iccm_eu_app/pages/schedule_page.dart';
 import 'package:iccm_eu_app/pages/speakers_page.dart';
@@ -35,11 +36,12 @@ class BasePage extends StatefulWidget {
 class _BasePageState extends State<BasePage> {
   int _selectedIndex = 0;
   static const List<Widget> _widgetOptions = <Widget>[
-    HomePage(),
-    SchedulePage(),
-    TracksPage(),
-    SpeakersPage(),
-    RoomsPage(),
+    HomePage(), // 0
+    SchedulePage(), // 1
+    TracksPage(), // 2
+    SpeakersPage(), // 3
+    RoomsPage(), // 4
+    PreferencesPage(), // 5
   ];
 
   void _setCurrentIndex(int index) {
@@ -48,6 +50,9 @@ class _BasePageState extends State<BasePage> {
     // so that the display can reflect the updated values. If we changed
     // _currentIndex without calling setState(), then the build method would not be
     // called again, and so nothing would appear to happen.
+    if (index >= _widgetOptions.length) {
+      index = 0;
+    }
     setState(() {
       _selectedIndex = index;
     });
@@ -55,9 +60,6 @@ class _BasePageState extends State<BasePage> {
 
   @override
   Widget build(BuildContext context) {
-    ThemeProvider tp = Provider.of<ThemeProvider>(context);
-    String darkString = tp.isDarkMode.toString();
-
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -68,7 +70,7 @@ class _BasePageState extends State<BasePage> {
       debugShowCheckedModeBanner: false,
       theme: Provider.of<ThemeProvider>(context).themeData,
       home: Scaffold(
-        drawer: const SettingsDrawer(),
+        drawer: SettingsDrawer(setPageIndex: _setCurrentIndex),
         backgroundColor: Colors.green[400]!,
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -126,7 +128,7 @@ class _BasePageState extends State<BasePage> {
               label: "Rooms",
             ),
           ],
-          currentIndex: _selectedIndex,
+          currentIndex: (_selectedIndex >= 5) ? 0 : _selectedIndex,
         ),
 
         body: IndexedStack( // Use IndexedStack here
