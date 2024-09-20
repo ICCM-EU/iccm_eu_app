@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iccm_eu_app/components/page_title.dart';
 import 'package:iccm_eu_app/components/toggle_is_dark_mode.dart';
 
 class PreferencesPage extends StatelessWidget {
@@ -9,12 +10,9 @@ class PreferencesPage extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       children: <Widget>[
-        const Center(
-          child: const Text(
-              'Preferences Page', style: const TextStyle(fontSize: 30)),
-        ),
+        PageTitle(title: 'Preferences Page'),
         const Divider(),
-        const Text('Theme',
+        Text('Theme',
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -22,10 +20,11 @@ class PreferencesPage extends StatelessWidget {
         ),
         ToggleIsDarkModeListTile(context: context),
         const Divider(),
-        const ListTile(
-          leading: Icon(Icons.question_mark),
-          title: Text("Profile"),
-          //onTap: () => print("Tapped"),
+        const Text('Profile',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ],
     );

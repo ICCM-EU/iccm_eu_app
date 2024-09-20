@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:iccm_eu_app/pages/about_page.dart';
 import 'package:iccm_eu_app/pages/home_page.dart';
 import 'package:iccm_eu_app/pages/preferences_page.dart';
 import 'package:iccm_eu_app/pages/rooms_page.dart';
 import 'package:iccm_eu_app/pages/schedule_page.dart';
 import 'package:iccm_eu_app/pages/speakers_page.dart';
 import 'package:iccm_eu_app/pages/tracks_page.dart';
+import 'package:iccm_eu_app/pages/travel_information_page.dart';
 import "package:provider/provider.dart" show Provider;
 
 import 'package:iccm_eu_app/theme/theme_provider.dart';
-import 'package:iccm_eu_app/controls/settings_drawer.dart';
+import 'package:iccm_eu_app/controls/menu_drawer.dart';
 
 
 class BasePage extends StatefulWidget {
@@ -42,6 +44,8 @@ class _BasePageState extends State<BasePage> {
     SpeakersPage(), // 3
     RoomsPage(), // 4
     PreferencesPage(), // 5
+    TravelInformationPage(), // 6
+    AboutPage(), // 7
   ];
 
   void _setCurrentIndex(int index) {
@@ -70,7 +74,7 @@ class _BasePageState extends State<BasePage> {
       debugShowCheckedModeBanner: false,
       theme: Provider.of<ThemeProvider>(context).themeData,
       home: Scaffold(
-        drawer: SettingsDrawer(setPageIndex: _setCurrentIndex),
+        drawer: MenuDrawer(setPageIndex: _setCurrentIndex),
         backgroundColor: Colors.green[400]!,
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -85,7 +89,7 @@ class _BasePageState extends State<BasePage> {
             children: [
               Builder(
                 builder: (context) => IconButton(
-                  icon: const Icon(Icons.settings),
+                  icon: const Icon(Icons.menu),
                   onPressed: () => Scaffold.of(context).openDrawer(),
                 ),
               ),

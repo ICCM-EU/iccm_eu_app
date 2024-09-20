@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:iccm_eu_app/components/page_title.dart';
 
 class TrackDetailsPage extends StatelessWidget {
   const TrackDetailsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Track Details Page', style: TextStyle(fontSize: 30)),
+    return  ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        children: const <Widget>[
+          PageTitle(title: 'Track Details'),
+        ]
     );
   }
 }
