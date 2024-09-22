@@ -35,6 +35,17 @@ class BasePage extends StatefulWidget {
   State<BasePage> createState() => _BasePageState();
 }
 
+enum PageList {
+  home,
+  schedule,
+  tracks,
+  speakers,
+  rooms,
+  preferences,
+  travelInformation,
+  about,
+}
+
 class _BasePageState extends State<BasePage> {
   int _selectedIndex = 0;
   static const List<Widget> _widgetOptions = <Widget>[

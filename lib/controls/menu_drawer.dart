@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/components/page_title.dart';
+import 'package:iccm_eu_app/pages/base_page.dart';
 
 class MenuDrawer extends StatelessWidget {
   final Function(int) setPageIndex;
@@ -23,7 +24,7 @@ class MenuDrawer extends StatelessWidget {
               title: const Text("Preferences"),
               onTap: () {
                 Scaffold.of(context).closeDrawer();
-                setPageIndex(5);
+                setPageIndex(PageList.preferences.index);
               },
             ),
             const Divider(),
@@ -32,7 +33,7 @@ class MenuDrawer extends StatelessWidget {
               title: const Text("Travel Information"),
               onTap: () {
                 Scaffold.of(context).closeDrawer();
-                setPageIndex(6);
+                setPageIndex(PageList.travelInformation.index);
               },
             ),
             const Divider(),
@@ -46,7 +47,7 @@ class MenuDrawer extends StatelessWidget {
               // ),
               onTap: () {
                 Scaffold.of(context).closeDrawer();
-                setPageIndex(7);
+                setPageIndex(PageList.about.index);
               },            ),
           ],
         )
