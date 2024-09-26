@@ -14,6 +14,7 @@ ThemeData darkTheme = ThemeData(
     backgroundColor: Colors.green[900]!,
     titleTextStyle: const TextStyle(
       fontSize: 20,
+      color: Colors.grey,
     ),
   ),
   colorScheme: ColorScheme.dark(

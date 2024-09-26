@@ -1,22 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:iccm_eu_app/pages/about_page.dart';
-import 'package:iccm_eu_app/pages/home_page.dart';
-import 'package:iccm_eu_app/pages/preferences_page.dart';
-import 'package:iccm_eu_app/pages/rooms_page.dart';
-import 'package:iccm_eu_app/pages/schedule_page.dart';
-import 'package:iccm_eu_app/pages/speakers_page.dart';
-import 'package:iccm_eu_app/pages/tracks_page.dart';
-import 'package:iccm_eu_app/pages/travel_information_page.dart';
-import "package:provider/provider.dart" show Provider;
+import 'package:iccm_eu_app/controls/menu_drawer.dart';
+import 'package:iccm_eu_app/controls/nav_bar.dart';
+import 'package:iccm_eu_app/data/page_index_provider.dart';
+import "package:provider/provider.dart" show Consumer, Provider;
 
 import 'package:iccm_eu_app/theme/theme_provider.dart';
-import 'package:iccm_eu_app/controls/menu_drawer.dart';
 
 
 class BasePage extends StatefulWidget {
   const BasePage({
     super.key,
-    required this.title,
     //required this.prefsProvider,
   });
 
@@ -29,50 +22,18 @@ class BasePage extends StatefulWidget {
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
 
-  final String title;
+  final String title = 'ICCM Europe App';
 
   @override
   State<BasePage> createState() => _BasePageState();
 }
 
-enum PageList {
-  home,
-  schedule,
-  tracks,
-  speakers,
-  rooms,
-  preferences,
-  travelInformation,
-  countdownSchedule,
-  about,
-}
-
 class _BasePageState extends State<BasePage> {
-  int _selectedIndex = 0;
-  static final List<Widget> _widgetOptions = <Widget>[
-    const HomePage(), // 0
-    const SchedulePage(), // 1
-    const TracksPage(), // 2
-    SpeakersPage(), // 3
-    const RoomsPage(), // 4
-    const PreferencesPage(), // 5
-    const TravelInformationPage(), // 6
-    const AboutPage(), // 7
-    // CountdownPage(), // fullscreen
-  ];
+  final NavBar navBar = const NavBar();
 
-  void _setCurrentIndex(int index) {
-    // This call to setState tells the Flutter framework that something has
-    // changed in this State, which causes it to rerun the build method below
-    // so that the display can reflect the updated values. If we changed
-    // _currentIndex without calling setState(), then the build method would not be
-    // called again, and so nothing would appear to happen.
-    if (index >= _widgetOptions.length) {
-      index = 0;
-    }
-    setState(() {
-      _selectedIndex = index;
-    });
+  void _setPageIndex(int index) {
+    final pageIndexProvider = Provider.of<PageIndexProvider>(context, listen: false);
+    pageIndexProvider.updateSelectedIndex(index);
   }
 
   @override
@@ -83,76 +44,64 @@ class _BasePageState extends State<BasePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: Provider.of<ThemeProvider>(context).themeData,
-      home: Scaffold(
-        drawer: MenuDrawer(setPageIndex: _setCurrentIndex),
-        backgroundColor: Colors.green[400]!,
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          backgroundColor: Theme.of(context).colorScheme.surface,
-          foregroundColor: Theme.of(context).colorScheme.tertiary,
-          // TRY THIS: Try changing the color here to a specific color (to
-          // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-          // change color while the other colors stay the same.
-          // Here we take the value from the MyHomePage object that was created by
-          // the App.build method, and use it to set our appbar title.
-          title: Row(
-            children: [
-              Builder(
-                builder: (context) => IconButton(
-                  icon: const Icon(Icons.menu),
-                  onPressed: () => Scaffold.of(context).openDrawer(),
+    return Consumer<PageIndexProvider>(
+      builder: (context, appState, child) {
+        return Consumer<PageIndexProvider>(
+          builder: (context, appState, child) {
+            return MaterialApp(
+              debugShowCheckedModeBanner: false,
+              theme: Provider
+                  .of<ThemeProvider>(context)
+                  .themeData,
+              home: Scaffold(
+                drawer: MenuDrawer(setPageIndex: _setPageIndex),
+                backgroundColor: Colors.green[400]!,
+                appBar: AppBar(
+                  automaticallyImplyLeading: false,
+                  backgroundColor: Theme
+                      .of(context)
+                      .colorScheme
+                      .surface,
+                  foregroundColor: Theme
+                      .of(context)
+                      .colorScheme
+                      .tertiary,
+                  // TRY THIS: Try changing the color here to a specific color (to
+                  // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
+                  // change color while the other colors stay the same.
+                  // Here we take the value from the MyHomePage object that was created by
+                  // the App.build method, and use it to set our appbar title.
+                  title: Row(
+                    children: [
+                      Builder(
+                        builder: (context) =>
+                            IconButton(
+                              icon: const Icon(Icons.menu),
+                              onPressed: () =>
+                                  Scaffold.of(context)
+                                      .openDrawer(),
+                            ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 55),
+                        child: Text(
+                            widget.title,
+                            textAlign: TextAlign.center
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                bottomNavigationBar: const NavBar(),
+
+                body: IndexedStack( // Use IndexedStack here
+                  index: Provider.of<PageIndexProvider>(context, listen: true).selectedIndex,
+                  children: navBar.widgetOptions,
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 55),
-                child: Text(
-                    widget.title,
-                    textAlign: TextAlign.center
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        bottomNavigationBar: BottomNavigationBar(
-          selectedItemColor: Theme.of(context).colorScheme.primary,
-          unselectedItemColor: Theme.of(context).colorScheme.tertiary,
-          showUnselectedLabels: true,
-          //backgroundColor: Colors.green[900]!,
-          onTap: (index) => _setCurrentIndex(index),
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_filled),
-              label: "Home",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_today),
-              label: "Schedule",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.directions_train),
-              label: "Tracks",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.people),
-              label: "Speakers",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.room),
-              label: "Rooms",
-            ),
-          ],
-          currentIndex: (_selectedIndex >= 5) ? 0 : _selectedIndex,
-        ),
-
-        body: IndexedStack( // Use IndexedStack here
-          index: _selectedIndex,
-          children: _widgetOptions,
-        ),
-      ),
-    );
+            );
+          });
+      });
   }
 }

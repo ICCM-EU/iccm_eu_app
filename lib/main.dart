@@ -1,4 +1,8 @@
+import 'package:iccm_eu_app/controls/nav_bar.dart';
+import 'package:iccm_eu_app/data/page_index_provider.dart';
+import 'package:iccm_eu_app/data/speaker_data.dart';
 import 'package:iccm_eu_app/data/staticData/speakers_provider.dart';
+import 'package:iccm_eu_app/pages/speaker_details_page.dart';
 import "package:provider/provider.dart" show ChangeNotifierProvider, MultiProvider, Provider;
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/theme/theme_provider.dart';
@@ -16,6 +20,9 @@ void main() {
         ChangeNotifierProvider(
           create: (context) => SpeakersProvider(),
         ),
+        ChangeNotifierProvider(
+            create: (context) => PageIndexProvider(),
+        )
       ],
       child: const MyApp(),
     )
@@ -31,10 +38,22 @@ class MyApp extends StatelessWidget {
     //final PrefsProvider prefsProvider = Provider.of<PrefsProvider>(context);
     return MaterialApp(
       title: 'ICCM Europe App',
-      home: const BasePage(
-        title: 'ICCM Europe App',
-      ),
       theme: Provider.of<ThemeProvider>(context).themeData,
+      home: Scaffold(
+        body: Navigator( // Use a Navigator for page transitions
+          onGenerateRoute: (settings) {
+            // Define routes for different pages
+            if (settings.name == '/') {
+              return MaterialPageRoute(builder: (context) => const BasePage());
+            } else if (settings.name == '/speakerDetails') {
+              final args = settings.arguments as SpeakerData;
+              return MaterialPageRoute(builder: (context) => SpeakerDetailsPage(speaker: args));
+            }
+            return null; // Handle unknown routes
+          },
+        ),
+        bottomNavigationBar: const NavBar(),
+      ),
     );
   }
 }

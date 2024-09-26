@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/components/page_title.dart';
-import 'package:iccm_eu_app/pages/base_page.dart';
 import 'package:iccm_eu_app/pages/countdown_page.dart';
+
+import 'nav_bar.dart';
 
 class MenuDrawer extends StatelessWidget {
   final Function(int) setPageIndex;
@@ -13,7 +14,6 @@ class MenuDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //final PrefsProvider prefsProvider = Provider.of<PrefsProvider>(context);
     return Drawer(
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: 16),
