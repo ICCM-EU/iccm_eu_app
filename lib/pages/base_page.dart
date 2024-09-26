@@ -49,15 +49,15 @@ enum PageList {
 
 class _BasePageState extends State<BasePage> {
   int _selectedIndex = 0;
-  static const List<Widget> _widgetOptions = <Widget>[
-    HomePage(), // 0
-    SchedulePage(), // 1
-    TracksPage(), // 2
+  static final List<Widget> _widgetOptions = <Widget>[
+    const HomePage(), // 0
+    const SchedulePage(), // 1
+    const TracksPage(), // 2
     SpeakersPage(), // 3
-    RoomsPage(), // 4
-    PreferencesPage(), // 5
-    TravelInformationPage(), // 6
-    AboutPage(), // 7
+    const RoomsPage(), // 4
+    const PreferencesPage(), // 5
+    const TravelInformationPage(), // 6
+    const AboutPage(), // 7
     // CountdownPage(), // fullscreen
   ];
 
