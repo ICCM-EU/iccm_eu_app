@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/components/page_title.dart';
 import 'package:iccm_eu_app/data/staticData/speakers_provider.dart';
+import 'package:iccm_eu_app/pages/speaker_details_page.dart';
 import 'package:provider/provider.dart';
 
 class SpeakersPage extends StatelessWidget {
@@ -22,15 +23,26 @@ class SpeakersPage extends StatelessWidget {
           child: Consumer<SpeakersProvider>( // Wrap ListView.builder with Consumer
             builder: (context, speakers, child) {
               return ListView.builder(
-                itemCount: speakers.people.length,
+                itemCount: speakers.speaker.length,
                 itemBuilder: (context, index) {
-                  final person = speakers.people[index];
+                  final speaker = speakers.speaker[index];
                   return ListTile(
                     leading: CircleAvatar(
-                      backgroundImage: NetworkImage(person.imageUrl),
+                      backgroundImage: NetworkImage(speaker.imageUrl),
                     ),
-                    title: Text(person.name),
-                    subtitle: Text(person.jobRole),
+                    title: Text(speaker.name),
+                    subtitle: Text(speaker.jobRole),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Theme(
+                            data: Theme.of(context),
+                            child: SpeakerDetailsPage(speaker: speaker),
+                          ),
+                        ),
+                      );
+                    },
                   );
                 },
               );

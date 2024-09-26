@@ -6,7 +6,7 @@ class RoomsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  ListView(
+    return ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         children: const <Widget>[
           PageTitle(title: 'Rooms'),

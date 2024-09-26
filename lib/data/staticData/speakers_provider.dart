@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:iccm_eu_app/data/speaker_data.dart';
 
 class SpeakersProvider with ChangeNotifier {
-  List<SpeakerData> get people => _people;
+  List<SpeakerData> get speaker => _people;
   final List<SpeakerData> _people = [
     SpeakerData(
       imageUrl: 'https://via.placeholder.com/150',
