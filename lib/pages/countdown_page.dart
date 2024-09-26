@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-
 import 'dart:async';
-import 'package:flutter/material.dart';
 
 class CountdownPage extends StatefulWidget {
   const CountdownPage({super.key});

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/pages/about_page.dart';
-import 'package:iccm_eu_app/pages/countdown_page.dart';
 import 'package:iccm_eu_app/pages/home_page.dart';
 import 'package:iccm_eu_app/pages/preferences_page.dart';
 import 'package:iccm_eu_app/pages/rooms_page.dart';
