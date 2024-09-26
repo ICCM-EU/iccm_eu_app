@@ -1,5 +1,5 @@
-import "package:provider/provider.dart" show ChangeNotifierProvider, Provider;
-
+import 'package:iccm_eu_app/data/staticData/speakers_provider.dart';
+import "package:provider/provider.dart" show ChangeNotifierProvider, MultiProvider, Provider;
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/theme/theme_provider.dart';
 import 'package:iccm_eu_app/pages/base_page.dart';
@@ -8,10 +8,17 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   //final PrefsProvider prefsProvider = PrefsProvider();
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => ThemeProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => ThemeProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => SpeakersProvider(),
+        ),
+      ],
       child: const MyApp(),
-    ),
+    )
   );
 }
 

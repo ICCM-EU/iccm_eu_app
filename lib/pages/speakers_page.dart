@@ -1,21 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/components/page_title.dart';
+import 'package:iccm_eu_app/data/staticData/speakers_provider.dart';
+import 'package:provider/provider.dart';
 
 class SpeakersPage extends StatelessWidget {
-  SpeakersPage({super.key});
-  final List<Person> people = [
-    Person(
-      imageUrl: 'https://via.placeholder.com/150',
-      name: 'John Doe',
-      jobRole: 'Software Engineer',
-    ),
-    Person(
-      imageUrl: 'https://via.placeholder.com/150',
-      name: 'Jane Doe',
-      jobRole: 'Product Designer',
-    ),
-    // Add more people here
-  ];
+  const SpeakersPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -30,16 +19,20 @@ class SpeakersPage extends StatelessWidget {
           ]
         ),
         Expanded( // Use Expanded to allow ListView.builder to take available space
-          child:ListView.builder(
-            itemCount: people.length,
-            itemBuilder: (context, index) {
-              final person = people[index];
-              return ListTile(
-                leading: CircleAvatar(
-                  backgroundImage: NetworkImage(person.imageUrl),
-                ),
-                title: Text(person.name),
-                subtitle: Text(person.jobRole),
+          child: Consumer<SpeakersProvider>( // Wrap ListView.builder with Consumer
+            builder: (context, speakers, child) {
+              return ListView.builder(
+                itemCount: speakers.people.length,
+                itemBuilder: (context, index) {
+                  final person = speakers.people[index];
+                  return ListTile(
+                    leading: CircleAvatar(
+                      backgroundImage: NetworkImage(person.imageUrl),
+                    ),
+                    title: Text(person.name),
+                    subtitle: Text(person.jobRole),
+                  );
+                },
               );
             },
           ),
@@ -47,16 +40,4 @@ class SpeakersPage extends StatelessWidget {
       ],
     );
   }
-}
-
-class Person {
-  final String imageUrl;
-  final String name;
-  final String jobRole;
-
-  Person({
-    required this.imageUrl,
-    required this.name,
-    required this.jobRole,
-  });
 }
