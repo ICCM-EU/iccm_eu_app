@@ -58,8 +58,8 @@ class _BasePageState extends State<BasePage> {
     RoomsPage(), // 4
     PreferencesPage(), // 5
     TravelInformationPage(), // 6
-    CountdownPage(), // 7
-    AboutPage(), // 8
+    AboutPage(), // 7
+    // CountdownPage(), // fullscreen
   ];
 
   void _setCurrentIndex(int index) {
