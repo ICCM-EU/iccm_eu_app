@@ -26,7 +26,7 @@ class TravelInformationPage extends StatelessWidget {
                     text:
                       "When arriving by train, please register "
                       "and give us a call when the train is delayed.\n\n"
-                      "The nearest train station is at another village close by"
+                      "The nearest train station is at another village close by "
                       "but the transfer to the conference venue requires a lift.",
                   ),
                 ]),
@@ -46,9 +46,9 @@ class TravelInformationPage extends StatelessWidget {
                         children: const <TextSpan>[
                           TextSpan(
                             text:
-                            "When arriving by train, please register "
+                            "When arriving by plane, please register "
                                 "and give us a call when the train is delayed.\n\n"
-                                "The nearest train station is at another village close by"
+                                "The nearest train station is at another village close by "
                                 "but the transfer to the conference venue requires a lift.",
                           ),
                         ]),
@@ -68,10 +68,9 @@ class TravelInformationPage extends StatelessWidget {
                         children: const <TextSpan>[
                           TextSpan(
                             text:
-                            "When arriving by train, please register "
-                                "and give us a call when the train is delayed.\n\n"
-                                "The nearest train station is at another village close by"
-                                "but the transfer to the conference venue requires a lift.",
+                            "When arriving by car, "
+                                "please use the nearest parking lot and "
+                                "consider taking other conference guests with you in your car.",
                           ),
                         ]),
                   )]

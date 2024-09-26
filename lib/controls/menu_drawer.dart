@@ -38,6 +38,15 @@ class MenuDrawer extends StatelessWidget {
             ),
             const Divider(),
             ListTile(
+              leading: const Icon(Icons.hourglass_bottom),
+              title: const Text("Countdown Timer"),
+              onTap: () {
+                Scaffold.of(context).closeDrawer();
+                setPageIndex(PageList.countdownSchedule.index);
+              },
+            ),
+            const Divider(),
+            ListTile(
               leading: const Icon(Icons.info),
               title: const Text("About"),
               //onTap: () => AboutDialog(

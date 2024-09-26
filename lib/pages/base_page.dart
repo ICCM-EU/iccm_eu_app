@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/pages/about_page.dart';
+import 'package:iccm_eu_app/pages/countdown_page.dart';
 import 'package:iccm_eu_app/pages/home_page.dart';
 import 'package:iccm_eu_app/pages/preferences_page.dart';
 import 'package:iccm_eu_app/pages/rooms_page.dart';
@@ -43,6 +44,7 @@ enum PageList {
   rooms,
   preferences,
   travelInformation,
+  countdownSchedule,
   about,
 }
 
@@ -56,7 +58,8 @@ class _BasePageState extends State<BasePage> {
     RoomsPage(), // 4
     PreferencesPage(), // 5
     TravelInformationPage(), // 6
-    AboutPage(), // 7
+    CountdownPage(), // 7
+    AboutPage(), // 8
   ];
 
   void _setCurrentIndex(int index) {
