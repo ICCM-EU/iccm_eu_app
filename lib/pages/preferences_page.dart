@@ -10,10 +10,10 @@ class PreferencesPage extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       children: <Widget>[
-        PageTitle(title: 'Preferences Page'),
+        const PageTitle(title: 'Preferences Page'),
         const Divider(),
-        Text('Theme',
-          style: const TextStyle(
+        const Text('Theme',
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
