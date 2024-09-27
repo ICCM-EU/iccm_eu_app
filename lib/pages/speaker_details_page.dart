@@ -3,25 +3,25 @@ import 'package:iccm_eu_app/controls/nav_bar.dart';
 import 'package:iccm_eu_app/data/model/speaker_data.dart';
 
 class SpeakerDetailsPage extends StatelessWidget {
-  final SpeakerData speaker;
+  final SpeakerData item;
   const SpeakerDetailsPage({
     super.key,
-    required this.speaker,
+    required this.item,
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Speaker Details"),
-        actions: [
+        title: const Text("Speaker Details"),
+        actions: const [
           // IconButton(
           //   icon: Icon(
-          //     Icons.close,
+          //     Icons.filter_alt,
           //     color: Colors.grey[700],
           //   ),
           //   onPressed: () {
-          //     Navigator.pop(context); // Close fullscreen page
+          //
           //   },
           // ),
         ],
@@ -30,23 +30,22 @@ class SpeakerDetailsPage extends StatelessWidget {
         ListView(
           padding: const EdgeInsets.all(16.0),
           children: <Widget>[
-            //const PageTitle(title: 'Speaker Details'),
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 CircleAvatar(
-                  backgroundImage: NetworkImage(speaker.imageUrl),
+                  backgroundImage: NetworkImage(item.imageUrl),
                   radius: 50,
                 ),
                 const SizedBox(height: 16),
-                Text(
-                  speaker.name,
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                RichText(
+                  text: item.name,
+                  // style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  speaker.jobRole,
-                  style: const TextStyle(fontSize: 18),
+                RichText(
+                  text: item.details,
+                  // style: const TextStyle(fontSize: 18),
                 ),
                 // Add more details here as needed
               ],

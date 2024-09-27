@@ -21,24 +21,49 @@ class SpeakersPage extends StatelessWidget {
         ),
         Expanded( // Use Expanded to allow ListView.builder to take available space
           child: Consumer<SpeakersProvider>( // Wrap ListView.builder with Consumer
-            builder: (context, speakers, child) {
+            builder: (context, itemList, child) {
               return ListView.builder(
-                itemCount: speakers.speaker.length,
+                itemCount: itemList.items.length,
                 itemBuilder: (context, index) {
-                  final speaker = speakers.speaker[index];
+                  final item = itemList.items[index];
                   return ListTile(
                     leading: CircleAvatar(
-                      backgroundImage: NetworkImage(speaker.imageUrl),
+                      backgroundImage: NetworkImage(item.imageUrl),
                     ),
-                    title: Text(speaker.name),
-                    subtitle: Text(speaker.jobRole),
+                    title: RichText(
+                      text: TextSpan(
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: item.name.text,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 22,
+                            ),
+                          ),
+                        ],
+                      ),
+                      softWrap: false,
+                    ),
+                    subtitle: RichText(
+                      text: TextSpan(
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: item.details.text,
+                            style: const TextStyle(
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                      softWrap: true,
+                    ),
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => Theme(
                             data: Theme.of(context),
-                            child: SpeakerDetailsPage(speaker: speaker),
+                            child: SpeakerDetailsPage(item: item),
                           ),
                         ),
                       );

@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 
-class SpeakerData {
+class TrackData {
   final String imageUrl;
   final TextSpan name;
   final TextSpan details;
 
-  SpeakerData({
+  TrackData({
     required this.imageUrl,
     required this.name,
     required this.details,
