@@ -1,4 +1,3 @@
-import 'package:iccm_eu_app/controls/nav_bar.dart';
 import 'package:iccm_eu_app/data/page_index_provider.dart';
 import 'package:iccm_eu_app/data/speaker_data.dart';
 import 'package:iccm_eu_app/data/staticData/speakers_provider.dart';
@@ -52,7 +51,6 @@ class MyApp extends StatelessWidget {
             return null; // Handle unknown routes
           },
         ),
-        bottomNavigationBar: const NavBar(),
       ),
     );
   }

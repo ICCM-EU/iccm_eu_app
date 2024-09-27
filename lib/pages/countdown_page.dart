@@ -69,6 +69,7 @@ class CountdownPageState extends State<CountdownPage> {
           ),
         ],
       ),
+      //bottomNavigationBar: null,
       body: Center(
         child: Text(
           '$_start',

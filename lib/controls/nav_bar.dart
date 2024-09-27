@@ -58,8 +58,11 @@ class _NavBarState extends State<NavBar> {
           .tertiary,
       showUnselectedLabels: true,
       //backgroundColor: Colors.green[900]!,
-      onTap: (index) => Provider.of<PageIndexProvider>(context, listen: false).
-        updateSelectedIndex(index),
+      onTap: (index) {
+        Provider.of<PageIndexProvider>(context, listen: false).
+          updateSelectedIndex(index);
+        Navigator.popUntil(context, (route) => route.settings.name == '/');
+      },
       currentIndex: Provider.of<PageIndexProvider>(context, listen: true).
         selectedIndex >= 5 ? 0 :
         Provider.of<PageIndexProvider>(context, listen: true).selectedIndex,
