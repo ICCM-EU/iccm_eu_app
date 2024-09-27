@@ -1,6 +1,6 @@
-import 'package:iccm_eu_app/data/page_index_provider.dart';
-import 'package:iccm_eu_app/data/speaker_data.dart';
-import 'package:iccm_eu_app/data/staticData/speakers_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/speakers_provider.dart';
+import 'package:iccm_eu_app/data/appProviders/page_index_provider.dart';
+import 'package:iccm_eu_app/data/model/speaker_data.dart';
 import 'package:iccm_eu_app/pages/speaker_details_page.dart';
 import "package:provider/provider.dart" show ChangeNotifierProvider, MultiProvider, Provider;
 import 'package:flutter/material.dart';

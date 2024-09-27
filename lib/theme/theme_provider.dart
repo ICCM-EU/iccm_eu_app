@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:iccm_eu_app/theme/dark_theme.dart';
 import 'package:iccm_eu_app/theme/light_theme.dart';
-import 'package:iccm_eu_app/data/preferences_provider.dart';
+import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 
 class ThemeProvider with ChangeNotifier {
   bool _isDarkMode = false;

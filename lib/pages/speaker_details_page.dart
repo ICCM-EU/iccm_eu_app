@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/controls/nav_bar.dart';
-import 'package:iccm_eu_app/data/speaker_data.dart';
+import 'package:iccm_eu_app/data/model/speaker_data.dart';
 
 class SpeakerDetailsPage extends StatelessWidget {
   final SpeakerData speaker;

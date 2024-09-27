@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:iccm_eu_app/data/speaker_data.dart';
+import 'package:iccm_eu_app/data/model/speaker_data.dart';
 
 class SpeakersProvider with ChangeNotifier {
   List<SpeakerData> get speaker => _speaker;

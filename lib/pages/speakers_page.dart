@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/components/page_title.dart';
-import 'package:iccm_eu_app/data/staticData/speakers_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/speakers_provider.dart';
 import 'package:iccm_eu_app/pages/speaker_details_page.dart';
 import 'package:provider/provider.dart';
 
