@@ -1,3 +1,4 @@
+import 'package:iccm_eu_app/data/dataProviders/rooms_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/speakers_provider.dart';
 import 'package:iccm_eu_app/data/appProviders/page_index_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
@@ -22,6 +23,9 @@ void main() {
         ),
         ChangeNotifierProvider(
           create: (context) => TracksProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => RoomsProvider(),
         ),
         ChangeNotifierProvider(
             create: (context) => PageIndexProvider(),

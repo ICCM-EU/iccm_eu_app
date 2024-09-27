@@ -9,7 +9,6 @@ class TrackDetailsPage extends StatelessWidget {
     required this.item,
   });
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
