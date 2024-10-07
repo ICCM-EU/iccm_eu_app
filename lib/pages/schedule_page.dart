@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_week_view/flutter_week_view.dart';
+import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
+import 'package:iccm_eu_app/pages/event_details_page.dart';
+import 'package:provider/provider.dart';
 
 class SchedulePage extends StatefulWidget {
   const SchedulePage({super.key});
@@ -33,60 +36,15 @@ class _SchedulePageState extends State<SchedulePage> {
 }
 
 class DayViewCalendar extends StatelessWidget {
-  final List<FlutterWeekViewEvent> events = [];
-  DayViewCalendar({super.key})
-  {
-    // FIXME: Need real dates
-    DateTime now = DateTime.now();
-    DateTime date = DateTime(now.year, now.month, now.day);
-    events.add(
-      FlutterWeekViewEvent(
-        title: 'An event 1',
-        description: 'A description 1',
-        start: date.subtract(Duration(hours: 1)),
-        end: date.add(Duration(hours: 18, minutes: 30)),
-      )
-    );
-    events.add(
-      FlutterWeekViewEvent(
-        title: 'An event 2',
-        description: 'A description 2',
-        start: date.add(Duration(hours: 19)),
-        end: date.add(Duration(hours: 22)),
-      )
-    );
-    events.add(
-      FlutterWeekViewEvent(
-        title: 'An event 3',
-        description: 'A description 3',
-        start: date.add(Duration(hours: 23, minutes: 30)),
-        end: date.add(Duration(hours: 25, minutes: 30)),
-      )
-    );
-    events.add(
-      FlutterWeekViewEvent(
-        title: 'An event 4',
-        description: 'A description 4',
-        start: date.add(Duration(hours: 20)),
-        end: date.add(Duration(hours: 21)),
-      )
-    );
-    events.add(
-      FlutterWeekViewEvent(
-        title: 'An event 5',
-        description: 'A description 5',
-        start: date.add(Duration(hours: 20)),
-        end: date.add(Duration(hours: 21)),
-      )
-    );
-  }
+  final List<FlutterWeekViewEvent> events = EventsProvider().items;
+  DayViewCalendar({super.key});
 
   @override
   Widget build(BuildContext context) {
     // Implement your day view calendar here
     return Column(
       children: [
-        const Text('Day View Calendar'),
+        // const Text('Day View Calendar'),
         // DayView(
         //   date: DateTime(events.first.start.day),
         //   events: events,
@@ -95,13 +53,55 @@ class DayViewCalendar extends StatelessWidget {
         //     currentTimeCircleColor: Colors.pink,
         //   ),
         // ),
-        WeekView(
-          dates: [
-            DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).subtract(Duration(days: 1)),
-            DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day),
-            DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).add(Duration(days: 1)),
-          ],
-          events: events,
+        Expanded(
+          child: Consumer<EventsProvider>( // Wrap with Consumer
+            builder: (context, itemList, child) {
+              return WeekView(
+                // dayBarStyleBuilder: Null,
+                minimumTime: HourMinute(hour: 8, minute: 0),
+                maximumTime: HourMinute(hour: 23, minute: 0),
+                dates: [
+                  DateTime(
+                      DateTime.now().year,
+                      DateTime.now().month,
+                      DateTime.now().day).subtract(Duration(days: 1)
+                  ),
+                  DateTime(
+                      DateTime.now().year,
+                      DateTime.now().month,
+                      DateTime.now().day
+                  ),
+                  DateTime(
+                      DateTime.now().year,
+                      DateTime.now().month,
+                      DateTime.now().day).add(Duration(days: 1)
+                  ),
+                ],
+                events: Provider.of<EventsProvider>(context).items.map((event) {
+                  return FlutterWeekViewEvent(
+                    title: event.title,
+                    description: event.description,
+                    start: event.start,
+                    end: event.end,
+                    backgroundColor: event.backgroundColor, // Add other properties as needed
+                    onTap: () {
+                      final provider = Provider.of<EventsProvider>(context, listen: false);
+                      final eventDetails = provider.items.firstWhere((e) => e == event);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EventDetailsPage(item: eventDetails),
+                        ),
+                      );
+                    },
+                  );
+                }).toList(),
+                //itemList.items,
+                inScrollableWidget: true,
+                userZoomable: true,
+              );
+            },
+          ),
         ),
       ]
     );
