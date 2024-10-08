@@ -61,7 +61,8 @@ class EventsProvider with ChangeNotifier {
     add(
         EventData(
           name: TextSpan(text: 'An event 4'),
-          details: TextSpan(text: 'A description 4'),
+          details: TextSpan(text: 'A description 4 with an extra long text'
+              ' and a second line coming up.\n\nThis is the extra line then.'),
           start: date.add(Duration(hours: 20)),
           end: date.add(Duration(hours: 21)),
           backgroundColor: Colors.grey,
