@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_week_view/flutter_week_view.dart';
+import 'package:iccm_eu_app/components/page_title.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
+import 'package:iccm_eu_app/data/model/event_data.dart';
 import 'package:iccm_eu_app/pages/event_details_page.dart';
 import 'package:provider/provider.dart';
 
@@ -44,15 +46,6 @@ class DayViewCalendar extends StatelessWidget {
     // Implement your day view calendar here
     return Column(
       children: [
-        // const Text('Day View Calendar'),
-        // DayView(
-        //   date: DateTime(events.first.start.day),
-        //   events: events,
-        //   style: DayViewStyle.fromDate(
-        //     date: DateTime.now(),
-        //     currentTimeCircleColor: Colors.pink,
-        //   ),
-        // ),
         Expanded(
           child: Consumer<EventsProvider>( // Wrap with Consumer
             builder: (context, itemList, child) {
@@ -77,16 +70,16 @@ class DayViewCalendar extends StatelessWidget {
                       DateTime.now().day).add(Duration(days: 1)
                   ),
                 ],
-                events: Provider.of<EventsProvider>(context).items.map((event) {
-                  return FlutterWeekViewEvent(
-                    title: event.title,
-                    description: event.description,
-                    start: event.start,
-                    end: event.end,
-                    backgroundColor: event.backgroundColor, // Add other properties as needed
+                events: Provider.of<EventsProvider>(context).items.map((item) {
+                  return EventData(
+                    name: item.name,
+                    details: item.details,
+                    start: item.start,
+                    end: item.end,
+                    backgroundColor: item.backgroundColor, // Add other properties as needed
                     onTap: () {
                       final provider = Provider.of<EventsProvider>(context, listen: false);
-                      final eventDetails = provider.items.firstWhere((e) => e == event);
+                      final eventDetails = provider.items.firstWhere((e) => e == item);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -113,7 +106,74 @@ class EventList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Implement your event list here
-    return const Center(child: Text('Event List'));
+    return Column(
+      children: [
+        ListView(
+            shrinkWrap: true, // Important to prevent unbounded height issues
+            physics: const NeverScrollableScrollPhysics(), // Disable scrolling for static list
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            children: const <Widget>[
+              PageTitle(title: 'Events'),
+            ]
+        ),
+        Expanded( // Use Expanded to allow ListView.builder to take available space
+          child: Consumer<EventsProvider>( // Wrap ListView.builder with Consumer
+            builder: (context, itemList, child) {
+              return ListView.builder(
+                itemCount: itemList.items.length,
+                itemBuilder: (context, index) {
+                  final item = itemList.items[index];
+                  return ListTile(
+                    leading: item.imageUrl != null ?
+                      CircleAvatar(
+                        backgroundImage: NetworkImage(item.imageUrl!),
+                      ) :
+                      const SizedBox.shrink(),
+                    title: RichText(
+                      text: TextSpan(
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: item.name.text,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 22,
+                            ),
+                          ),
+                        ],
+                      ),
+                      softWrap: false,
+                    ),
+                    subtitle: RichText(
+                      text: TextSpan(
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: item.details.text,
+                            style: const TextStyle(
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                      softWrap: true,
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Theme(
+                            data: Theme.of(context),
+                            child: EventDetailsPage(item: item),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
   }
 }

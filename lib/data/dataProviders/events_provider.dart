@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_week_view/flutter_week_view.dart';
+import 'package:iccm_eu_app/data/model/event_data.dart';
 
 class EventsProvider with ChangeNotifier {
-  List<FlutterWeekViewEvent> get items => _items;
-  final List<FlutterWeekViewEvent> _items = [];
+  List<EventData> get items => _items;
+  final List<EventData> _items = [];
 
   EventsProvider() {
     DateTime now = DateTime.now();
     DateTime date = DateTime(now.year, now.month, now.day);
     add(
-        FlutterWeekViewEvent(
-          title: 'An event 1',
-          description: 'A description 1',
+        EventData(
+          name: TextSpan(text: 'An event 1'),
+          details: TextSpan(text: 'A description 1'),
           start: date.subtract(Duration(hours: 1)),
           end: date.add(Duration(hours: 18, minutes: 30)),
           backgroundColor: Colors.red,
@@ -19,9 +19,9 @@ class EventsProvider with ChangeNotifier {
         )
     );
     add(
-        FlutterWeekViewEvent(
-          title: 'An event 2a',
-          description: 'A description 2',
+        EventData(
+          name: TextSpan(text: 'An event 2a'),
+          details: TextSpan(text: 'A description 2'),
           start: date.add(Duration(hours: 19)),
           end: date.add(Duration(hours: 22)),
           backgroundColor: Colors.indigo,
@@ -29,9 +29,9 @@ class EventsProvider with ChangeNotifier {
         )
     );
     add(
-        FlutterWeekViewEvent(
-          title: 'An event 2b',
-          description: 'A description 2',
+        EventData(
+          name: TextSpan(text: 'An event 2b'),
+          details: TextSpan(text: 'A description 2'),
           start: date.add(Duration(hours: 19)),
           end: date.add(Duration(hours: 22)),
           backgroundColor: Colors.green,
@@ -39,19 +39,19 @@ class EventsProvider with ChangeNotifier {
         )
     );
     add(
-        FlutterWeekViewEvent(
-            title: 'An event 2c',
-            description: 'A description 2',
-            start: date.add(Duration(hours: 19)),
-            end: date.add(Duration(hours: 22)),
-            backgroundColor: Colors.purpleAccent,
-            padding: EdgeInsets.all(0),
+        EventData(
+          name: TextSpan(text: 'An event 2c'),
+          details: TextSpan(text: 'A description 2'),
+          start: date.add(Duration(hours: 19)),
+          end: date.add(Duration(hours: 22)),
+          backgroundColor: Colors.purpleAccent,
+          padding: EdgeInsets.all(0),
         )
     );
     add(
-        FlutterWeekViewEvent(
-          title: 'An event 3',
-          description: 'A description 3',
+        EventData(
+          name: TextSpan(text: 'An event 3'),
+          details: TextSpan(text: 'A description 3'),
           start: date.add(Duration(hours: 23, minutes: 30)),
           end: date.add(Duration(hours: 25, minutes: 30)),
           backgroundColor: Colors.teal,
@@ -59,9 +59,9 @@ class EventsProvider with ChangeNotifier {
         )
     );
     add(
-        FlutterWeekViewEvent(
-          title: 'An event 4',
-          description: 'A description 4',
+        EventData(
+          name: TextSpan(text: 'An event 4'),
+          details: TextSpan(text: 'A description 4'),
           start: date.add(Duration(hours: 20)),
           end: date.add(Duration(hours: 21)),
           backgroundColor: Colors.grey,
@@ -69,9 +69,9 @@ class EventsProvider with ChangeNotifier {
         )
     );
     add(
-        FlutterWeekViewEvent(
-          title: 'An event 5',
-          description: 'A description 5',
+        EventData(
+          name: TextSpan(text: 'An event 5'),
+          details: TextSpan(text: 'A description 5'),
           start: date.add(Duration(hours: 20)),
           end: date.add(Duration(hours: 21)),
           backgroundColor: Colors.blueGrey,
@@ -80,7 +80,7 @@ class EventsProvider with ChangeNotifier {
     );
   }
 
-  void add(FlutterWeekViewEvent item) {
+  void add(EventData item) {
     _items.add(item);
     notifyListeners();
   }

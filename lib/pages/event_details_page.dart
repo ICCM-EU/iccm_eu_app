@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_week_view/flutter_week_view.dart';
 import 'package:iccm_eu_app/controls/nav_bar.dart';
+import 'package:iccm_eu_app/data/model/event_data.dart';
 
 class EventDetailsPage extends StatelessWidget {
-  final FlutterWeekViewEvent item;
+  final EventData item;
   const EventDetailsPage({
     super.key,
     required this.item,
@@ -40,6 +40,12 @@ class EventDetailsPage extends StatelessWidget {
                   ),
                   // style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
+                (item.room != null) ?
+                  RichText(
+                    text: item.room ?? const TextSpan(text: ''),
+                    // style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ) :
+                    const SizedBox.shrink(),
                 const SizedBox(height: 8),
                 RichText(
                   text: TextSpan(
