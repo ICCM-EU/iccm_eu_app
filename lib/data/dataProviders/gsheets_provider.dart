@@ -1,52 +1,38 @@
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:gsheets/gsheets.dart';
 
 // Reference:
 // https://medium.com/@jasmeet7411/using-google-sheets-for-reading-data-in-flutter-ebc00fdff8b3
 
-String deploymentID =
-    "AKfycbzqhM8Yr-1prdGImsfKhRWz36dJa3SewJUQjO5MQUVG9odYoxEBebkAi8cbgL8C54Ja";
-String sheetID = "1dFLWrcbI1AltIvVCEjBx9I3I3d0ToGN2FmzcFuAYsZE";
+// final provider = Provider.of<GsheetsProvider>(context, listen: false);
+// final data = await provider.readData('Sheet2'); // Read data from "Sheet2"
 
-Future<Map> triggerWebAPP({required Map body}) async {
-  Map dataDict = {};
-  Uri url =
-    Uri.parse("https://script.google.com/macros/s/$deploymentID/exec");
-  try {
-    await http.post(url, body: body).then((response) async {
-      if ([200, 201].contains(response.statusCode)) {
-        dataDict = jsonDecode(response.body);
-      }
-      if (response.statusCode == 302) {
-        String redirectedUrl = response.headers['location'] ?? "";
-        if (redirectedUrl.isNotEmpty) {
-          Uri url = Uri.parse(redirectedUrl);
-          await http.get(url).then((response) {
-            if ([200, 201].contains(response.statusCode)) {
-              dataDict = jsonDecode(response.body);
-            }
-          });
-        }
-      } else {
-        if (kDebugMode) {
-          print("Other StatusCode: ${response.statusCode}");
-        }
-      }
-    });
-  } catch (e) {
-    if (kDebugMode) {
-      print("FAILED: $e");
+class GsheetsProvider with ChangeNotifier {
+  final String _deploymentID =
+      "AKfycbzqhM8Yr-1prdGImsfKhRWz36dJa3SewJUQjO5MQUVG9odYoxEBebkAi8cbgL8C54Ja";
+  final String _sheetID = "1dFLWrcbI1AltIvVCEjBx9I3I3d0ToGN2FmzcFuAYsZE";
+
+  // final data = await provider.readData('Sheet1'); // Read data from "Sheet1"
+  Future<List<Future<Map<String, dynamic>>>> readData(String worksheetTitle) async {
+    final sheet = GSheets(_deploymentID);
+    final spreadsheet = await sheet.spreadsheet(_sheetID);
+    final worksheet = spreadsheet.worksheetByTitle(worksheetTitle);
+
+    if (worksheet == null) {
+      throw Exception('Worksheet "$worksheetTitle" not found.');
     }
+
+    final data = await worksheet.values.map.allRows() ?? [];
+    return data.map((row) => _rowToMap(row as List, worksheet)).toList();
   }
 
-  return dataDict;
-}
+  Future <Map<String, dynamic>> _rowToMap(List<dynamic> row, Worksheet worksheet) async {
+    final headers = await worksheet.values.row(1);
+    final map = <String, dynamic>{};
+    for (var i = 0; i < headers.length; i++) {
+      map[headers[i]] = row[i];
+    }
+    return map;
+  }
 
-Future<Map> getSheetsData({required String action}) async {
-  Map body = {"sheetID": sheetID, "action": action};
-
-  Map dataDict = await triggerWebAPP(body: body);
-
-  return dataDict;
 }

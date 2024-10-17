@@ -1,4 +1,5 @@
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/rooms_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/speakers_provider.dart';
 import 'package:iccm_eu_app/data/appProviders/page_index_provider.dart';
@@ -33,6 +34,9 @@ void main() {
         ),
         ChangeNotifierProvider(
           create: (context) => PageIndexProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => GsheetsProvider(),
         ),
       ],
       child: const MyApp(),
