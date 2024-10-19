@@ -1,3 +1,4 @@
+import 'package:iccm_eu_app/data/dataProviders/error_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/rooms_provider.dart';
@@ -10,6 +11,8 @@ import "package:provider/provider.dart" show ChangeNotifierProvider, MultiProvid
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/theme/theme_provider.dart';
 import 'package:iccm_eu_app/pages/base_page.dart';
+
+import 'components/error_overlay.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,7 +39,12 @@ void main() {
           create: (context) => PageIndexProvider(),
         ),
         ChangeNotifierProvider(
-          create: (context) => GsheetsProvider(),
+          create: (context) => ErrorProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => GsheetsProvider(
+            Provider.of<ErrorProvider>(context, listen: false)
+          ),
         ),
       ],
       child: const MyApp(),
@@ -55,17 +63,22 @@ class MyApp extends StatelessWidget {
       title: 'ICCM Europe App',
       theme: Provider.of<ThemeProvider>(context).themeData,
       home: Scaffold(
-        body: Navigator( // Use a Navigator for page transitions
-          onGenerateRoute: (settings) {
-            // Define routes for different pages
-            if (settings.name == '/') {
-              return MaterialPageRoute(builder: (context) => const BasePage());
-            } else if (settings.name == '/speakerDetails') {
-              final args = settings.arguments as SpeakerData;
-              return MaterialPageRoute(builder: (context) => SpeakerDetailsPage(item: args));
-            }
-            return null; // Handle unknown routes
-          },
+        body: Stack(
+          children: [
+            Navigator( // Use a Navigator for page transitions
+              onGenerateRoute: (settings) {
+                // Define routes for different pages
+                if (settings.name == '/') {
+                  return MaterialPageRoute(builder: (context) => const BasePage());
+                } else if (settings.name == '/speakerDetails') {
+                  final args = settings.arguments as SpeakerData;
+                  return MaterialPageRoute(builder: (context) => SpeakerDetailsPage(item: args));
+                }
+                return null; // Handle unknown routes
+              },
+            ),
+            const ErrorOverlay(),
+          ],
         ),
       ),
     );
