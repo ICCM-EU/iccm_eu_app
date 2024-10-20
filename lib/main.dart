@@ -24,26 +24,35 @@ void main() {
           create: (context) => ThemeProvider(),
         ),
         ChangeNotifierProvider(
-          create: (context) => SpeakersProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => TracksProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => RoomsProvider(),
-        ),
-        ChangeNotifierProvider(
-            create: (context) => EventsProvider(),
-        ),
-        ChangeNotifierProvider(
           create: (context) => PageIndexProvider(),
         ),
+        // Ensure that the order remains intact as per usage.
         ChangeNotifierProvider(
           create: (context) => ErrorProvider(),
         ),
         ChangeNotifierProvider(
           create: (context) => GsheetsProvider(
-            Provider.of<ErrorProvider>(context, listen: false)
+              Provider.of<ErrorProvider>(context, listen: false)
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => SpeakersProvider(
+              context,
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => TracksProvider(
+              context,
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => RoomsProvider(
+              context,
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => EventsProvider(
+              context,
           ),
         ),
       ],

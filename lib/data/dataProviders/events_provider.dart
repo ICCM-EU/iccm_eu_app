@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/data/model/provider_data.dart';
 import 'package:iccm_eu_app/data/model/event_data.dart';
+import 'package:provider/provider.dart';
 
 class EventsProvider extends ProviderData<EventData> with ChangeNotifier {
   @override
@@ -8,8 +10,21 @@ class EventsProvider extends ProviderData<EventData> with ChangeNotifier {
 
   List<EventData> get items => _items;
   final List<EventData> _items = [];
+  final GsheetsProvider sheetsProvider;
+  final BuildContext context;
 
-  EventsProvider() {
+  factory EventsProvider(BuildContext context) {
+    final sheetsProvider = Provider.of<GsheetsProvider>(context, listen: false);
+    return EventsProvider._(
+      sheetsProvider: sheetsProvider,
+      context: context,
+    );
+  }
+
+  EventsProvider._({
+    required this.sheetsProvider,
+    required this.context,
+  }) {
     DateTime now = DateTime.now();
     DateTime date = DateTime(now.year, now.month, now.day);
     add(
@@ -83,6 +98,8 @@ class EventsProvider extends ProviderData<EventData> with ChangeNotifier {
           padding: EdgeInsets.all(0),
         )
     );
+
+    sheetsProvider.fetchData(context);
   }
 
   @override

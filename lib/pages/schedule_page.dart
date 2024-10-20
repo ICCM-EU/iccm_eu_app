@@ -38,8 +38,7 @@ class _SchedulePageState extends State<SchedulePage> {
 }
 
 class DayViewCalendar extends StatelessWidget {
-  final List<FlutterWeekViewEvent> events = EventsProvider().items;
-  DayViewCalendar({super.key});
+  const DayViewCalendar({super.key});
 
   @override
   Widget build(BuildContext context) {
