@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:iccm_eu_app/data/model/provider_data.dart';
 import 'package:iccm_eu_app/data/model/event_data.dart';
 
-class EventsProvider with ChangeNotifier {
+class EventsProvider extends ProviderData<EventData> with ChangeNotifier {
+  @override
+  String get worksheetTitle => "Schedule";
+
   List<EventData> get items => _items;
   final List<EventData> _items = [];
 
@@ -81,11 +85,13 @@ class EventsProvider with ChangeNotifier {
     );
   }
 
+  @override
   void add(EventData item) {
     _items.add(item);
     notifyListeners();
   }
 
+  @override
   void clear() {
     _items.clear();
     notifyListeners();

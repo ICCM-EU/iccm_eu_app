@@ -1,7 +1,11 @@
 import 'package:flutter/cupertino.dart';
+import 'package:iccm_eu_app/data/model/provider_data.dart';
 import 'package:iccm_eu_app/data/model/track_data.dart';
 
-class TracksProvider with ChangeNotifier {
+class TracksProvider extends ProviderData<TrackData> with ChangeNotifier {
+  @override
+  String get worksheetTitle => "Tracks";
+
   List<TrackData> get items => _tracks;
   final List<TrackData> _tracks = [
     TrackData(
@@ -26,11 +30,13 @@ class TracksProvider with ChangeNotifier {
     ),
   ];
 
+  @override
   void add(TrackData item) {
     _tracks.add(item);
     notifyListeners();
   }
 
+  @override
   void clear() {
     _tracks.clear();
     notifyListeners();

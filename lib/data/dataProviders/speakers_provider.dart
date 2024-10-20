@@ -1,7 +1,11 @@
 import 'package:flutter/cupertino.dart';
+import 'package:iccm_eu_app/data/model/provider_data.dart';
 import 'package:iccm_eu_app/data/model/speaker_data.dart';
 
-class SpeakersProvider with ChangeNotifier {
+class SpeakersProvider extends ProviderData<SpeakerData> with ChangeNotifier {
+  @override
+  String get worksheetTitle => "Speakers";
+
   List<SpeakerData> get items => _speakers;
   final List<SpeakerData> _speakers = [
     SpeakerData(
@@ -97,11 +101,13 @@ class SpeakersProvider with ChangeNotifier {
     // Add more people here
   ];
 
+  @override
   void add(SpeakerData item) {
     _speakers.add(item);
     notifyListeners();
   }
 
+  @override
   void clear() {
     _speakers.clear();
     notifyListeners();

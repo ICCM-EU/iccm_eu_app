@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:gsheets/gsheets.dart';
+import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/rooms_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/speakers_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
+import 'package:iccm_eu_app/data/model/event_data.dart';
+import 'package:iccm_eu_app/data/model/speaker_data.dart';
+import 'package:iccm_eu_app/data/model/track_data.dart';
 
 import '../model/error_signal.dart';
+import '../model/provider_data.dart';
+import '../model/room_data.dart';
 import 'error_provider.dart';
 
 // Reference:
@@ -18,25 +27,114 @@ class GsheetsProvider with ChangeNotifier {
 
   GsheetsProvider(this._errorProvider);
 
-  // final data = await provider.readData('Sheet1'); // Read data from "Sheet1"
-  Future<List<Future<Map<String, dynamic>>>> readData(
-      BuildContext context,
-      String worksheetTitle,
-      ) async {
+  Future<Map<String, List<Map<String, dynamic>>>> readWorksheets(List<String> worksheetTitles) async {
     try {
-      final sheet = GSheets(_deploymentID);
-      final spreadsheet = await sheet.spreadsheet(_sheetID);
-      final worksheet = spreadsheet.worksheetByTitle(worksheetTitle);
+      final sheets = GSheets(_deploymentID);
+      final spreadsheet = await sheets.spreadsheet(_sheetID);
 
-      if (worksheet == null) {
-        throw Exception('Worksheet "$worksheetTitle" not found.');
+      final data = <String, List<Map<String, dynamic>>>{};
+      for (final worksheetTitle in worksheetTitles) {
+        final worksheet = spreadsheet.worksheetByTitle(worksheetTitle);
+        if (worksheet == null) {
+          throw Exception('Worksheet "$worksheetTitle" not found.');
+        } else {
+          final rows = await worksheet.values.map.allRows() ?? [];
+          data[worksheetTitle] = rows.map((row) => _rowToMap(
+              row as List,
+              worksheet
+          )).cast<Map<String, dynamic>>().toList();
+        }
       }
 
-      final data = await worksheet.values.map.allRows() ?? [];
-      return data.map((row) => _rowToMap(row as List, worksheet)).toList();
+      return data;
     } catch (e) {
       _errorProvider.setErrorSignal(ErrorSignal('Error: $e')); // Show overlay message
       rethrow; // Re-throw the exception to handle it elsewhere if needed
+    }
+  }
+
+  Future<void> fetchData(
+      EventsProvider eventsProvider,
+      RoomsProvider roomsProvider,
+      SpeakersProvider speakersProvider,
+      TracksProvider tracksProvider,
+      ) async {
+    final List<ProviderData> providers = [
+      eventsProvider,
+      roomsProvider,
+      speakersProvider,
+      tracksProvider,
+    ];
+    final List<String> worksheetTitles = providers.map(
+            (provider) => provider.worksheetTitle).toList();
+    final data = await readWorksheets(worksheetTitles);
+
+    for (final provider in providers) {
+      var worksheetTitle = provider.worksheetTitle;
+      if (provider == eventsProvider) {
+        if (data.containsKey(worksheetTitle)) {
+          provider.clear();
+          for (final itemData in data[worksheetTitle]!) { // Iterate through room data
+            try {
+              final item = EventData(
+                imageUrl: itemData['Photo'] as String,
+                name: TextSpan(text: itemData['Name'] as String),
+                details: TextSpan(text: itemData['Description'] as String),
+                // final dateFormat = DateFormat('dd/MM/yyyy HH:mm:ss');
+                // final dateTime = dateFormat.parse(dateTimeString);
+                start: DateTime.parse(itemData['Start'] as String),
+                end: DateTime.parse(itemData['End'] as String),
+              );
+              provider.add(item); // Add the RoomData object to the list
+            } catch (e) {
+              _errorProvider.setErrorSignal(ErrorSignal('Error: $e'));
+              rethrow;
+            }
+          }
+        }
+      }
+
+      if (provider == roomsProvider) {
+        if (data.containsKey(worksheetTitle)) {
+          provider.clear();
+          for (final itemData in data[worksheetTitle]!) { // Iterate through room data
+            final item = RoomData(
+              imageUrl: itemData['Photo'] as String,
+              name: TextSpan(text: itemData['Name'] as String),
+              details: TextSpan(text: itemData['Description'] as String),
+            );
+            provider.add(item); // Add the RoomData object to the list
+          }
+        }
+      }
+
+      if (provider == speakersProvider) {
+        if (data.containsKey(worksheetTitle)) {
+          provider.clear();
+          for (final itemData in data[worksheetTitle]!) { // Iterate through room data
+            final item = SpeakerData(
+              imageUrl: itemData['Photo'] as String,
+              name: TextSpan(text: itemData['Name'] as String),
+              details: TextSpan(text: itemData['Description'] as String),
+            );
+            provider.add(item); // Add the RoomData object to the list
+          }
+        }
+      }
+
+      if (provider == tracksProvider) {
+        if (data.containsKey(worksheetTitle)) {
+          provider.clear();
+          for (final itemData in data[worksheetTitle]!) { // Iterate through room data
+            final item = TrackData(
+              imageUrl: itemData['Photo'] as String,
+              name: TextSpan(text: itemData['Name'] as String),
+              details: TextSpan(text: itemData['Description'] as String),
+            );
+            provider.add(item); // Add the RoomData object to the list
+          }
+        }
+      }
     }
   }
 
