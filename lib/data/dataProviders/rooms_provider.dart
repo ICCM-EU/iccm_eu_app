@@ -1,30 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/data/model/provider_data.dart';
 import 'package:iccm_eu_app/data/model/room_data.dart';
-import 'package:provider/provider.dart';
 
 class RoomsProvider extends ProviderData<RoomData> with ChangeNotifier {
   @override
-  String get worksheetTitle => "Rooms";
+  String get worksheetTitle => "Venue";
 
   List<RoomData> get items => _items;
   final List<RoomData> _items = [];
-  final GsheetsProvider sheetsProvider;
-  final BuildContext context;
 
-  factory RoomsProvider(BuildContext context) {
-    final sheetsProvider = Provider.of<GsheetsProvider>(context, listen: false);
-    return RoomsProvider._(
-      sheetsProvider: sheetsProvider,
-      context: context,
-    );
-  }
-
-  RoomsProvider._({
-    required this.sheetsProvider,
-    required this.context,
-  }) {
+  RoomsProvider() {
     add(
       RoomData(
         imageUrl: 'https://via.placeholder.com/150',
@@ -70,7 +55,10 @@ class RoomsProvider extends ProviderData<RoomData> with ChangeNotifier {
       ),
     );
 
-    sheetsProvider.fetchData(context);
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   // Call fetchData after the widget tree is built
+    //   sheetsProvider.fetchData(context);
+    // });
   }
 
   @override

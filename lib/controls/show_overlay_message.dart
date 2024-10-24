@@ -20,7 +20,7 @@ void showOverlayMessage(BuildContext context, String message) {
   overlayState.insert(overlayEntry);
 
   // Remove the overlay after 3 seconds
-  Future.delayed(const Duration(seconds: 3), () {
+  Future.delayed(const Duration(seconds: 10), () {
     overlayEntry.remove();
   });
 }

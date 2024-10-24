@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:iccm_eu_app/components/debug.dart';
 
 import '../model/error_signal.dart';
 
@@ -8,12 +10,14 @@ class ErrorProvider with ChangeNotifier {
   ErrorSignal? get errorSignal => _errorSignal;
 
   void setErrorSignal(ErrorSignal signal) {
+    Debug.msg(signal.message);
     _errorSignal = signal;
     notifyListeners();
   }
 
   void clearErrorSignal() {
     _errorSignal = null;
-    notifyListeners();
+    // FIXME: Throws errors
+    // notifyListeners();
   }
 }

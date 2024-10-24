@@ -21,38 +21,33 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (context) => ThemeProvider(),
+          create: (_) => ThemeProvider(),
         ),
         ChangeNotifierProvider(
-          create: (context) => PageIndexProvider(),
-        ),
-        // Ensure that the order remains intact as per usage.
-        ChangeNotifierProvider(
-          create: (context) => ErrorProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => GsheetsProvider(
-              Provider.of<ErrorProvider>(context, listen: false)
-          ),
+          create: (_) => PageIndexProvider(),
         ),
         ChangeNotifierProvider(
           create: (context) => SpeakersProvider(
-              context,
           ),
         ),
         ChangeNotifierProvider(
           create: (context) => TracksProvider(
-              context,
           ),
         ),
         ChangeNotifierProvider(
           create: (context) => RoomsProvider(
-              context,
           ),
         ),
         ChangeNotifierProvider(
           create: (context) => EventsProvider(
-              context,
+          ),
+        ),
+        // Ensure that the order remains intact as per usage.
+        ChangeNotifierProvider(
+          create: (_) => ErrorProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => GsheetsProvider(
           ),
         ),
       ],
@@ -68,6 +63,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //final PrefsProvider prefsProvider = Provider.of<PrefsProvider>(context);
+    Provider.of<GsheetsProvider>(context, listen: false).fetchData(context);
     return MaterialApp(
       title: 'ICCM Europe App',
       theme: Provider.of<ThemeProvider>(context).themeData,

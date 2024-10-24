@@ -1,33 +1,15 @@
 import 'package:flutter/cupertino.dart';
-import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/data/model/provider_data.dart';
 import 'package:iccm_eu_app/data/model/speaker_data.dart';
-import 'package:provider/provider.dart';
 
 class SpeakersProvider extends ProviderData<SpeakerData> with ChangeNotifier {
   @override
   String get worksheetTitle => "Speakers";
 
-  List<SpeakerData> get items => _speakers;
-  final List<SpeakerData> _speakers = [];
-  final GsheetsProvider sheetsProvider;
-  final BuildContext context;
+  List<SpeakerData> get items => _items;
+  final List<SpeakerData> _items = [];
 
-  factory SpeakersProvider(BuildContext context) {
-    final sheetsProvider = Provider.of<GsheetsProvider>(context, listen: false);
-    return SpeakersProvider._(
-      sheetsProvider: sheetsProvider,
-      context: context,
-    );
-  }
-
-  SpeakersProvider._({
-    required this.sheetsProvider,
-    required this.context,
-  }) {
-    final sheetsProvider = Provider.of<GsheetsProvider>(context, listen: false);
-    sheetsProvider.fetchData(context);
-
+  SpeakersProvider() {
     add(
       SpeakerData(
         imageUrl: 'https://via.placeholder.com/150',
@@ -139,18 +121,21 @@ class SpeakersProvider extends ProviderData<SpeakerData> with ChangeNotifier {
       )
     );
 
-    sheetsProvider.fetchData(context);
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   // Call fetchData after the widget tree is built
+    //   sheetsProvider.fetchData(context);
+    // });
   }
 
   @override
   void add(SpeakerData item) {
-    _speakers.add(item);
+    _items.add(item);
     notifyListeners();
   }
 
   @override
   void clear() {
-    _speakers.clear();
+    _items.clear();
     notifyListeners();
   }
 }

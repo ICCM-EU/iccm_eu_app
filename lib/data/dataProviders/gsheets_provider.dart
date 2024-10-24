@@ -1,61 +1,88 @@
+import 'dart:core';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gsheets/gsheets.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/rooms_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/speakers_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
 import 'package:iccm_eu_app/data/model/event_data.dart';
+import 'package:iccm_eu_app/data/model/room_data.dart';
 import 'package:iccm_eu_app/data/model/speaker_data.dart';
 import 'package:iccm_eu_app/data/model/track_data.dart';
 import 'package:provider/provider.dart';
-
 import '../model/error_signal.dart';
 import '../model/provider_data.dart';
-import '../model/room_data.dart';
 import 'error_provider.dart';
 
-// Reference:
-// https://medium.com/@jasmeet7411/using-google-sheets-for-reading-data-in-flutter-ebc00fdff8b3
-
-// final provider = Provider.of<GsheetsProvider>(context, listen: false);
-// final data = await provider.readData('Sheet2'); // Read data from "Sheet2"
-
 class GsheetsProvider with ChangeNotifier {
-  final String _deploymentID =
-      'AKfycbzqhM8Yr-1prdGImsfKhRWz36dJa3SewJUQjO5MQUVG9odYoxEBebkAi8cbgL8C54Ja';
   final String _sheetID =
       '1dFLWrcbI1AltIvVCEjBx9I3I3d0ToGN2FmzcFuAYsZE';
-  final ErrorProvider _errorProvider;
-  DateTime? _lastFetchTime;
+  DateTime _lastFetchTime = DateTime.now().subtract(const Duration(days: 365));
+  bool _isFetchingData = false;
 
-  GsheetsProvider(this._errorProvider);
-
-  Future<Map<String, List<Map<String, dynamic>>>> _readWorksheets(List<String> worksheetTitles) async {
+  Future<String> _loadCredentials(ErrorProvider errorProvider) async {
     try {
-      final sheets = GSheets(_deploymentID);
+      return await rootBundle.loadString('assets/service.json');
+    } catch (e) {
+      // Show overlay message
+      errorProvider.setErrorSignal(ErrorSignal('Error: $e'));
+      rethrow; // Re-throw the exception to handle it elsewhere if needed
+    }
+  }
+
+  Future<Map<String, List<Map<String, String>>>> _readWorksheets(
+      List<String> worksheetTitles,
+      BuildContext context,
+      ) async {
+    ErrorProvider errorProvider =
+      Provider.of<ErrorProvider>(context, listen: false);
+    final data = <String, List<Map<String, String>>>{};
+    try {
+      final credentials = await _loadCredentials(errorProvider);
+      final sheets = GSheets(credentials);
       final spreadsheet = await sheets.spreadsheet(_sheetID);
 
-      final data = <String, List<Map<String, dynamic>>>{};
       for (final worksheetTitle in worksheetTitles) {
         final worksheet = spreadsheet.worksheetByTitle(worksheetTitle);
         if (worksheet == null) {
           throw Exception('Worksheet "$worksheetTitle" not found.');
         } else {
           final rows = await worksheet.values.map.allRows() ?? [];
-          data[worksheetTitle] = rows.map((row) => _rowToMap(
-              row as List,
-              worksheet
-          )).cast<Map<String, dynamic>>().toList();
+          // final headers = rows[0].values.toList();
+          // // Remove header row after extracting it.
+          // rows.removeAt(0);
+          data[worksheetTitle] = rows;
+          //.map((row) {
+          //   // Get the values of the map as a list
+          //   final rowData = row.values.toList();
+          //   return _rowToMap(rowData, headers);
+          // }).cast<Map<String, dynamic>>().toList();
         }
       }
-
-      return data;
-    } catch (e) {
-      // Show overlay message
-      _errorProvider.setErrorSignal(ErrorSignal('Error: $e'));
-      rethrow; // Re-throw the exception to handle it elsewhere if needed
+    } catch (e, stackTrace) {
+      final RegExp regExp = RegExp(r'#0 +([^\s]+) \(([^\s]+):([0-9]+)\)');
+      final Match? match = regExp.firstMatch(stackTrace.toString());
+      final fileName = match?.group(2) ?? 'unknown';
+      final lineNumber = match?.group(3) ?? 'unknown';
+      errorProvider.setErrorSignal(ErrorSignal('Error ($fileName:$lineNumber): $e'));
+      // rethrow; // Re-throw the exception to handle it elsewhere if needed
     }
+
+    return data;
   }
+
+  // Map<String, dynamic> _rowToMap(
+  //     List<dynamic> row,
+  //     List<String> headers
+  //     ) {
+  //   final map = <String, dynamic>{};
+  //   for (var i = 0; i < headers.length; i++) {
+  //     map[headers[i]] = row[i];
+  //   }
+  //   return map;
+  // }
 
   Future<void> fetchData(
       BuildContext context,
@@ -65,13 +92,13 @@ class GsheetsProvider with ChangeNotifier {
 
     // Unblock running again by setting _lastFetchTime to null on force
     if (force) {
-      _lastFetchTime = null;
+      _lastFetchTime = DateTime.now().subtract(const Duration(days: 365));
     }
     // Avoid running multiple times in parallel by setting the date early
-    if (_lastFetchTime == null ||
-        now.difference(_lastFetchTime!) > const Duration(minutes: 5)) {
+    if (now.difference(_lastFetchTime) > const Duration(minutes: 5)) {
       _lastFetchTime = now;
-
+      ErrorProvider errorProvider = Provider.of<ErrorProvider>(
+          context, listen: false);
       EventsProvider eventsProvider = Provider.of<EventsProvider>(
           context, listen: false);
       RoomsProvider roomsProvider = Provider.of<RoomsProvider>(
@@ -88,29 +115,44 @@ class GsheetsProvider with ChangeNotifier {
       ];
       final List<String> worksheetTitles = providers.map(
               (provider) => provider.worksheetTitle).toList();
-      final data = await _readWorksheets(worksheetTitles);
+      if (_isFetchingData) {
+        return;
+      }
+      _isFetchingData = true;
+      final data = await _readWorksheets(worksheetTitles, context).then((data) {
+        _isFetchingData = false;
+        return data;
+      });
 
       for (final provider in providers) {
-        var worksheetTitle = provider.worksheetTitle;
+        final worksheetTitle = provider.worksheetTitle;
         if (provider == eventsProvider) {
           if (data.containsKey(worksheetTitle)) {
             provider.clear();
             for (final itemData in data[worksheetTitle]!) { // Iterate through room data
               try {
+                final startValue = double.tryParse(itemData['StartTime'] ?? '0') ?? 0;
+                final startDaysSinceEpoch = startValue - 25569;
+                final startMsSinceEpoch = startDaysSinceEpoch * 24 * 60 * 60 * 1000;
+                final startTime = DateTime.fromMillisecondsSinceEpoch(startMsSinceEpoch.toInt());
+                final endValue = double.tryParse(itemData['End Date & Time'] ?? '0') ?? 0;
+                final endDaysSinceEpoch = endValue - 25569;
+                final endMsSinceEpoch = endDaysSinceEpoch * 24 * 60 * 60 * 1000;
+                final endTime = DateTime.fromMillisecondsSinceEpoch(endMsSinceEpoch.toInt());
                 final item = EventData(
-                  imageUrl: itemData['Photo'] as String,
-                  name: TextSpan(text: itemData['Name'] as String),
-                  details: TextSpan(text: itemData['Description'] as String),
+                  imageUrl: itemData['Photo'] ?? '',
+                  name: TextSpan(text: itemData['Session'] ?? ''),
+                  details: TextSpan(text: itemData['Description'] ?? ''),
                   // final dateFormat = DateFormat('dd/MM/yyyy HH:mm:ss');
                   // final dateTime = dateFormat.parse(dateTimeString);
-                  start: DateTime.parse(itemData['Start'] as String),
-                  end: DateTime.parse(itemData['End'] as String),
+                  start: startTime,
+                  end: endTime,
                 );
                 provider.add(item); // Add the RoomData object to the list
               } catch (e) {
                 // Set to null to open the request again.
-                _lastFetchTime = null;
-                _errorProvider.setErrorSignal(ErrorSignal('Error: $e'));
+                _lastFetchTime = DateTime.now().subtract(const Duration(days: 365));
+                errorProvider.setErrorSignal(ErrorSignal('Error: $e'));
                 rethrow;
               }
             }
@@ -122,9 +164,9 @@ class GsheetsProvider with ChangeNotifier {
             provider.clear();
             for (final itemData in data[worksheetTitle]!) { // Iterate through room data
               final item = RoomData(
-                imageUrl: itemData['Photo'] as String,
-                name: TextSpan(text: itemData['Name'] as String),
-                details: TextSpan(text: itemData['Description'] as String),
+                imageUrl: itemData['Photo 1'] ?? '',
+                name: TextSpan(text: itemData['Name'] ?? ''),
+                details: TextSpan(text: itemData['Description'] ?? ''),
               );
               provider.add(item); // Add the RoomData object to the list
             }
@@ -136,9 +178,9 @@ class GsheetsProvider with ChangeNotifier {
             provider.clear();
             for (final itemData in data[worksheetTitle]!) { // Iterate through room data
               final item = SpeakerData(
-                imageUrl: itemData['Photo'] as String,
-                name: TextSpan(text: itemData['Name'] as String),
-                details: TextSpan(text: itemData['Description'] as String),
+                imageUrl: itemData['Photo'] ?? '',
+                name: TextSpan(text: itemData['Name'] ?? ''),
+                details: TextSpan(text: itemData['Bio'] ?? ''),
               );
               provider.add(item); // Add the RoomData object to the list
             }
@@ -150,9 +192,9 @@ class GsheetsProvider with ChangeNotifier {
             provider.clear();
             for (final itemData in data[worksheetTitle]!) { // Iterate through room data
               final item = TrackData(
-                imageUrl: itemData['Photo'] as String,
-                name: TextSpan(text: itemData['Name'] as String),
-                details: TextSpan(text: itemData['Description'] as String),
+                imageUrl: itemData['Photo'] ?? '',
+                name: TextSpan(text: itemData['Name'] ?? ''),
+                details: TextSpan(text: itemData['Description'] ?? ''),
               );
               provider.add(item); // Add the RoomData object to the list
             }
@@ -160,14 +202,5 @@ class GsheetsProvider with ChangeNotifier {
         }
       }
     }
-  }
-
-  Future <Map<String, dynamic>> _rowToMap(List<dynamic> row, Worksheet worksheet) async {
-    final headers = await worksheet.values.row(1);
-    final map = <String, dynamic>{};
-    for (var i = 0; i < headers.length; i++) {
-      map[headers[i]] = row[i];
-    }
-    return map;
   }
 }
