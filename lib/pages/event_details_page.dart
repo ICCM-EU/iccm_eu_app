@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/controls/nav_bar.dart';
 import 'package:iccm_eu_app/data/model/event_data.dart';
@@ -33,6 +34,18 @@ class EventDetailsPage extends StatelessWidget {
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                if (item.imageUrl!.startsWith("http"))
+                  CachedNetworkImage(
+                    imageUrl: item.imageUrl ?? '',
+                    imageBuilder: (context, imageProvider) => CircleAvatar(
+                      backgroundImage: imageProvider,
+                      radius: 50,
+                    ),
+                    placeholder: (context, url) => const CircularProgressIndicator(),
+                    errorWidget: (context, url, error) => const Icon(Icons.error),
+                  )
+                else
+                  const SizedBox.shrink(), // Display a placeholder widget
                 const SizedBox(height: 16),
                 RichText(
                   text: TextSpan(

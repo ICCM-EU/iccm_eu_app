@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_week_view/flutter_week_view.dart';
 import 'package:iccm_eu_app/components/page_title.dart';
@@ -123,10 +124,16 @@ class EventList extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final item = itemList.items[index];
                   return ListTile(
-                    leading: item.imageUrl != null ?
-                      CircleAvatar(
-                        backgroundImage: NetworkImage(item.imageUrl!),
-                      ) :
+                    leading: item.imageUrl!.startsWith("http") ?
+                      CachedNetworkImage(
+                        imageUrl: item.imageUrl ?? '',
+                        imageBuilder: (context, imageProvider) => CircleAvatar(
+                          backgroundImage: imageProvider,
+                          radius: 50,
+                        ),
+                        placeholder: (context, url) => const CircularProgressIndicator(),
+                        errorWidget: (context, url, error) => const Icon(Icons.error),
+                    ) :
                       const SizedBox.shrink(),
                     title: RichText(
                       text: TextSpan(

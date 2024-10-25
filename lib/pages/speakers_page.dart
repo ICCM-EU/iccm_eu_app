@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/components/page_title.dart';
 import 'package:iccm_eu_app/data/dataProviders/speakers_provider.dart';
@@ -27,9 +28,17 @@ class SpeakersPage extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final item = itemList.items[index];
                   return ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage: NetworkImage(item.imageUrl),
-                    ),
+                    leading: item.imageUrl.startsWith("http") ?
+                      CachedNetworkImage(
+                        imageUrl: item.imageUrl,
+                        imageBuilder: (context, imageProvider) => CircleAvatar(
+                          backgroundImage: imageProvider,
+                          radius: 50,
+                        ),
+                        placeholder: (context, url) => const CircularProgressIndicator(),
+                        errorWidget: (context, url, error) => const Icon(Icons.error),
+                      ) :
+                        const SizedBox.shrink(),
                     title: RichText(
                       text: TextSpan(
                         children: <TextSpan>[
