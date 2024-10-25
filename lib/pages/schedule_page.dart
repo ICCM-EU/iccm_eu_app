@@ -133,8 +133,11 @@ class EventList extends StatelessWidget {
                         ),
                         placeholder: (context, url) => const CircularProgressIndicator(),
                         errorWidget: (context, url, error) => const Icon(Icons.error),
-                    ) :
-                      const SizedBox.shrink(),
+                      ) :
+                      const SizedBox(
+                        height: 100,
+                        width: 100,
+                      ),
                     title: RichText(
                       text: TextSpan(
                         children: <TextSpan>[
