@@ -131,29 +131,11 @@ class GsheetsProvider with ChangeNotifier {
             provider.clear();
             for (final itemData in data[worksheetTitle]!) { // Iterate through room data
               try {
-                final startValue = double.tryParse(itemData['StartTime'] ?? '0') ?? 0;
-                final startDaysSinceEpoch = startValue - 25569;
-                final startMsSinceEpoch = startDaysSinceEpoch * 24 * 60 * 60 * 1000;
-                final startTime = DateTime.fromMillisecondsSinceEpoch(startMsSinceEpoch.toInt());
-                final endValue = double.tryParse(itemData['End Date & Time'] ?? '0') ?? 0;
-                final endDaysSinceEpoch = endValue - 25569;
-                final endMsSinceEpoch = endDaysSinceEpoch * 24 * 60 * 60 * 1000;
-                final endTime = DateTime.fromMillisecondsSinceEpoch(endMsSinceEpoch.toInt());
-                final item = EventData(
-                  imageUrl: itemData['Photo'] ?? '',
-                  name: TextSpan(text: itemData['Session'] ?? ''),
-                  details: TextSpan(text: itemData['Description'] ?? ''),
-                  // final dateFormat = DateFormat('dd/MM/yyyy HH:mm:ss');
-                  // final dateTime = dateFormat.parse(dateTimeString);
-                  start: startTime,
-                  end: endTime,
-                );
-                provider.add(item); // Add the RoomData object to the list
+                provider.add(EventData.fromItemData(itemData)); // Add the RoomData object to the list
               } catch (e) {
                 // Set to null to open the request again.
                 _lastFetchTime = DateTime.now().subtract(const Duration(days: 365));
                 errorProvider.setErrorSignal(ErrorSignal('Error: $e'));
-                rethrow;
               }
             }
           }
@@ -163,12 +145,7 @@ class GsheetsProvider with ChangeNotifier {
           if (data.containsKey(worksheetTitle)) {
             provider.clear();
             for (final itemData in data[worksheetTitle]!) { // Iterate through room data
-              final item = RoomData(
-                imageUrl: itemData['Photo 1'] ?? '',
-                name: TextSpan(text: itemData['Name'] ?? ''),
-                details: TextSpan(text: itemData['Description'] ?? ''),
-              );
-              provider.add(item); // Add the RoomData object to the list
+              provider.add(RoomData.fromItemData(itemData)); // Add the RoomData object to the list
             }
           }
         }
@@ -177,12 +154,7 @@ class GsheetsProvider with ChangeNotifier {
           if (data.containsKey(worksheetTitle)) {
             provider.clear();
             for (final itemData in data[worksheetTitle]!) { // Iterate through room data
-              final item = SpeakerData(
-                imageUrl: itemData['Photo'] ?? '',
-                name: TextSpan(text: itemData['Name'] ?? ''),
-                details: TextSpan(text: itemData['Bio'] ?? ''),
-              );
-              provider.add(item); // Add the RoomData object to the list
+              provider.add(SpeakerData.fromItemData(itemData)); // Add the RoomData object to the list
             }
           }
         }
@@ -191,12 +163,7 @@ class GsheetsProvider with ChangeNotifier {
           if (data.containsKey(worksheetTitle)) {
             provider.clear();
             for (final itemData in data[worksheetTitle]!) { // Iterate through room data
-              final item = TrackData(
-                imageUrl: itemData['Photo'] ?? '',
-                name: TextSpan(text: itemData['Name'] ?? ''),
-                details: TextSpan(text: itemData['Description'] ?? ''),
-              );
-              provider.add(item); // Add the RoomData object to the list
+              provider.add(TrackData.fromItemData(itemData)); // Add the RoomData object to the list
             }
           }
         }

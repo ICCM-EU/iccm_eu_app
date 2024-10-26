@@ -9,58 +9,6 @@ class RoomsProvider extends ProviderData<RoomData> with ChangeNotifier {
   List<RoomData> get items => _items;
   final List<RoomData> _items = [];
 
-  RoomsProvider() {
-    add(
-      RoomData(
-        imageUrl: 'https://via.placeholder.com/150',
-        name: const TextSpan(
-          text: 'AJAX',
-        ),
-        details: const TextSpan(
-          text: 'Largest workshop room for the whole crowd.',
-        ),
-      ),
-    );
-    add(
-        RoomData(
-          imageUrl: 'https://via.placeholder.com/150',
-          name: const TextSpan(
-            text: 'Basic',
-          ),
-          details: const TextSpan(
-            text: 'Second workshop room',
-          ),
-        )
-    );
-    add(
-        RoomData(
-          imageUrl: 'https://via.placeholder.com/150',
-          name: const TextSpan(
-            text: 'Delphi',
-          ),
-          details: const TextSpan(
-            text: 'Third and smallest workshop room.\n\nLeft and then right',
-          ),
-        )
-    );
-    add(
-      RoomData(
-        imageUrl: 'https://via.placeholder.com/150',
-        name: const TextSpan(
-          text: 'Espresso',
-        ),
-        details: const TextSpan(
-          text: 'Room for coffee breaks.',
-        ),
-      ),
-    );
-
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   // Call fetchData after the widget tree is built
-    //   sheetsProvider.fetchData(context);
-    // });
-  }
-
   @override
   void add(RoomData item) {
     _items.add(item);
