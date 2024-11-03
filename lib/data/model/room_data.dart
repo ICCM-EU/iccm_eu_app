@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:iccm_eu_app/data/model/model_item.dart';
 
-class RoomData {
+class RoomData extends ModelItem {
+  @override
   final String imageUrl;
+  @override
   final TextSpan name;
+  @override
   final TextSpan details;
+
+  RoomData._({
+    required this.imageUrl,
+    required this.name,
+    required this.details,
+  });
 
   factory RoomData.fromItemData(Map<String, dynamic> itemData) {
     return RoomData._(
@@ -13,9 +23,12 @@ class RoomData {
     );
   }
 
-  RoomData._({
-    required this.imageUrl,
-    required this.name,
-    required this.details,
-  });
+
+  factory RoomData.fromJson(Map<String, dynamic> json) {
+    return RoomData._(
+      imageUrl: json['imageUrl'],
+      name: TextSpan(text: json['name'] as String? ?? ''),
+      details: TextSpan(text: json['details'] as String? ?? ''),
+    );
+  }
 }

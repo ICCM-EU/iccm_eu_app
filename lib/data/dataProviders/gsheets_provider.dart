@@ -99,7 +99,7 @@ class GsheetsProvider with ChangeNotifier {
 
   Future<void> fetchData(
       BuildContext context,
-      {bool force = false}
+      {bool force = true}
       ) async {
     if (_isFetchingData) {
       return;
@@ -155,10 +155,10 @@ class GsheetsProvider with ChangeNotifier {
       final worksheetTitle = provider.worksheetTitle;
       if (provider == eventsProvider) {
         if (data.containsKey(worksheetTitle)) {
-          provider.clear();
+          provider.cacheClear();
           for (final itemData in data[worksheetTitle]!) { // Iterate through room data
             try {
-              provider.add(EventData.fromItemData(
+              provider.cacheAdd(EventData.fromItemData(
                   itemData)); // Add the RoomData object to the list
             } catch (e) {
               // Set to null to open the request again.
@@ -171,9 +171,9 @@ class GsheetsProvider with ChangeNotifier {
 
       if (provider == roomsProvider) {
         if (data.containsKey(worksheetTitle)) {
-          provider.clear();
+          provider.cacheClear();
           for (final itemData in data[worksheetTitle]!) { // Iterate through room data
-            provider.add(RoomData.fromItemData(
+            provider.cacheAdd(RoomData.fromItemData(
                 itemData)); // Add the RoomData object to the list
           }
         }
@@ -181,9 +181,9 @@ class GsheetsProvider with ChangeNotifier {
 
       if (provider == speakersProvider) {
         if (data.containsKey(worksheetTitle)) {
-          provider.clear();
+          provider.cacheClear();
           for (final itemData in data[worksheetTitle]!) { // Iterate through room data
-            provider.add(SpeakerData.fromItemData(
+            provider.cacheAdd(SpeakerData.fromItemData(
                 itemData)); // Add the RoomData object to the list
           }
         }
@@ -191,11 +191,12 @@ class GsheetsProvider with ChangeNotifier {
 
       if (provider == tracksProvider) {
         if (data.containsKey(worksheetTitle)) {
-          provider.clear();
+          provider.cacheClear();
           for (final itemData in data[worksheetTitle]!) { // Iterate through room data
-            provider.add(TrackData.fromItemData(
+            provider.cacheAdd(TrackData.fromItemData(
                 itemData)); // Add the RoomData object to the list
           }
+          provider.commit();
         }
       }
     }

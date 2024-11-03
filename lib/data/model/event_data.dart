@@ -31,6 +31,28 @@ class EventData extends FlutterWeekViewEvent {
     );
   }
 
+  factory EventData.fromJson(Map<String, dynamic> json) {
+    final startValue = double.tryParse(json['start'] ?? '0') ?? 0;
+    final startDaysSinceEpoch = startValue - 25569;
+    final startMsSinceEpoch = startDaysSinceEpoch * 24 * 60 * 60 * 1000;
+    final startTime = DateTime.fromMillisecondsSinceEpoch(startMsSinceEpoch.toInt());
+    final endValue = double.tryParse(json['end'] ?? '0') ?? 0;
+    final endDaysSinceEpoch = endValue - 25569;
+    final endMsSinceEpoch = endDaysSinceEpoch * 24 * 60 * 60 * 1000;
+    final endTime = DateTime.fromMillisecondsSinceEpoch(endMsSinceEpoch.toInt());
+    return EventData(
+      imageUrl: json['imageUrl'],
+      name: TextSpan(text: json['name'] as String? ?? ''),
+      details: TextSpan(text: json['details'] as String? ?? ''),
+      // final dateFormat = DateFormat('dd/MM/yyyy HH:mm:ss');
+      // fineTime = dateFormat.parse(dateTimeString);
+      start: startTime,
+      end: endTime,
+      backgroundColor: Colors.red,
+      padding: EdgeInsets.all(0),
+    );
+  }
+
   EventData({
     // mandatory parameters
     required this.name,

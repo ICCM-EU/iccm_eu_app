@@ -1,5 +1,9 @@
 abstract class ProviderData<T> {
-  void clear();
-  void add(T item);
   String get worksheetTitle;
+  String get cacheTitle;
+  void cacheClear();
+  void cacheAdd(T item);
+  void commit();
+  Future<void> saveCache();
+  void populateItemsFromCache();
 }

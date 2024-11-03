@@ -70,7 +70,7 @@ class DayViewCalendar extends StatelessWidget {
                       DateTime.now().day).add(Duration(days: 1)
                   ),
                 ],
-                events: Provider.of<EventsProvider>(context).items.map((item) {
+                events: Provider.of<EventsProvider>(context).items().map((item) {
                   return EventData(
                     name: item.name,
                     details: item.details,
@@ -79,7 +79,7 @@ class DayViewCalendar extends StatelessWidget {
                     backgroundColor: item.backgroundColor, // Add other properties as needed
                     onTap: () {
                       final provider = Provider.of<EventsProvider>(context, listen: false);
-                      final eventDetails = provider.items.firstWhere((e) => e == item);
+                      final eventDetails = provider.items().firstWhere((e) => e == item);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -120,9 +120,9 @@ class EventList extends StatelessWidget {
           child: Consumer<EventsProvider>( // Wrap ListView.builder with Consumer
             builder: (context, itemList, child) {
               return ListView.builder(
-                itemCount: itemList.items.length,
+                itemCount: itemList.items().length,
                 itemBuilder: (context, index) {
-                  final item = itemList.items[index];
+                  final item = itemList.items()[index];
                   return ListTile(
                     leading: item.imageUrl!.startsWith("http") ?
                       CachedNetworkImage(

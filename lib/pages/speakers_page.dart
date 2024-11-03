@@ -24,9 +24,9 @@ class SpeakersPage extends StatelessWidget {
           child: Consumer<SpeakersProvider>( // Wrap ListView.builder with Consumer
             builder: (context, itemList, child) {
               return ListView.builder(
-                itemCount: itemList.items.length,
+                itemCount: itemList.items().length,
                 itemBuilder: (context, index) {
-                  final item = itemList.items[index];
+                  final item = itemList.items()[index];
                   return ListTile(
                     leading: item.imageUrl.startsWith("http") ?
                       CachedNetworkImage(
