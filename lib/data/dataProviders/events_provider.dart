@@ -31,6 +31,7 @@ class EventsProvider extends ProviderData<EventData> with ChangeNotifier {
 
   @override
   void commit() {
+    _cache.sort((a, b) => a.start.compareTo(b.start));
     saveCache();
     populateItemsFromCache();
   }
@@ -74,7 +75,6 @@ class EventsProvider extends ProviderData<EventData> with ChangeNotifier {
       );
     }
 
-    _cache.sort((a, b) => a.start.compareTo(b.start));
     return _cache.first;
   }
 
@@ -88,7 +88,6 @@ class EventsProvider extends ProviderData<EventData> with ChangeNotifier {
       );
     }
 
-    _cache.sort((a, b) => a.start.compareTo(b.start));
     return _cache.last;
   }
 }

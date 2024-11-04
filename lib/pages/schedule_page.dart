@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_week_view/flutter_week_view.dart';
+import 'package:iccm_eu_app/components/date_functions.dart';
 import 'package:iccm_eu_app/components/page_title.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/model/event_data.dart';
@@ -154,6 +155,27 @@ class EventList extends StatelessWidget {
                     subtitle: RichText(
                       text: TextSpan(
                         children: <TextSpan>[
+                          TextSpan(
+                            text: DateFunctions().formatDate(
+                                date: item.start,
+                                format: 'EEE, dd.MM., hh:mm'),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          TextSpan(
+                            text: '\n',
+                            style: const TextStyle(
+                              fontSize: 10,
+                            ),
+                          ),
+                          TextSpan(
+                            text: '\n',
+                            style: const TextStyle(
+                              fontSize: 4,
+                            ),
+                          ),
                           TextSpan(
                             text: item.details.text,
                             style: const TextStyle(
