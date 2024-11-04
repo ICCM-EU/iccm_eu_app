@@ -14,11 +14,24 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
+      # Cache Flutter dependencies
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.pub-cache
+            /flutter
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
+
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: 'stable' # Or specify a specific version
           channel: 'stable' # Or specify a specific channel
       - run: flutter pub get
+
+      # Build
       - run: flutter build web --release
       - run: flutter build apk --release
       - run: flutter build ios --release --no-codesign
