@@ -63,7 +63,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //final PrefsProvider prefsProvider = Provider.of<PrefsProvider>(context);
-    Provider.of<GsheetsProvider>(context, listen: false).fetchData(context);
+    Provider.of<GsheetsProvider>(context, listen: false).fetchData(
+      errorProvider: Provider.of<ErrorProvider>(context, listen: false),
+      eventsProvider: Provider.of<EventsProvider>(context, listen: false),
+      roomsProvider: Provider.of<RoomsProvider>(context, listen: false),
+      speakersProvider: Provider.of<SpeakersProvider>(context, listen: false),
+      tracksProvider: Provider.of<TracksProvider>(context, listen: false),
+    );
     return MaterialApp(
       title: 'ICCM Europe App',
       theme: Provider.of<ThemeProvider>(context).themeData,

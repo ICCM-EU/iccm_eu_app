@@ -14,7 +14,6 @@ import 'package:iccm_eu_app/data/model/event_data.dart';
 import 'package:iccm_eu_app/data/model/room_data.dart';
 import 'package:iccm_eu_app/data/model/speaker_data.dart';
 import 'package:iccm_eu_app/data/model/track_data.dart';
-import 'package:provider/provider.dart';
 import '../model/error_signal.dart';
 import '../model/provider_data.dart';
 import 'error_provider.dart';
@@ -65,12 +64,10 @@ class GsheetsProvider with ChangeNotifier {
     return totalObjects;
   }
 
-  Future<Map<String, List<Map<String, String>>>> _readWorksheets(
-      List<String> worksheetTitles,
-      BuildContext context,
-      ) async {
-    ErrorProvider errorProvider =
-      Provider.of<ErrorProvider>(context, listen: false);
+  Future<Map<String, List<Map<String, String>>>> _readWorksheets({
+      required List<String> worksheetTitles,
+      required ErrorProvider errorProvider,
+}) async {
     final data = <String, List<Map<String, String>>>{};
     try {
       final credentials = await _loadCredentials(errorProvider);
@@ -97,10 +94,14 @@ class GsheetsProvider with ChangeNotifier {
     return data;
   }
 
-  Future<void> fetchData(
-      BuildContext context,
-      {bool force = true}
-      ) async {
+  Future<void> fetchData({
+      required ErrorProvider errorProvider,
+      required EventsProvider eventsProvider,
+      required RoomsProvider roomsProvider,
+      required SpeakersProvider speakersProvider,
+      required TracksProvider tracksProvider,
+      bool force = true,
+    }) async {
     if (_isFetchingData) {
       return;
     }
@@ -114,17 +115,6 @@ class GsheetsProvider with ChangeNotifier {
       return;
     }
 
-    // FIXME: Don't use 'BuildContext's across async gaps.
-    ErrorProvider errorProvider = Provider.of<ErrorProvider>(
-        context, listen: false);
-    EventsProvider eventsProvider = Provider.of<EventsProvider>(
-        context, listen: false);
-    RoomsProvider roomsProvider = Provider.of<RoomsProvider>(
-        context, listen: false);
-    SpeakersProvider speakersProvider = Provider.of<SpeakersProvider>(
-        context, listen: false);
-    TracksProvider tracksProvider = Provider.of<TracksProvider>(
-        context, listen: false);
     final List<ProviderData> providers = [
       eventsProvider,
       roomsProvider,
@@ -135,7 +125,9 @@ class GsheetsProvider with ChangeNotifier {
             (provider) => provider.worksheetTitle).toList();
 
     _isFetchingData = true;
-    final data = await _readWorksheets(worksheetTitles, context);
+    final data = await _readWorksheets(
+        worksheetTitles: worksheetTitles,
+        errorProvider: errorProvider);
 
     // Terminate if data is empty
     if (_countDataObjects(data) == 0) {
