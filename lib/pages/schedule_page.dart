@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_week_view/flutter_week_view.dart';
 import 'package:iccm_eu_app/components/date_functions.dart';
 import 'package:iccm_eu_app/components/page_title.dart';
+import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/model/event_data.dart';
 import 'package:iccm_eu_app/pages/event_details_page.dart';
@@ -16,7 +17,18 @@ class SchedulePage extends StatefulWidget {
 }
 
 class _SchedulePageState extends State<SchedulePage> {
-  bool _isDayView = true;
+  late bool _isDayView = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadIsDayView(); // Call the asynchronous function
+  }
+
+  Future<void> _loadIsDayView() async {
+    _isDayView = await PreferencesProvider.isDayView;
+    setState(() {}); // Trigger a rebuild after updating _isDayView
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +41,7 @@ class _SchedulePageState extends State<SchedulePage> {
             onPressed: () {
               setState(() {
                 _isDayView = !_isDayView;
+                PreferencesProvider.setIsDayView(_isDayView);
               });
             },
           ),

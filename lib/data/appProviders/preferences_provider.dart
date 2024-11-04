@@ -15,6 +15,19 @@ class PreferencesProvider {
   }
 
   // ---------------------------------------------------------
+  static const String _isDayViewKey = 'isDayView';
+
+  static Future<bool> get isDayView async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_isDayViewKey) ?? true; // Default to true
+  }
+
+  static Future<void> setIsDayView(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_isDayViewKey, value);
+  }
+
+  // ---------------------------------------------------------
   static const String _cachedChecksumKey = '_cachedChecksum';
 
   static Future<String> get cachedChecksum async {
