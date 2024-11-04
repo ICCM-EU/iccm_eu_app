@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_week_view/flutter_week_view.dart';
 import 'package:iccm_eu_app/components/date_functions.dart';
 import 'package:iccm_eu_app/components/page_title.dart';
+import 'package:iccm_eu_app/components/text_functions.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/model/event_data.dart';
@@ -190,7 +191,9 @@ class EventList extends StatelessWidget {
                             ),
                           ),
                           TextSpan(
-                            text: item.details.text,
+                            text: TextFunctions.cutTextToWords(
+                                text: item.details.text,
+                                length: 30),
                             style: const TextStyle(
                               fontSize: 16,
                             ),
