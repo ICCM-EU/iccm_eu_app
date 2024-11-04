@@ -23,6 +23,10 @@ class GsheetsProvider with ChangeNotifier {
       '1dFLWrcbI1AltIvVCEjBx9I3I3d0ToGN2FmzcFuAYsZE';
   bool _isFetchingData = false;
 
+  GsheetsProvider() {
+    _isFetchingData = false;
+  }
+
   Future<String> _loadCredentials(ErrorProvider errorProvider) async {
     try {
       return await rootBundle.loadString('assets/service.json');
@@ -95,20 +99,20 @@ class GsheetsProvider with ChangeNotifier {
   }
 
   Future<void> fetchData({
-      required ErrorProvider errorProvider,
-      required EventsProvider eventsProvider,
-      required RoomsProvider roomsProvider,
-      required SpeakersProvider speakersProvider,
-      required TracksProvider tracksProvider,
-      bool force = true,
-    }) async {
+    required ErrorProvider errorProvider,
+    required EventsProvider eventsProvider,
+    required RoomsProvider roomsProvider,
+    required SpeakersProvider speakersProvider,
+    required TracksProvider tracksProvider,
+    bool force = true,
+  }) async {
     if (_isFetchingData) {
       return;
     }
 
     DateTime now = DateTime.now();
     DateTime? lastUpdated = await PreferencesProvider.cacheLastUpdated;
-    if (force ||
+    if (! force &&
         (lastUpdated != null && lastUpdated.isAfter(now.subtract(
             const Duration(minutes: 5))))
     ) {
@@ -137,58 +141,50 @@ class GsheetsProvider with ChangeNotifier {
     String cachedChecksum = await PreferencesProvider.cachedChecksum;
     String dataChecksum = _generateChecksum(data);
 
-    if (lastUpdated != null && cachedChecksum == dataChecksum) {
-      return;
-    }
-    await PreferencesProvider.setCachedChecksum(dataChecksum);
-    await PreferencesProvider.setLastUpdated(now);
+    if (lastUpdated == null || cachedChecksum != dataChecksum || force) {
+      await PreferencesProvider.setCachedChecksum(dataChecksum);
+      await PreferencesProvider.setLastUpdated(now);
 
-    for (final provider in providers) {
-      final worksheetTitle = provider.worksheetTitle;
-      if (provider == eventsProvider) {
-        if (data.containsKey(worksheetTitle)) {
-          provider.cacheClear();
-          for (final itemData in data[worksheetTitle]!) { // Iterate through room data
-            try {
-              provider.cacheAdd(EventData.fromItemData(
-                  itemData)); // Add the RoomData object to the list
-            } catch (e) {
-              // Set to null to open the request again.
-              await PreferencesProvider.setLastUpdated(null);
-              errorProvider.setErrorSignal(ErrorSignal('Error: $e'));
+      for (final provider in providers) {
+        final worksheetTitle = provider.worksheetTitle;
+        if (provider == eventsProvider) {
+          if (data.containsKey(worksheetTitle)) {
+            provider.cacheClear();
+            for (final itemData in data[worksheetTitle]!) {
+                provider.cacheAdd(EventData.fromItemData(itemData));
             }
+            provider.commit();
           }
         }
-      }
 
-      if (provider == roomsProvider) {
-        if (data.containsKey(worksheetTitle)) {
-          provider.cacheClear();
-          for (final itemData in data[worksheetTitle]!) { // Iterate through room data
-            provider.cacheAdd(RoomData.fromItemData(
-                itemData)); // Add the RoomData object to the list
+        if (provider == roomsProvider) {
+          if (data.containsKey(worksheetTitle)) {
+            provider.cacheClear();
+            for (final itemData in data[worksheetTitle]!) {
+              provider.cacheAdd(RoomData.fromItemData(itemData));
+            }
+            provider.commit();
           }
         }
-      }
 
-      if (provider == speakersProvider) {
-        if (data.containsKey(worksheetTitle)) {
-          provider.cacheClear();
-          for (final itemData in data[worksheetTitle]!) { // Iterate through room data
-            provider.cacheAdd(SpeakerData.fromItemData(
-                itemData)); // Add the RoomData object to the list
+        if (provider == speakersProvider) {
+          if (data.containsKey(worksheetTitle)) {
+            provider.cacheClear();
+            for (final itemData in data[worksheetTitle]!) {
+              provider.cacheAdd(SpeakerData.fromItemData(itemData));
+            }
+            provider.commit();
           }
         }
-      }
 
-      if (provider == tracksProvider) {
-        if (data.containsKey(worksheetTitle)) {
-          provider.cacheClear();
-          for (final itemData in data[worksheetTitle]!) { // Iterate through room data
-            provider.cacheAdd(TrackData.fromItemData(
-                itemData)); // Add the RoomData object to the list
+        if (provider == tracksProvider) {
+          if (data.containsKey(worksheetTitle)) {
+            provider.cacheClear();
+            for (final itemData in data[worksheetTitle]!) {
+              provider.cacheAdd(TrackData.fromItemData(itemData));
+            }
+            provider.commit();
           }
-          provider.commit();
         }
       }
     }

@@ -11,7 +11,7 @@ class EventsProvider extends ProviderData<EventData> with ChangeNotifier {
   @override
   String get cacheTitle => "_eventDataCache";
 
-  late List<EventData> _items;
+  late final List<EventData> _items = [];
   List<EventData> items() {
     populateItemsFromCache();
     return _items;
@@ -37,11 +37,13 @@ class EventsProvider extends ProviderData<EventData> with ChangeNotifier {
 
   @override
   void populateItemsFromCache() {
-    _items.clear();
-    for (var item in _cache) {
-      _items.add(item);
+    if (_cache.isNotEmpty) {
+      _items.clear();
+      for (var item in _cache) {
+        _items.add(item);
+      }
+      notifyListeners();
     }
-    notifyListeners();
   }
 
   @override
@@ -60,5 +62,33 @@ class EventsProvider extends ProviderData<EventData> with ChangeNotifier {
     } else {
       return [];
     }
+  }
+
+  EventData get earliestEvent {
+    if (_cache.isEmpty) {
+      return EventData(
+        name: TextSpan(text: '---'),
+        start: DateTime.now(),
+        end: DateTime.now().add(Duration(hours: 1,)),
+        details: TextSpan(text: ''),
+      );
+    }
+
+    _cache.sort((a, b) => a.start.compareTo(b.start));
+    return _cache.first;
+  }
+
+  EventData get latestEvent {
+    if (_cache.isEmpty) {
+      return EventData(
+        name: TextSpan(text: '---'),
+        start: DateTime.now(),
+        end: DateTime.now().add(Duration(hours: 1,)),
+        details: TextSpan(text: ''),
+      );
+    }
+
+    _cache.sort((a, b) => a.start.compareTo(b.start));
+    return _cache.last;
   }
 }

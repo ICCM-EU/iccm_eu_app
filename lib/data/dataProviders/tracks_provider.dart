@@ -11,7 +11,7 @@ class TracksProvider extends ProviderData<TrackData> with ChangeNotifier {
   @override
   String get cacheTitle => "_trackDataCache";
 
-  late List<TrackData> _items;
+  late final List<TrackData> _items = [];
   List<TrackData> items() {
     populateItemsFromCache();
     return _items;
@@ -37,11 +37,13 @@ class TracksProvider extends ProviderData<TrackData> with ChangeNotifier {
 
   @override
   void populateItemsFromCache() {
-    _items.clear();
-    for (var item in _cache) {
-      _items.add(item);
+    if (_cache.isNotEmpty) {
+      _items.clear();
+      for (var item in _cache) {
+        _items.add(item);
+      }
+      notifyListeners();
     }
-    notifyListeners();
   }
 
   @override

@@ -11,7 +11,7 @@ class RoomsProvider extends ProviderData<RoomData> with ChangeNotifier {
   @override
   String get cacheTitle => "_roomDataCache";
 
-  late List<RoomData> _items;
+  late final List<RoomData> _items = [];
   List<RoomData> items() {
     populateItemsFromCache();
     return _items;
@@ -37,11 +37,13 @@ class RoomsProvider extends ProviderData<RoomData> with ChangeNotifier {
 
   @override
   void populateItemsFromCache() {
-    _items.clear();
-    for (var item in _cache) {
-      _items.add(item);
+    if (_cache.isNotEmpty) {
+      _items.clear();
+      for (var item in _cache) {
+        _items.add(item);
+      }
+      notifyListeners();
     }
-    notifyListeners();
   }
 
   @override

@@ -49,27 +49,26 @@ class DayViewCalendar extends StatelessWidget {
         Expanded(
           child: Consumer<EventsProvider>( // Wrap with Consumer
             builder: (context, itemList, child) {
+              final dates = <DateTime>[];
+              DateTime current = itemList.earliestEvent.start;
+              DateTime last = itemList.latestEvent.end;
+              while (current.isBefore(last) ||
+                  current.isAtSameMomentAs(last)) {
+                dates.add(current);
+                current = current.add(const Duration(days: 1));
+              }
+              DateTime initialTime = DateTime.now();
+              if (initialTime.isBefore(itemList.earliestEvent.start)) {
+                initialTime = itemList.earliestEvent.start;
+              } else if (initialTime.isAfter(itemList.latestEvent.end)) {
+                initialTime = itemList.latestEvent.end;
+              }
               return WeekView(
                 // dayBarStyleBuilder: Null,
                 minimumTime: HourMinute(hour: 8, minute: 0),
                 maximumTime: HourMinute(hour: 23, minute: 0),
-                dates: [
-                  DateTime(
-                      DateTime.now().year,
-                      DateTime.now().month,
-                      DateTime.now().day).subtract(Duration(days: 1)
-                  ),
-                  DateTime(
-                      DateTime.now().year,
-                      DateTime.now().month,
-                      DateTime.now().day
-                  ),
-                  DateTime(
-                      DateTime.now().year,
-                      DateTime.now().month,
-                      DateTime.now().day).add(Duration(days: 1)
-                  ),
-                ],
+                initialTime: initialTime,
+                dates: dates,
                 events: Provider.of<EventsProvider>(context).items().map((item) {
                   return EventData(
                     name: item.name,

@@ -36,7 +36,6 @@ class NavBar extends StatefulWidget {
     const PreferencesPage(), // 5
     const TravelInformationPage(), // 6
     const AboutPage(), // 7
-    // CountdownPage(), // fullscreen
   ];
   List<Widget> get widgetOptions => _widgetOptions;
 

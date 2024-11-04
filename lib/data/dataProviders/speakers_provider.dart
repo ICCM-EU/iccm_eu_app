@@ -11,7 +11,7 @@ class SpeakersProvider extends ProviderData<SpeakerData> with ChangeNotifier {
   @override
   String get cacheTitle => "_speakerDataCache";
 
-  late List<SpeakerData> _items;
+  late final List<SpeakerData> _items = [];
   List<SpeakerData> items() {
     populateItemsFromCache();
     return _items;
@@ -37,11 +37,13 @@ class SpeakersProvider extends ProviderData<SpeakerData> with ChangeNotifier {
 
   @override
   void populateItemsFromCache() {
-    _items.clear();
-    for (var item in _cache) {
-      _items.add(item);
+    if (_cache.isNotEmpty) {
+      _items.clear();
+      for (var item in _cache) {
+        _items.add(item);
+      }
+      notifyListeners();
     }
-    notifyListeners();
   }
 
   @override

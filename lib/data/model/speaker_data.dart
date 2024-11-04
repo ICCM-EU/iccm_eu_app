@@ -30,4 +30,12 @@ class SpeakerData extends ModelItem {
       details: TextSpan(text: json['details'] as String? ?? ''),
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'imageUrl': imageUrl,
+      'name': name.toPlainText(),
+      'details': details.toPlainText(),
+    };
+  }
 }

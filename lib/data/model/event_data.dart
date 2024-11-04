@@ -8,8 +8,38 @@ class EventData extends FlutterWeekViewEvent {
   final TextSpan name;
   final TextSpan details;
 
+  EventData({
+    // mandatory parameters
+    required this.name,
+    required this.details,
+    required super.start,
+    required super.end,
+
+    // optional local parameters
+    this.imageUrl,
+    this.track,
+    this.room,
+
+    // optional inherited parameters
+    // FIXME: Set these based on local parameters
+    super.backgroundColor,
+    super.decoration,
+    super.textStyle,
+    super.padding,
+    super.margin,
+
+    // Set these with the context available
+    super.onTap,
+    super.onLongPress,
+
+    super.eventTextBuilder,
+  }) : super(
+    title: name.text ?? '',
+    description: details.text ?? '',
+  );
+
   factory EventData.fromItemData(Map<String, dynamic> itemData) {
-    final startValue = double.tryParse(itemData['StartTime'] ?? '0') ?? 0;
+    final startValue = double.tryParse(itemData['Date & Time'] ?? '0') ?? 0;
     final startDaysSinceEpoch = startValue - 25569;
     final startMsSinceEpoch = startDaysSinceEpoch * 24 * 60 * 60 * 1000;
     final startTime = DateTime.fromMillisecondsSinceEpoch(startMsSinceEpoch.toInt());
@@ -53,33 +83,20 @@ class EventData extends FlutterWeekViewEvent {
     );
   }
 
-  EventData({
-    // mandatory parameters
-    required this.name,
-    required this.details,
-    required super.start,
-    required super.end,
-
-    // optional local parameters
-    this.imageUrl,
-    this.track,
-    this.room,
-
-    // optional inherited parameters
-    // FIXME: Set these based on local parameters
-    super.backgroundColor,
-    super.decoration,
-    super.textStyle,
-    super.padding,
-    super.margin,
-
-    // Set these with the context available
-    super.onTap,
-    super.onLongPress,
-
-    super.eventTextBuilder,
-  }) : super(
-      title: name.text ?? '',
-      description: details.text ?? '',
-  );
+  Map<String, dynamic> toJson() {
+    return {
+      'imageUrl': imageUrl,
+      'name': name.toPlainText(),
+      'details': details.toPlainText(),
+      'start': super.start.millisecondsSinceEpoch,
+      'end': super.end.millisecondsSinceEpoch,
+      // 'track': track,
+      // 'room': room,
+      'backgroundColor': super.backgroundColor,
+      // 'decoration': super.decoration,
+      // 'textStyle': super.textStyle,
+      // 'padding': super.padding,
+      'margin': super.margin,
+    };
+  }
 }
