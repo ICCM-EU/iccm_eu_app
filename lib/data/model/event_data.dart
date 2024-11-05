@@ -84,14 +84,12 @@ class EventData extends FlutterWeekViewEvent {
       imageUrl: json['imageUrl'],
       name: TextSpan(text: json['name'] as String? ?? ''),
       details: TextSpan(text: json['details'] as String? ?? ''),
-      room: TextSpan(text: json['room']),
-      track: TextSpan(text: json['track']),
-      speaker: TextSpan(text: json['speaker']),
-      facilitator: TextSpan(text: json['facilitator']),
       start: startTime,
       end: endTime,
-      backgroundColor: Colors.red,
-      padding: EdgeInsets.all(0),
+      track: TextSpan(text: json['track']),
+      room: TextSpan(text: json['room']),
+      speaker: TextSpan(text: json['speaker']),
+      facilitator: TextSpan(text: json['facilitator']),
       id: int.tryParse(json['id'] ?? '-1'),
     );
   }
@@ -99,19 +97,14 @@ class EventData extends FlutterWeekViewEvent {
   Map<String, dynamic> toJson() {
     return {
       'imageUrl': imageUrl,
-      'name': name.toPlainText(),
-      'details': details.toPlainText(),
-      'start': super.start.millisecondsSinceEpoch,
-      'end': super.end.millisecondsSinceEpoch,
+      'name': name.text.toString(),
+      'details': details.text.toString(),
+      'start': super.start.millisecondsSinceEpoch.toString(),
+      'end': super.end.millisecondsSinceEpoch.toString(),
       'track': track?.text.toString(),
       'room': room?.text.toString(),
       'speaker': speaker?.text.toString(),
-      // 'facilitator': facilitator.toString(),
-      'backgroundColor': super.backgroundColor,
-      // 'decoration': super.decoration,
-      // 'textStyle': super.textStyle,
-      // 'padding': super.padding,
-      'margin': super.margin,
+      'facilitator': facilitator.toString(),
       'id': id.toString(),
     };
   }
