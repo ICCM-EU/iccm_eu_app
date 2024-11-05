@@ -65,8 +65,9 @@ class EventsProvider extends ProviderData<EventData> with ChangeNotifier {
     }
   }
 
-  EventData get earliestEvent {
-    if (_cache.isEmpty) {
+  EventData earliestEvent ({List<EventData>? items}) {
+    items ??= _items;
+    if (items.isEmpty) {
       return EventData(
         name: TextSpan(text: '---'),
         start: DateTime.now(),
@@ -75,11 +76,12 @@ class EventsProvider extends ProviderData<EventData> with ChangeNotifier {
       );
     }
 
-    return _cache.first;
+    return items.first;
   }
 
-  EventData get latestEvent {
-    if (_cache.isEmpty) {
+  EventData latestEvent ({List<EventData>? items}) {
+    items ??= _items;
+    if (items.isEmpty) {
       return EventData(
         name: TextSpan(text: '---'),
         start: DateTime.now(),
@@ -88,6 +90,23 @@ class EventsProvider extends ProviderData<EventData> with ChangeNotifier {
       );
     }
 
-    return _cache.last;
+    return items.last;
+  }
+
+  List<EventData> cutoffAfterDays({
+    required int days,
+    List<EventData>? items,
+  }) {
+    items ??= _items;
+    if (_items.isEmpty) {
+      return [];
+    }
+    final DateTime firstEventDate = earliestEvent().start;
+    final cutoffDate = firstEventDate.add(Duration(days: days));
+
+    return _items.where(
+            (item) =>
+        item.end.isBefore(cutoffDate) ||
+            item.end.isAtSameMomentAs(cutoffDate)).toList();
   }
 }

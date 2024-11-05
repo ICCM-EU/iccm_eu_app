@@ -64,23 +64,32 @@ class DayViewCalendar extends StatelessWidget {
         Expanded(
           child: Consumer<EventsProvider>( // Wrap with Consumer
             builder: (context, itemList, child) {
-              final dates = <DateTime>[];
-              DateTime current = itemList.earliestEvent.start;
-              DateTime last = itemList.latestEvent.end;
+              DateTime current = itemList.earliestEvent().start;
+              // Normalize to start of day
+              current.subtract(Duration(
+                hours: current.hour,
+                minutes: current.minute,
+                seconds: current.second,
+              ));
+              List<EventData> cutoffList = itemList.cutoffAfterDays(days: 16);
+              DateTime last = itemList.latestEvent(
+                items: cutoffList,
+              ).end;
+              final dates = <DateTime>[current];
               while (current.isBefore(last) ||
                   current.isAtSameMomentAs(last)) {
-                dates.add(current);
                 current = current.add(const Duration(days: 1));
+                dates.add(current);
               }
               DateTime initialTime = DateTime.now();
-              if (initialTime.isBefore(itemList.earliestEvent.start)) {
-                initialTime = itemList.earliestEvent.start;
-              } else if (initialTime.isAfter(itemList.latestEvent.end)) {
-                initialTime = itemList.latestEvent.end;
+              if (initialTime.isBefore(itemList.earliestEvent().start)) {
+                initialTime = itemList.earliestEvent().start;
+              } else if (initialTime.isAfter(itemList.latestEvent().end)) {
+                initialTime = itemList.latestEvent().end;
               }
               return WeekView(
                 // dayBarStyleBuilder: Null,
-                minimumTime: HourMinute(hour: 8, minute: 0),
+                minimumTime: HourMinute(hour: 7, minute: 0),
                 maximumTime: HourMinute(hour: 23, minute: 0),
                 initialTime: initialTime,
                 dates: dates,
@@ -172,7 +181,7 @@ class EventList extends StatelessWidget {
                           TextSpan(
                             text: DateFunctions().formatDate(
                                 date: item.start,
-                                format: 'EEE, dd.MM., hh:mm'),
+                                format: 'EEE, dd.MM., HH:mm'),
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
