@@ -134,16 +134,43 @@ class EventsProvider extends ProviderData<EventData> with ChangeNotifier {
 
   List<EventData> eventsByRoom({
     List<EventData>? items,
+    required String name,
   }) {
     items ??= _items;
     if (items.isEmpty) {
       return [];
     }
-    final DateTime now = DateTime.now();
 
     return items.where(
             (item) =>
-        item.end.isAfter(now) ||
-            item.end.isAtSameMomentAs(now)).toList();
+        item.room?.toPlainText().compareTo(name) == 0).toList();
+  }
+
+  List<EventData> eventsByTrack({
+    List<EventData>? items,
+    required String name,
+  }) {
+    items ??= _items;
+    if (items.isEmpty) {
+      return [];
+    }
+
+    return items.where(
+            (item) =>
+        item.track?.toPlainText().compareTo(name) == 0).toList();
+  }
+
+  List<EventData> eventsBySpeaker({
+    List<EventData>? items,
+    required String name,
+  }) {
+    items ??= _items;
+    if (items.isEmpty) {
+      return [];
+    }
+
+    return items.where(
+            (item) =>
+        item.toString().compareTo(name) == 0).toList();
   }
 }

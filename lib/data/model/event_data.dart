@@ -5,6 +5,8 @@ class EventData extends FlutterWeekViewEvent {
   final String? imageUrl;
   final TextSpan? track;
   final TextSpan? room;
+  final TextSpan? speaker;
+  final TextSpan? facilitator;
   final TextSpan name;
   final TextSpan details;
   int? id = -1;
@@ -20,6 +22,8 @@ class EventData extends FlutterWeekViewEvent {
     this.imageUrl,
     this.track,
     this.room,
+    this.speaker,
+    this.facilitator,
     this.id,
 
     // optional inherited parameters
@@ -58,6 +62,10 @@ class EventData extends FlutterWeekViewEvent {
       // fineTime = dateFormat.parse(dateTimeString);
       start: startTime,
       end: endTime,
+      room: itemData['Room'],
+      track: itemData['Category'],
+      speaker: itemData['Speaker'],
+      facilitator: itemData['Facilitator'],
       backgroundColor: Colors.red,
       padding: EdgeInsets.all(0),
     );
@@ -78,6 +86,10 @@ class EventData extends FlutterWeekViewEvent {
       details: TextSpan(text: json['details'] as String? ?? ''),
       // final dateFormat = DateFormat('dd/MM/yyyy HH:mm:ss');
       // fineTime = dateFormat.parse(dateTimeString);
+      room: json['room'],
+      track: json['track'],
+      speaker: json['speaker'],
+      facilitator: json['facilitator'],
       start: startTime,
       end: endTime,
       backgroundColor: Colors.red,
@@ -93,8 +105,10 @@ class EventData extends FlutterWeekViewEvent {
       'details': details.toPlainText(),
       'start': super.start.millisecondsSinceEpoch,
       'end': super.end.millisecondsSinceEpoch,
-      // 'track': track,
-      // 'room': room,
+      'track': track,
+      'room': room,
+      'speaker': speaker,
+      'facilitator': facilitator,
       'backgroundColor': super.backgroundColor,
       // 'decoration': super.decoration,
       // 'textStyle': super.textStyle,
