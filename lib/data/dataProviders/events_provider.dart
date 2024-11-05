@@ -98,15 +98,30 @@ class EventsProvider extends ProviderData<EventData> with ChangeNotifier {
     List<EventData>? items,
   }) {
     items ??= _items;
-    if (_items.isEmpty) {
+    if (items.isEmpty) {
       return [];
     }
     final DateTime firstEventDate = earliestEvent().start;
     final cutoffDate = firstEventDate.add(Duration(days: days));
 
-    return _items.where(
+    return items.where(
             (item) =>
         item.end.isBefore(cutoffDate) ||
             item.end.isAtSameMomentAs(cutoffDate)).toList();
+  }
+
+  List<EventData> filterPastEvents({
+    List<EventData>? items,
+  }) {
+    items ??= _items;
+    if (items.isEmpty) {
+      return [];
+    }
+    final DateTime now = DateTime.now();
+
+    return items.where(
+            (item) =>
+        item.end.isAfter(now) ||
+            item.end.isAtSameMomentAs(now)).toList();
   }
 }
