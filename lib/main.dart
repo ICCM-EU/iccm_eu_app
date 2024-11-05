@@ -9,7 +9,7 @@ import 'package:iccm_eu_app/data/model/speaker_data.dart';
 import 'package:iccm_eu_app/pages/speaker_details_page.dart';
 import "package:provider/provider.dart" show ChangeNotifierProvider, MultiProvider, Provider;
 import 'package:flutter/material.dart';
-import 'package:iccm_eu_app/theme/theme_provider.dart';
+import 'package:iccm_eu_app/data/appProviders/theme_provider.dart';
 import 'package:iccm_eu_app/pages/base_page.dart';
 
 import 'components/error_overlay.dart';

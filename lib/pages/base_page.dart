@@ -4,7 +4,7 @@ import 'package:iccm_eu_app/controls/nav_bar.dart';
 import 'package:iccm_eu_app/data/appProviders/page_index_provider.dart';
 import "package:provider/provider.dart" show Consumer, Provider;
 
-import 'package:iccm_eu_app/theme/theme_provider.dart';
+import 'package:iccm_eu_app/data/appProviders/theme_provider.dart';
 
 
 class BasePage extends StatefulWidget {

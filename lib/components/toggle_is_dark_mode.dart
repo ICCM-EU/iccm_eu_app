@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/components/toggle_button.dart';
-import 'package:iccm_eu_app/theme/theme_provider.dart';
+import 'package:iccm_eu_app/data/appProviders/theme_provider.dart';
 import 'package:provider/provider.dart';
 
 class ToggleIsDarkModeListTile extends ToggleButtonListTile {
