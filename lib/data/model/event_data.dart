@@ -62,10 +62,10 @@ class EventData extends FlutterWeekViewEvent {
       // fineTime = dateFormat.parse(dateTimeString);
       start: startTime,
       end: endTime,
-      room: itemData['Room'],
-      track: itemData['Category'],
-      speaker: itemData['Speaker'],
-      facilitator: itemData['Facilitator'],
+      room: TextSpan(text: itemData['Room']),
+      track: TextSpan(text: itemData['Category']),
+      speaker: TextSpan(text: itemData['Speaker']),
+      facilitator: TextSpan(text: itemData['Facilitator']),
       backgroundColor: Colors.red,
       padding: EdgeInsets.all(0),
     );
@@ -86,10 +86,10 @@ class EventData extends FlutterWeekViewEvent {
       details: TextSpan(text: json['details'] as String? ?? ''),
       // final dateFormat = DateFormat('dd/MM/yyyy HH:mm:ss');
       // fineTime = dateFormat.parse(dateTimeString);
-      room: json['room'],
-      track: json['track'],
-      speaker: json['speaker'],
-      facilitator: json['facilitator'],
+      room: TextSpan(text: json['room']),
+      track: TextSpan(text: json['track']),
+      speaker: TextSpan(text: json['speaker']),
+      facilitator: TextSpan(text: json['facilitator']),
       start: startTime,
       end: endTime,
       backgroundColor: Colors.red,
