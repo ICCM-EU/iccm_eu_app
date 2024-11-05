@@ -19,15 +19,23 @@ class SchedulePage extends StatefulWidget {
 
 class _SchedulePageState extends State<SchedulePage> {
   late bool _isDayView = true;
+  late bool _futureEvents = true;
 
   @override
   void initState() {
     super.initState();
-    _loadIsDayView(); // Call the asynchronous function
+    // Call the asynchronous functions
+    _loadIsDayView();
+    _loadEventListFilter();
   }
 
   Future<void> _loadIsDayView() async {
     _isDayView = await PreferencesProvider.isDayView;
+    setState(() {}); // Trigger a rebuild after updating _isDayView
+  }
+
+  Future<void> _loadEventListFilter() async {
+    _futureEvents = await PreferencesProvider.futureEvents;
     setState(() {}); // Trigger a rebuild after updating _isDayView
   }
 
@@ -37,6 +45,17 @@ class _SchedulePageState extends State<SchedulePage> {
       appBar: AppBar(
         title: const Text('Calendar'),
         actions: [
+          _isDayView ? const SizedBox.shrink() :
+          IconButton(
+            icon: Icon(_futureEvents ? Icons.filter_alt : Icons.filter_alt_off),
+            onPressed: () {
+              setState(() {
+                _futureEvents = !_futureEvents;
+                PreferencesProvider.setFutureEvents(_futureEvents);
+              });
+            },
+            tooltip: 'Filter only future events',
+          ),
           IconButton(
             icon: Icon(_isDayView ? Icons.list : Icons.calendar_today),
             onPressed: () {
@@ -48,7 +67,7 @@ class _SchedulePageState extends State<SchedulePage> {
           ),
         ],
       ),
-      body: _isDayView ? DayViewCalendar() : const EventList(),
+      body: _isDayView ? DayViewCalendar() : EventList(futureEvents: _futureEvents),
     );
   }
 }
@@ -125,7 +144,12 @@ class DayViewCalendar extends StatelessWidget {
 }
 
 class EventList extends StatelessWidget {
-  const EventList({super.key});
+  final bool futureEvents;
+
+  const EventList({
+    required this.futureEvents,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -142,10 +166,16 @@ class EventList extends StatelessWidget {
         Expanded( // Use Expanded to allow ListView.builder to take available space
           child: Consumer<EventsProvider>( // Wrap ListView.builder with Consumer
             builder: (context, itemList, child) {
+              List<EventData> items;
+              if (futureEvents) {
+                items = itemList.filterPastEvents();
+              } else {
+                items = itemList.items();
+              }
               return ListView.builder(
-                itemCount: itemList.items().length,
+                itemCount: items.length,
                 itemBuilder: (context, index) {
-                  final item = itemList.items()[index];
+                  final item = items[index];
                   return ListTile(
                     leading: item.imageUrl!.startsWith("http") ?
                       CachedNetworkImage(
