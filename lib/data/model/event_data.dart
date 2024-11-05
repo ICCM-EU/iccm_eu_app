@@ -84,8 +84,6 @@ class EventData extends FlutterWeekViewEvent {
       imageUrl: json['imageUrl'],
       name: TextSpan(text: json['name'] as String? ?? ''),
       details: TextSpan(text: json['details'] as String? ?? ''),
-      // final dateFormat = DateFormat('dd/MM/yyyy HH:mm:ss');
-      // fineTime = dateFormat.parse(dateTimeString);
       room: TextSpan(text: json['room']),
       track: TextSpan(text: json['track']),
       speaker: TextSpan(text: json['speaker']),
@@ -105,10 +103,10 @@ class EventData extends FlutterWeekViewEvent {
       'details': details.toPlainText(),
       'start': super.start.millisecondsSinceEpoch,
       'end': super.end.millisecondsSinceEpoch,
-      'track': track,
-      'room': room,
-      'speaker': speaker,
-      'facilitator': facilitator,
+      'track': track?.text.toString(),
+      'room': room?.text.toString(),
+      'speaker': speaker?.text.toString(),
+      // 'facilitator': facilitator.toString(),
       'backgroundColor': super.backgroundColor,
       // 'decoration': super.decoration,
       // 'textStyle': super.textStyle,
