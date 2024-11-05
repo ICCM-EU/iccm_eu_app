@@ -32,8 +32,15 @@ class EventsProvider extends ProviderData<EventData> with ChangeNotifier {
   @override
   void commit() {
     _cache.sort((a, b) => a.start.compareTo(b.start));
+    _fillCacheItemIds();
     saveCache();
     populateItemsFromCache();
+  }
+
+  void _fillCacheItemIds() {
+    for (int i = 0; i < _cache.length; i++) {
+      _cache[i].id = i;
+    }
   }
 
   @override
@@ -111,6 +118,21 @@ class EventsProvider extends ProviderData<EventData> with ChangeNotifier {
   }
 
   List<EventData> filterPastEvents({
+    List<EventData>? items,
+  }) {
+    items ??= _items;
+    if (items.isEmpty) {
+      return [];
+    }
+    final DateTime now = DateTime.now();
+
+    return items.where(
+            (item) =>
+        item.end.isAfter(now) ||
+            item.end.isAtSameMomentAs(now)).toList();
+  }
+
+  List<EventData> eventsByRoom({
     List<EventData>? items,
   }) {
     items ??= _items;

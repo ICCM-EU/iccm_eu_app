@@ -31,8 +31,16 @@ class SpeakersProvider extends ProviderData<SpeakerData> with ChangeNotifier {
 
   @override
   void commit() {
+    _cache.sort((a, b) => a.name.toPlainText().compareTo(b.name.toPlainText()));
+    _fillCacheItemIds();
     saveCache();
     populateItemsFromCache();
+  }
+
+  void _fillCacheItemIds() {
+    for (int i = 0; i < _cache.length; i++) {
+      _cache[i].id = i;
+    }
   }
 
   @override

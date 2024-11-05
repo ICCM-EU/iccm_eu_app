@@ -13,6 +13,7 @@ class RoomData extends ModelItem {
     required this.imageUrl,
     required this.name,
     required this.details,
+    int? id,
   });
 
   factory RoomData.fromItemData(Map<String, dynamic> itemData) {
@@ -29,6 +30,7 @@ class RoomData extends ModelItem {
       imageUrl: json['imageUrl'],
       name: TextSpan(text: json['name'] as String? ?? ''),
       details: TextSpan(text: json['details'] as String? ?? ''),
+      id: int.tryParse(json['id'] ?? '-1'),
     );
   }
 
@@ -37,6 +39,7 @@ class RoomData extends ModelItem {
       'imageUrl': imageUrl,
       'name': name.toPlainText(),
       'details': details.toPlainText(),
+      'id': id.toString(),
     };
   }
 }

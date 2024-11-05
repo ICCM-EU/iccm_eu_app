@@ -7,3 +7,4 @@ abstract class ProviderData<T> {
   Future<void> saveCache();
   void populateItemsFromCache();
 }
+

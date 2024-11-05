@@ -7,6 +7,7 @@ class EventData extends FlutterWeekViewEvent {
   final TextSpan? room;
   final TextSpan name;
   final TextSpan details;
+  int? id = -1;
 
   EventData({
     // mandatory parameters
@@ -19,6 +20,7 @@ class EventData extends FlutterWeekViewEvent {
     this.imageUrl,
     this.track,
     this.room,
+    this.id,
 
     // optional inherited parameters
     // FIXME: Set these based on local parameters
@@ -80,6 +82,7 @@ class EventData extends FlutterWeekViewEvent {
       end: endTime,
       backgroundColor: Colors.red,
       padding: EdgeInsets.all(0),
+      id: int.tryParse(json['id'] ?? '-1'),
     );
   }
 
@@ -97,6 +100,7 @@ class EventData extends FlutterWeekViewEvent {
       // 'textStyle': super.textStyle,
       // 'padding': super.padding,
       'margin': super.margin,
+      'id': id.toString(),
     };
   }
 }
