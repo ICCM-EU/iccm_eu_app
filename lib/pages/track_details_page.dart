@@ -1,9 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/controls/nav_bar.dart';
-import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/model/track_data.dart';
-import 'package:provider/provider.dart';
 
 class TrackDetailsPage extends StatelessWidget {
   final TrackData item;
@@ -14,9 +12,9 @@ class TrackDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final eventsProvider = Provider.of<EventsProvider>(context, listen: true);
-    final trackName = item.name.toPlainText();
-    final trackEvents = eventsProvider.eventsByTrack(name: trackName);
+    // final eventsProvider = Provider.of<EventsProvider>(context, listen: true);
+    // final trackName = item.name.toPlainText();
+    // final trackEvents = eventsProvider.eventsByTrack(name: trackName);
     return Scaffold(
       appBar: AppBar(
         title: const Text("Track Details"),

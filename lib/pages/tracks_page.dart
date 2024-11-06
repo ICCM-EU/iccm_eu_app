@@ -1,12 +1,28 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/components/page_title.dart';
+import 'package:iccm_eu_app/data/dataProviders/error_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
 import 'package:iccm_eu_app/pages/track_details_page.dart';
 import 'package:provider/provider.dart';
 
-class TracksPage extends StatelessWidget {
+class TracksPage extends StatefulWidget {
   const TracksPage({super.key});
+
+  @override
+  TracksPageState createState() => TracksPageState();
+}
+
+class TracksPageState extends State<TracksPage> {
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<TracksProvider>(context, listen: false).loadCache;
+    Provider.of<GsheetsProvider>(context, listen: false).fetchData(
+        errorProvider: Provider.of<ErrorProvider>(context, listen: false),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

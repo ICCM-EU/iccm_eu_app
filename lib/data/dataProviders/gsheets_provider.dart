@@ -10,18 +10,14 @@ import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/rooms_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/speakers_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
-import 'package:iccm_eu_app/data/model/event_data.dart';
-import 'package:iccm_eu_app/data/model/room_data.dart';
-import 'package:iccm_eu_app/data/model/speaker_data.dart';
-import 'package:iccm_eu_app/data/model/track_data.dart';
 import '../model/error_signal.dart';
-import '../model/provider_data.dart';
 import 'error_provider.dart';
 
 class GsheetsProvider with ChangeNotifier {
   final String _sheetID =
       '1dFLWrcbI1AltIvVCEjBx9I3I3d0ToGN2FmzcFuAYsZE';
   bool _isFetchingData = false;
+  late final _rawData = <String, List<Map<String, String>>>{};
 
   GsheetsProvider() {
     _isFetchingData = false;
@@ -68,11 +64,10 @@ class GsheetsProvider with ChangeNotifier {
     return totalObjects;
   }
 
-  Future<Map<String, List<Map<String, String>>>> _readWorksheets({
+  Future<void> _readWorksheets({
       required List<String> worksheetTitles,
       required ErrorProvider errorProvider,
-}) async {
-    final data = <String, List<Map<String, String>>>{};
+  }) async {
     try {
       final credentials = await _loadCredentials(errorProvider);
       final sheets = GSheets(credentials);
@@ -84,7 +79,7 @@ class GsheetsProvider with ChangeNotifier {
           throw Exception('Worksheet "$worksheetTitle" not found.');
         } else {
           final rows = await worksheet.values.map.allRows() ?? [];
-          data[worksheetTitle] = rows;
+          _rawData[worksheetTitle] = rows;
         }
       }
     } catch (e, stackTrace) {
@@ -94,17 +89,11 @@ class GsheetsProvider with ChangeNotifier {
       final lineNumber = match?.group(3) ?? 'unknown';
       errorProvider.setErrorSignal(ErrorSignal('Error ($fileName:$lineNumber): $e'));
     }
-
-    return data;
   }
 
   Future<void> fetchData({
     required ErrorProvider errorProvider,
-    required EventsProvider eventsProvider,
-    required RoomsProvider roomsProvider,
-    required SpeakersProvider speakersProvider,
-    required TracksProvider tracksProvider,
-    bool force = true,
+    bool force = false,
   }) async {
     if (_isFetchingData) {
       return;
@@ -119,75 +108,65 @@ class GsheetsProvider with ChangeNotifier {
       return;
     }
 
-    final List<ProviderData> providers = [
-      eventsProvider,
-      roomsProvider,
-      speakersProvider,
-      tracksProvider,
-    ];
-    final List<String> worksheetTitles = providers.map(
-            (provider) => provider.worksheetTitle).toList();
+    List<String> workSheetTitles = [];
+    workSheetTitles.add(EventsProvider.worksheetTitle);
+    workSheetTitles.add(RoomsProvider.worksheetTitle);
+    workSheetTitles.add(SpeakersProvider.worksheetTitle);
+    workSheetTitles.add(TracksProvider.worksheetTitle);
 
     _isFetchingData = true;
-    final data = await _readWorksheets(
-        worksheetTitles: worksheetTitles,
+
+    await _readWorksheets(
+        worksheetTitles: workSheetTitles,
         errorProvider: errorProvider);
 
     // Terminate if data is empty
-    if (_countDataObjects(data) == 0) {
+    if (_countDataObjects(_rawData) == 0) {
+      _isFetchingData = false;
       return;
     }
 
     String cachedChecksum = await PreferencesProvider.cachedChecksum;
-    String dataChecksum = _generateChecksum(data);
+    String dataChecksum = _generateChecksum(_rawData);
 
     if (lastUpdated == null || cachedChecksum != dataChecksum || force) {
       await PreferencesProvider.setCachedChecksum(dataChecksum);
       await PreferencesProvider.setLastUpdated(now);
 
-      for (final provider in providers) {
-        final worksheetTitle = provider.worksheetTitle;
-        if (provider == eventsProvider) {
-          if (data.containsKey(worksheetTitle)) {
-            provider.cacheClear();
-            for (final itemData in data[worksheetTitle]!) {
-                provider.cacheAdd(EventData.fromItemData(itemData));
-            }
-            provider.commit();
-          }
-        }
-
-        if (provider == roomsProvider) {
-          if (data.containsKey(worksheetTitle)) {
-            provider.cacheClear();
-            for (final itemData in data[worksheetTitle]!) {
-              provider.cacheAdd(RoomData.fromItemData(itemData));
-            }
-            provider.commit();
-          }
-        }
-
-        if (provider == speakersProvider) {
-          if (data.containsKey(worksheetTitle)) {
-            provider.cacheClear();
-            for (final itemData in data[worksheetTitle]!) {
-              provider.cacheAdd(SpeakerData.fromItemData(itemData));
-            }
-            provider.commit();
-          }
-        }
-
-        if (provider == tracksProvider) {
-          if (data.containsKey(worksheetTitle)) {
-            provider.cacheClear();
-            for (final itemData in data[worksheetTitle]!) {
-              provider.cacheAdd(TrackData.fromItemData(itemData));
-            }
-            provider.commit();
-          }
-        }
-      }
     }
+    notifyListeners();
     _isFetchingData = false;
+  }
+
+  List<Map<String, String>>? getEventData() {
+    String worksheetTitle = EventsProvider.worksheetTitle;
+    if (_rawData.containsKey(worksheetTitle)) {
+      return _rawData[worksheetTitle];
+    }
+    return null;
+  }
+
+  List<Map<String, String>>? getRoomData() {
+    String worksheetTitle = RoomsProvider.worksheetTitle;
+    if (_rawData.containsKey(worksheetTitle)) {
+      return _rawData[worksheetTitle];
+    }
+    return null;
+  }
+
+  List<Map<String, String>>? getSpeakerData() {
+    String worksheetTitle = SpeakersProvider.worksheetTitle;
+    if (_rawData.containsKey(worksheetTitle)) {
+      return _rawData[worksheetTitle];
+    }
+    return null;
+  }
+
+  List<Map<String, String>>? getTrackData() {
+    String worksheetTitle = TracksProvider.worksheetTitle;
+    if (_rawData.containsKey(worksheetTitle)) {
+      return _rawData[worksheetTitle];
+    }
+    return null;
   }
 }

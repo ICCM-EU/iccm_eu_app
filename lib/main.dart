@@ -7,7 +7,7 @@ import 'package:iccm_eu_app/data/appProviders/page_index_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
 import 'package:iccm_eu_app/data/model/speaker_data.dart';
 import 'package:iccm_eu_app/pages/speaker_details_page.dart';
-import "package:provider/provider.dart" show ChangeNotifierProvider, MultiProvider, Provider;
+import "package:provider/provider.dart" show ChangeNotifierProvider, ChangeNotifierProxyProvider, MultiProvider, Provider;
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/appProviders/theme_provider.dart';
 import 'package:iccm_eu_app/pages/base_page.dart';
@@ -27,28 +27,35 @@ void main() {
           create: (_) => PageIndexProvider(),
         ),
         ChangeNotifierProvider(
-          create: (context) => SpeakersProvider(
-          ),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => TracksProvider(
-          ),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => RoomsProvider(
-          ),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => EventsProvider(
-          ),
-        ),
-        // Ensure that the order remains intact as per usage.
-        ChangeNotifierProvider(
           create: (_) => ErrorProvider(),
         ),
         ChangeNotifierProvider(
           create: (context) => GsheetsProvider(
           ),
+        ),
+        ChangeNotifierProxyProvider<GsheetsProvider, TracksProvider>(
+          create: (context) => TracksProvider(
+              gsheetsProvider: Provider.of<GsheetsProvider>(context, listen: false),
+          ),
+          update: (context, gsheetsProvider, tracksProvider) => tracksProvider!..updateCache(),
+        ),
+        ChangeNotifierProxyProvider<GsheetsProvider, EventsProvider>(
+          create: (context) => EventsProvider(
+            gsheetsProvider: Provider.of<GsheetsProvider>(context, listen: false),
+          ),
+          update: (context, gsheetsProvider, eventsProvider) => eventsProvider!..updateCache(),
+        ),
+        ChangeNotifierProxyProvider<GsheetsProvider, RoomsProvider>(
+          create: (context) => RoomsProvider(
+            gsheetsProvider: Provider.of<GsheetsProvider>(context, listen: false),
+          ),
+          update: (context, gsheetsProvider, eventsProvider) => eventsProvider!..updateCache(),
+        ),
+        ChangeNotifierProxyProvider<GsheetsProvider, SpeakersProvider>(
+          create: (context) => SpeakersProvider(
+            gsheetsProvider: Provider.of<GsheetsProvider>(context, listen: false),
+          ),
+          update: (context, gsheetsProvider, eventsProvider) => eventsProvider!..updateCache(),
         ),
       ],
       child: const MyApp(),
@@ -63,13 +70,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //final PrefsProvider prefsProvider = Provider.of<PrefsProvider>(context);
-    Provider.of<GsheetsProvider>(context, listen: false).fetchData(
-      errorProvider: Provider.of<ErrorProvider>(context, listen: false),
-      eventsProvider: Provider.of<EventsProvider>(context, listen: false),
-      roomsProvider: Provider.of<RoomsProvider>(context, listen: false),
-      speakersProvider: Provider.of<SpeakersProvider>(context, listen: false),
-      tracksProvider: Provider.of<TracksProvider>(context, listen: false),
-    );
+    // Provider.of<GsheetsProvider>(context, listen: false).fetchData(
+    //   errorProvider: Provider.of<ErrorProvider>(context, listen: false),
+    //   eventsProvider: Provider.of<EventsProvider>(context, listen: false),
+    //   roomsProvider: Provider.of<RoomsProvider>(context, listen: false),
+    //   speakersProvider: Provider.of<SpeakersProvider>(context, listen: false),
+    //   tracksProvider: Provider.of<TracksProvider>(context, listen: false),
+    // );
     return MaterialApp(
       title: 'ICCM Europe App',
       theme: Provider.of<ThemeProvider>(context).themeData,

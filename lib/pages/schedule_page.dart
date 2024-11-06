@@ -5,7 +5,9 @@ import 'package:iccm_eu_app/components/date_functions.dart';
 import 'package:iccm_eu_app/components/page_title.dart';
 import 'package:iccm_eu_app/components/text_functions.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/error_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/data/model/event_data.dart';
 import 'package:iccm_eu_app/pages/event_details_page.dart';
 import 'package:provider/provider.dart';
@@ -72,8 +74,22 @@ class _SchedulePageState extends State<SchedulePage> {
   }
 }
 
-class DayViewCalendar extends StatelessWidget {
+class DayViewCalendar extends StatefulWidget {
   const DayViewCalendar({super.key});
+
+  @override
+  DayViewCalendarState createState() => DayViewCalendarState();
+}
+
+class DayViewCalendarState extends State<DayViewCalendar> {
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<EventsProvider>(context, listen: false).loadCache;
+    Provider.of<GsheetsProvider>(context, listen: false).fetchData(
+      errorProvider: Provider.of<ErrorProvider>(context, listen: false),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -143,13 +159,39 @@ class DayViewCalendar extends StatelessWidget {
   }
 }
 
-class EventList extends StatelessWidget {
-  final bool futureEvents;
+class EventList extends StatefulWidget {
+  bool get futureEvents => _futureEvents;
+  final bool _futureEvents;
 
   const EventList({
-    required this.futureEvents,
+    required bool futureEvents,
     super.key,
-  });
+  }) : _futureEvents = futureEvents;
+
+  @override
+  EventListState createState() => EventListState();
+}
+
+class EventListState extends State<EventList> {
+  late bool _futureEvents;
+
+  @override
+  void initState() {
+    super.initState();
+    _futureEvents = widget.futureEvents;
+    Provider.of<EventsProvider>(context, listen: false).loadCache;
+    Provider.of<GsheetsProvider>(context, listen: false).fetchData(
+      errorProvider: Provider.of<ErrorProvider>(context, listen: false),
+    );
+  }
+
+  @override
+  void didUpdateWidget(EventList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.futureEvents != widget.futureEvents) {
+      _futureEvents = widget.futureEvents; // Update local variable if futureEvents changed
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -167,7 +209,7 @@ class EventList extends StatelessWidget {
           child: Consumer<EventsProvider>( // Wrap ListView.builder with Consumer
             builder: (context, itemList, child) {
               List<EventData> items;
-              if (futureEvents) {
+              if (_futureEvents) {
                 items = itemList.filterPastEvents();
               } else {
                 items = itemList.items();

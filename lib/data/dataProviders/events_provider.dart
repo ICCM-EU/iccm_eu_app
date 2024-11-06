@@ -1,40 +1,69 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:iccm_eu_app/data/model/provider_data.dart';
+import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/data/model/event_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class EventsProvider extends ProviderData<EventData> with ChangeNotifier {
-  @override
-  String get worksheetTitle => "Sessions";
-  @override
-  String get cacheTitle => "_eventDataCache";
-
-  late final List<EventData> _items = [];
-  List<EventData> items() {
-    populateItemsFromCache();
-    return _items;
-  }
+class EventsProvider with ChangeNotifier  {
+  static String get worksheetTitle => "Sessions";
+  String get _cacheTitle => "_eventDataCache";
+  final GsheetsProvider _gsheetsProvider;
 
   final List<EventData> _cache = [];
 
-  @override
-  void cacheAdd(EventData item) {
+  late final List<EventData> _items = [];
+  List<EventData> items() {
+    _populateItemsFromCache();
+    return _items;
+  }
+
+  EventsProvider({
+    required GsheetsProvider gsheetsProvider,
+  }) : _gsheetsProvider = gsheetsProvider {
+    _gsheetsProvider.addListener(updateCache);
+  }
+
+  void updateCache() {
+    // Process raw data from GsheetsProvider and update _tracks
+    var data = _gsheetsProvider.getEventData();
+    if (data != null && data.isNotEmpty) {
+      _cacheClear();
+      for (final itemData in data) {
+        _cacheAdd(EventData.fromItemData(itemData));
+      }
+      _commit();
+    }
+    notifyListeners();
+  }
+
+  Future<void> loadCache() async {
+    final prefs = await SharedPreferences.getInstance();
+    final cacheJson = prefs.getString(_cacheTitle);
+    if (cacheJson != null && cacheJson.isNotEmpty) {
+      _cacheClear();
+      final List<dynamic> jsonList = jsonDecode(cacheJson);
+      jsonList.map((json) => EventData.fromJson(json)).toList().forEach((item) {
+        _cacheAdd(item);
+      });
+      _commit();
+    }
+  }
+
+  void _cacheAdd(EventData item) {
     _cache.add(item);
   }
 
-  @override
-  void cacheClear() {
+  void _cacheClear() {
     _cache.clear();
   }
 
-  @override
-  void commit() {
+  void _commit() {
     _cache.sort((a, b) => a.start.compareTo(b.start));
     _fillCacheItemIds();
-    saveCache();
-    populateItemsFromCache();
+    _saveCache();
+    _populateItemsFromCache();
+    notifyListeners();
   }
 
   void _fillCacheItemIds() {
@@ -43,33 +72,20 @@ class EventsProvider extends ProviderData<EventData> with ChangeNotifier {
     }
   }
 
-  @override
-  void populateItemsFromCache() {
+  void _populateItemsFromCache() {
     if (_cache.isNotEmpty) {
       _items.clear();
       for (var item in _cache) {
         _items.add(item);
       }
-      notifyListeners();
+      // notifyListeners();
     }
   }
 
-  @override
-  Future<void> saveCache() async {
+  Future<void> _saveCache() async {
     final prefs = await SharedPreferences.getInstance();
     final cacheJson = jsonEncode(_cache); // Convert _cache to JSON string
-    await prefs.setString(cacheTitle, cacheJson); // Save to SharedPreferences
-  }
-
-  Future<List<EventData>> loadCache() async {
-    final prefs = await SharedPreferences.getInstance();
-    final cacheJson = prefs.getString(cacheTitle);
-    if (cacheJson != null) {
-      final List<dynamic> jsonList = jsonDecode(cacheJson);
-      return jsonList.map((json) => EventData.fromJson(json)).toList();
-    } else {
-      return [];
-    }
+    await prefs.setString(_cacheTitle, cacheJson); // Save to SharedPreferences
   }
 
   EventData earliestEvent ({List<EventData>? items}) {

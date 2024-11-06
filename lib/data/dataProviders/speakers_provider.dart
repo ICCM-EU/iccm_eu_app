@@ -1,40 +1,69 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
-import 'package:iccm_eu_app/data/model/provider_data.dart';
+import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/data/model/speaker_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SpeakersProvider extends ProviderData<SpeakerData> with ChangeNotifier {
-  @override
-  String get worksheetTitle => "Speakers";
-  @override
-  String get cacheTitle => "_speakerDataCache";
-
-  late final List<SpeakerData> _items = [];
-  List<SpeakerData> items() {
-    populateItemsFromCache();
-    return _items;
-  }
+class SpeakersProvider with ChangeNotifier  {
+  static String get worksheetTitle => "Speakers";
+  String get _cacheTitle => "_speakerDataCache";
+  final GsheetsProvider _gsheetsProvider;
 
   final List<SpeakerData> _cache = [];
 
-  @override
-  void cacheAdd(SpeakerData item) {
+  late final List<SpeakerData> _items = [];
+  List<SpeakerData> items() {
+    _populateItemsFromCache();
+    return _items;
+  }
+
+  SpeakersProvider({
+    required GsheetsProvider gsheetsProvider,
+  }) : _gsheetsProvider = gsheetsProvider {
+    _gsheetsProvider.addListener(updateCache);
+  }
+
+  void updateCache() {
+    // Process raw data from GsheetsProvider and update _tracks
+    var data = _gsheetsProvider.getSpeakerData();
+    if (data != null && data.isNotEmpty) {
+      _cacheClear();
+      for (final itemData in data) {
+        _cacheAdd(SpeakerData.fromItemData(itemData));
+      }
+      _commit();
+    }
+    notifyListeners();
+  }
+
+  Future<void> loadCache() async {
+    final prefs = await SharedPreferences.getInstance();
+    final cacheJson = prefs.getString(_cacheTitle);
+    if (cacheJson != null && cacheJson.isNotEmpty) {
+      _cacheClear();
+      final List<dynamic> jsonList = jsonDecode(cacheJson);
+      jsonList.map((json) => SpeakerData.fromJson(json)).toList().forEach((item) {
+        _cacheAdd(item);
+      });
+      _commit();
+    }
+  }
+
+  void _cacheAdd(SpeakerData item) {
     _cache.add(item);
   }
 
-  @override
-  void cacheClear() {
+  void _cacheClear() {
     _cache.clear();
   }
 
-  @override
-  void commit() {
+  void _commit() {
     _cache.sort((a, b) => a.name.toPlainText().compareTo(b.name.toPlainText()));
     _fillCacheItemIds();
-    saveCache();
-    populateItemsFromCache();
+    _saveCache();
+    _populateItemsFromCache();
+    notifyListeners();
   }
 
   void _fillCacheItemIds() {
@@ -43,32 +72,19 @@ class SpeakersProvider extends ProviderData<SpeakerData> with ChangeNotifier {
     }
   }
 
-  @override
-  void populateItemsFromCache() {
+  void _populateItemsFromCache() {
     if (_cache.isNotEmpty) {
       _items.clear();
       for (var item in _cache) {
         _items.add(item);
       }
-      notifyListeners();
+      // notifyListeners();
     }
   }
 
-  @override
-  Future<void> saveCache() async {
+  Future<void> _saveCache() async {
     final prefs = await SharedPreferences.getInstance();
     final cacheJson = jsonEncode(_cache); // Convert _cache to JSON string
-    await prefs.setString(cacheTitle, cacheJson); // Save to SharedPreferences
-  }
-
-  Future<List<SpeakerData>> loadCache() async {
-    final prefs = await SharedPreferences.getInstance();
-    final cacheJson = prefs.getString(cacheTitle);
-    if (cacheJson != null) {
-      final List<dynamic> jsonList = jsonDecode(cacheJson);
-      return jsonList.map((json) => SpeakerData.fromJson(json)).toList();
-    } else {
-      return [];
-    }
+    await prefs.setString(_cacheTitle, cacheJson); // Save to SharedPreferences
   }
 }
