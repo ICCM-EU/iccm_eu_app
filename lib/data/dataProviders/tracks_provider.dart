@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
-import 'package:iccm_eu_app/data/definitions/track_colors_dictionary.dart';
+import 'package:iccm_eu_app/data/definitions/item_colors_dictionary.dart';
 import 'package:iccm_eu_app/data/model/track_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -65,7 +65,7 @@ class TracksProvider with ChangeNotifier {
     _fillCacheItemIds();
     _saveCache();
     _populateItemsFromCache();
-    _initializeItemTrackColors();
+    _initializeItemColors();
     notifyListeners();
   }
 
@@ -90,9 +90,9 @@ class TracksProvider with ChangeNotifier {
     await prefs.setString(_cacheTitle, cacheJson); // Save to SharedPreferences
   }
 
-  TrackData? trackDataByName(String name) {
+  TrackData? getDataByName(String name) {
     try {
-      return _items.firstWhere((track) => track.name.text == name);
+      return _items.firstWhere((item) => item.name.text == name);
     } catch (e) {
       if (e is StateError) {
         // Handle the case where no matching element is found
@@ -104,9 +104,9 @@ class TracksProvider with ChangeNotifier {
     }
   }
 
-  void _initializeItemTrackColors()
+  void _initializeItemColors()
   {
-    final colors = TrackColorsDictionary().colors.values.toList();
+    final colors = ItemColorsDictionary().colors.values.toList();
     int colorIndex = 0;
     for (var item in _items) {
       item.colors = colors[colorIndex];

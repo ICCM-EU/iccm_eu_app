@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iccm_eu_app/data/model/colors_data.dart';
 import 'package:iccm_eu_app/data/model/model_item.dart';
 
 class RoomData extends ModelItem {
@@ -8,11 +9,13 @@ class RoomData extends ModelItem {
   final TextSpan name;
   @override
   final TextSpan details;
+  late ColorsData? colors;
 
   RoomData._({
     required this.imageUrl,
     required this.name,
     required this.details,
+    this.colors,
     int? id,
   });
 
@@ -21,6 +24,7 @@ class RoomData extends ModelItem {
       imageUrl: itemData['Photo 1'] ?? '',
       name: TextSpan(text: itemData['Name'] ?? ''),
       details: TextSpan(text: itemData['Description'] ?? ''),
+      colors: null,
     );
   }
 

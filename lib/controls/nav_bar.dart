@@ -4,7 +4,7 @@ import 'package:iccm_eu_app/pages/about_page.dart';
 import 'package:iccm_eu_app/pages/home_page.dart';
 import 'package:iccm_eu_app/pages/preferences_page.dart';
 import 'package:iccm_eu_app/pages/rooms_page.dart';
-import 'package:iccm_eu_app/pages/schedule_page.dart';
+import 'package:iccm_eu_app/pages/events_page.dart';
 import 'package:iccm_eu_app/pages/speakers_page.dart';
 import 'package:iccm_eu_app/pages/tracks_page.dart';
 import 'package:iccm_eu_app/pages/travel_information_page.dart';
@@ -29,7 +29,7 @@ class NavBar extends StatefulWidget {
 
   static final List<Widget> _widgetOptions = <Widget>[
     const HomePage(), // 0
-    const SchedulePage(), // 1
+    const EventsPage(), // 1
     const TracksPage(), // 2
     const SpeakersPage(), // 3
     const RoomsPage(), // 4

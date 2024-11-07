@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:iccm_eu_app/data/model/colors_data.dart';
 
-class TrackColorsDictionary {
+class ItemColorsDictionary {
   final Map<String, ColorsData> colors = {
     'red': ColorsData(
         primary: const Color(0xffad2121),

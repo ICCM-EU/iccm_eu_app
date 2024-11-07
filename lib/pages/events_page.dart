@@ -10,19 +10,20 @@ import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/error_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/rooms_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
 import 'package:iccm_eu_app/data/model/event_data.dart';
 import 'package:iccm_eu_app/pages/event_details_page.dart';
 import 'package:provider/provider.dart';
 
-class SchedulePage extends StatefulWidget {
-  const SchedulePage({super.key});
+class EventsPage extends StatefulWidget {
+  const EventsPage({super.key});
 
   @override
-  State<SchedulePage> createState() => _SchedulePageState();
+  State<EventsPage> createState() => _EventsPageState();
 }
 
-class _SchedulePageState extends State<SchedulePage> {
+class _EventsPageState extends State<EventsPage> {
   late bool _isDayView = true;
   late bool _futureEvents = true;
 
@@ -125,47 +126,69 @@ class DayViewCalendarState extends State<DayViewCalendar> {
               } else if (initialTime.isAfter(itemList.latestEvent().end)) {
                 initialTime = itemList.latestEvent().end;
               }
-              return WeekView(
-                // dayBarStyleBuilder: Null,
-                minimumTime: HourMinute(hour: 7, minute: 0),
-                maximumTime: HourMinute(hour: 23, minute: 0),
-                initialTime: initialTime,
-                dates: dates,
-                events: Provider.of<EventsProvider>(context).items().map((item) {
-                  Color? backgroundColor = Colors.red;
-                  Color? textColor = Colors.black;
-                  if (item.track != null) {
-                    final tracksProvider = Provider.of<TracksProvider>(
-                        context, listen: false);
-                    final track = tracksProvider.trackDataByName(item.track!
-                        .text.toString());
-                    if (track != null && track.colors != null) {
-                      backgroundColor = track.colors?.primary;
-                      textColor = track.colors?.secondary;
-                    }
-                  }
-                  return EventData(
-                    name: item.name,
-                    details: item.details,
-                    start: item.start,
-                    end: item.end,
-                    backgroundColor: backgroundColor, // Add other properties as needed
-                    textStyle: TextStyle(
-                        color: textColor,
-                    ),
-                    onTap: () {
-                      final provider = Provider.of<EventsProvider>(context, listen: false);
-                      final eventDetails = provider.items().firstWhere((e) => e == item);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => EventDetailsPage(item: eventDetails),
+              return ValueListenableBuilder<bool>(
+                valueListenable: PreferencesProvider.calendarColorByRoomNotifier,
+                builder: (context, builderValue, child) {
+                  return WeekView(
+                    minimumTime: HourMinute(hour: 7, minute: 0),
+                    maximumTime: HourMinute(hour: 23, minute: 0),
+                    initialTime: initialTime,
+                    dates: dates,
+                    events: Provider.of<EventsProvider>(context).items().map((
+                        item) {
+                      Color? backgroundColor = Colors.red;
+                      Color? textColor = Colors.black;
+                      if (builderValue) {
+                        if (item.room != null) {
+                          final roomsProvider = Provider.of<RoomsProvider>(
+                              context, listen: false);
+                          final room = roomsProvider.getDataByName(
+                              item.room!.text.toString());
+                          if (room != null && room.colors != null) {
+                            backgroundColor = room.colors?.primary;
+                            textColor = room.colors?.secondary;
+                          }
+                        }
+                      } else {
+                        if (item.track != null) {
+                          final tracksProvider = Provider.of<TracksProvider>(
+                              context, listen: false);
+                          final track = tracksProvider.getDataByName(
+                              item.track!.text.toString());
+                          if (track != null && track.colors != null) {
+                            backgroundColor = track.colors?.primary;
+                            textColor = track.colors?.secondary;
+                          }
+                        }
+                      }
+                      return EventData(
+                        name: item.name,
+                        details: item.details,
+                        start: item.start,
+                        end: item.end,
+                        backgroundColor: backgroundColor,
+                        // Add other properties as needed
+                        textStyle: TextStyle(
+                          color: textColor,
                         ),
+                        onTap: () {
+                          final provider = Provider.of<EventsProvider>(
+                              context, listen: false);
+                          final eventDetails = provider.items().firstWhere((
+                              e) => e == item);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  EventDetailsPage(item: eventDetails),
+                            ),
+                          );
+                        },
                       );
-                    },
+                    }).toList(),
+                    userZoomable: true,
                   );
-                }).toList(),
-                userZoomable: true,
+                }
               );
             },
           ),

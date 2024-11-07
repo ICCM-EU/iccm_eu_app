@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart' show SharedPreferences;
 
 class PreferencesProvider {
@@ -6,12 +7,29 @@ class PreferencesProvider {
 
   static Future<bool> get isDarkTheme async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_isDarkThemeKey) ?? false; // Default to false
+    return prefs.getBool(_isDarkThemeKey) ?? false; // Default
   }
 
   static Future<void> setDarkTheme(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_isDarkThemeKey, value);
+  }
+
+  // ---------------------------------------------------------
+  static const String _calendarColorByRoomKey = 'calendarColorByRoom';
+  static final ValueNotifier<bool> calendarColorByRoomNotifier = ValueNotifier(false);
+
+  static Future<bool> get calendarColorByRoom async {
+    final prefs = await SharedPreferences.getInstance();
+    bool value = prefs.getBool(_calendarColorByRoomKey) ?? false;
+    calendarColorByRoomNotifier.value = value;
+    return value; // Default
+  }
+
+  static Future<void> setCalendarColorByRoom(bool value) async {
+    calendarColorByRoomNotifier.value = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_calendarColorByRoomKey, value);
   }
 
   // ---------------------------------------------------------

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
+import 'package:iccm_eu_app/data/definitions/item_colors_dictionary.dart';
 import 'package:iccm_eu_app/data/model/room_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -63,6 +64,7 @@ class RoomsProvider with ChangeNotifier  {
     _fillCacheItemIds();
     _saveCache();
     _populateItemsFromCache();
+    _initializeItemColors();
     notifyListeners();
   }
 
@@ -86,5 +88,30 @@ class RoomsProvider with ChangeNotifier  {
     final prefs = await SharedPreferences.getInstance();
     final cacheJson = jsonEncode(_cache); // Convert _cache to JSON string
     await prefs.setString(_cacheTitle, cacheJson); // Save to SharedPreferences
+  }
+
+  RoomData? getDataByName(String name) {
+    try {
+      return _items.firstWhere((item) => item.name.text == name);
+    } catch (e) {
+      if (e is StateError) {
+        // Handle the case where no matching element is found
+        return null;
+      } else {
+        // Re-throw other exceptions
+        rethrow;
+      }
+    }
+  }
+
+  void _initializeItemColors()
+  {
+    final colors = ItemColorsDictionary().colors.values.toList();
+    int colorIndex = 0;
+    for (var item in _items) {
+      item.colors = colors[colorIndex];
+
+      colorIndex = (colorIndex + 1) % colors.length; // Update color index, wrap around if necessary
+    }
   }
 }
