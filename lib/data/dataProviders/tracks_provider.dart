@@ -1,18 +1,21 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
+import 'package:iccm_eu_app/data/definitions/track_colors_dictionary.dart';
 import 'package:iccm_eu_app/data/model/track_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class TracksProvider with ChangeNotifier  {
+class TracksProvider with ChangeNotifier {
   static String get worksheetTitle => "Category";
+
   String get _cacheTitle => "_trackDataCache";
   final GsheetsProvider _gsheetsProvider;
 
   final List<TrackData> _cache = [];
 
   final List<TrackData> _items = [];
+
   List<TrackData> items() {
     _populateItemsFromCache();
     return _items;
@@ -62,6 +65,7 @@ class TracksProvider with ChangeNotifier  {
     _fillCacheItemIds();
     _saveCache();
     _populateItemsFromCache();
+    _initializeItemTrackColors();
     notifyListeners();
   }
 
@@ -84,5 +88,30 @@ class TracksProvider with ChangeNotifier  {
     final prefs = await SharedPreferences.getInstance();
     final cacheJson = jsonEncode(_cache); // Convert _cache to JSON string
     await prefs.setString(_cacheTitle, cacheJson); // Save to SharedPreferences
+  }
+
+  TrackData? trackDataByName(String name) {
+    try {
+      return _items.firstWhere((track) => track.name.text == name);
+    } catch (e) {
+      if (e is StateError) {
+        // Handle the case where no matching element is found
+        return null;
+      } else {
+        // Re-throw other exceptions
+        rethrow;
+      }
+    }
+  }
+
+  void _initializeItemTrackColors()
+  {
+    final colors = TrackColorsDictionary().colors.values.toList();
+    int colorIndex = 0;
+    for (var item in _items) {
+      item.colors = colors[colorIndex];
+
+      colorIndex = (colorIndex + 1) % colors.length; // Update color index, wrap around if necessary
+    }
   }
 }

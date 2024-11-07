@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/model/model_item.dart';
+import 'package:iccm_eu_app/data/model/colors_data.dart';
 
 class TrackData extends ModelItem {
   @override
@@ -8,11 +9,13 @@ class TrackData extends ModelItem {
   final TextSpan name;
   @override
   final TextSpan details;
+  late ColorsData? colors;
 
   TrackData._({
     required this.imageUrl,
     required this.name,
     required this.details,
+    this.colors,
     int? id,
   });
 
@@ -21,6 +24,7 @@ class TrackData extends ModelItem {
       imageUrl: itemData['Photo'] ?? '',
       name: TextSpan(text: itemData['Name'] ?? ''),
       details: TextSpan(text: itemData['Description'] ?? ''),
+      colors: null,
     );
   }
 
