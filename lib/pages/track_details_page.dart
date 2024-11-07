@@ -1,9 +1,16 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/controls/nav_bar.dart';
+import 'package:iccm_eu_app/data/dataProviders/error_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
 import 'package:iccm_eu_app/data/model/track_data.dart';
+import 'package:provider/provider.dart';
 
-class TrackDetailsPage extends StatelessWidget {
+
+class TrackDetailsPage extends StatefulWidget {
   final TrackData item;
   const TrackDetailsPage({
     super.key,
@@ -11,24 +18,45 @@ class TrackDetailsPage extends StatelessWidget {
   });
 
   @override
+  TrackDetailsPageState createState() => TrackDetailsPageState();
+}
+
+class TrackDetailsPageState extends State<TrackDetailsPage> {
+  late Timer _timer;
+
+  void _fetchData() {
+    Provider.of<GsheetsProvider>(context, listen: true).fetchData(
+      errorProvider: Provider.of<ErrorProvider>(context, listen: false),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(minutes: 5), (timer) {
+      _fetchData(); // Call fetchData every 5 minutes
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    Provider.of<TracksProvider>(context, listen: true).loadCache;
+    _fetchData(); // Call fetchData initially
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel(); // Cancel the timer when the widget is disposed
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // final eventsProvider = Provider.of<EventsProvider>(context, listen: true);
-    // final trackName = item.name.toPlainText();
-    // final trackEvents = eventsProvider.eventsByTrack(name: trackName);
+    TrackData item = widget.item;
     return Scaffold(
       appBar: AppBar(
         title: const Text("Track Details"),
-        actions: const [
-          // IconButton(
-          //   icon: Icon(
-          //     Icons.filter_alt,
-          //     color: Colors.grey[700],
-          //   ),
-          //   onPressed: () {
-          //
-          //   },
-          // ),
-        ],
       ),
       body:
       ListView(

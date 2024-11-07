@@ -1,9 +1,15 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/controls/nav_bar.dart';
+import 'package:iccm_eu_app/data/dataProviders/error_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/rooms_provider.dart';
 import 'package:iccm_eu_app/data/model/room_data.dart';
+import 'package:provider/provider.dart';
 
-class RoomDetailsPage extends StatelessWidget {
+class RoomDetailsPage extends StatefulWidget {
   final RoomData item;
   const RoomDetailsPage({
     super.key,
@@ -11,7 +17,42 @@ class RoomDetailsPage extends StatelessWidget {
   });
 
   @override
+  RoomDetailsPageState createState() => RoomDetailsPageState();
+}
+
+class RoomDetailsPageState extends State<RoomDetailsPage> {
+  late Timer _timer;
+
+  void _fetchData() {
+    Provider.of<GsheetsProvider>(context, listen: true).fetchData(
+      errorProvider: Provider.of<ErrorProvider>(context, listen: false),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(minutes: 5), (timer) {
+      _fetchData(); // Call fetchData every 5 minutes
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    Provider.of<RoomsProvider>(context, listen: true).loadCache;
+    _fetchData(); // Call fetchData initially
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel(); // Cancel the timer when the widget is disposed
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    RoomData item = widget.item;
     return Scaffold(
       appBar: AppBar(
         title: const Text("Room Details"),

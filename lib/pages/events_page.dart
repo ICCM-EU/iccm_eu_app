@@ -26,13 +26,35 @@ class EventsPage extends StatefulWidget {
 class _EventsPageState extends State<EventsPage> {
   late bool _isDayView = true;
   late bool _futureEvents = true;
+  late Timer _timer;
+
+  void _fetchData() {
+    Provider.of<GsheetsProvider>(context, listen: true).fetchData(
+      errorProvider: Provider.of<ErrorProvider>(context, listen: false),
+    );
+  }
 
   @override
   void initState() {
     super.initState();
-    // Call the asynchronous functions
     _loadIsDayView();
     _loadEventListFilter();
+    _timer = Timer.periodic(const Duration(minutes: 5), (timer) {
+      _fetchData(); // Call fetchData every 5 minutes
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    Provider.of<EventsProvider>(context, listen: true).loadCache;
+    _fetchData(); // Call fetchData initially
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel(); // Cancel the timer when the widget is disposed
+    super.dispose();
   }
 
   Future<void> _loadIsDayView() async {

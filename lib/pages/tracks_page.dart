@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/components/page_title.dart';
@@ -15,13 +17,33 @@ class TracksPage extends StatefulWidget {
 }
 
 class TracksPageState extends State<TracksPage> {
+  late Timer _timer;
+
+  void _fetchData() {
+    Provider.of<GsheetsProvider>(context, listen: true).fetchData(
+      errorProvider: Provider.of<ErrorProvider>(context, listen: false),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
-    Provider.of<TracksProvider>(context, listen: false).loadCache;
-    Provider.of<GsheetsProvider>(context, listen: false).fetchData(
-        errorProvider: Provider.of<ErrorProvider>(context, listen: false),
-    );
+    _timer = Timer.periodic(const Duration(minutes: 5), (timer) {
+      _fetchData(); // Call fetchData every 5 minutes
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    Provider.of<TracksProvider>(context, listen: true).loadCache;
+    _fetchData(); // Call fetchData initially
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel(); // Cancel the timer when the widget is disposed
+    super.dispose();
   }
 
   @override
