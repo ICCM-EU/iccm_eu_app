@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart' show SharedPreferences;
 
 class PreferencesProvider {
@@ -13,6 +13,19 @@ class PreferencesProvider {
   static Future<void> setDarkTheme(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_isDarkThemeKey, value);
+  }
+
+  // ---------------------------------------------------------
+  static const String _currentNavigationKey = 'currentNavigationKey';
+
+  static Future<int> get currentNavigation async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_currentNavigationKey) ?? 0; // Default
+  }
+
+  static Future<void> setCurrentNavigation(int value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_currentNavigationKey, value);
   }
 
   // ---------------------------------------------------------

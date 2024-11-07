@@ -56,7 +56,6 @@ class _NavBarState extends State<NavBar> {
           .colorScheme
           .tertiary,
       showUnselectedLabels: true,
-      //backgroundColor: Colors.green[900]!,
       onTap: (index) {
         Provider.of<PageIndexProvider>(context, listen: false).
           updateSelectedIndex(index);
