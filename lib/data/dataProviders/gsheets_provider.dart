@@ -98,13 +98,15 @@ class GsheetsProvider with ChangeNotifier {
     if (_isFetchingData) {
       return;
     }
+    _isFetchingData = true;
 
     DateTime now = DateTime.now();
     DateTime? lastUpdated = await PreferencesProvider.cacheLastUpdated;
     if (! force &&
-        (lastUpdated != null && lastUpdated.isAfter(now.subtract(
+        (lastUpdated != null && lastUpdated.isBefore(now.subtract(
             const Duration(minutes: 5))))
     ) {
+      _isFetchingData = false;
       return;
     }
 
@@ -113,8 +115,6 @@ class GsheetsProvider with ChangeNotifier {
     workSheetTitles.add(RoomsProvider.worksheetTitle);
     workSheetTitles.add(SpeakersProvider.worksheetTitle);
     workSheetTitles.add(TracksProvider.worksheetTitle);
-
-    _isFetchingData = true;
 
     await _readWorksheets(
         worksheetTitles: workSheetTitles,
