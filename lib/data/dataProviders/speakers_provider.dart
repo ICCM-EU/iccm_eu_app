@@ -12,7 +12,7 @@ class SpeakersProvider with ChangeNotifier  {
 
   final List<SpeakerData> _cache = [];
 
-  late final List<SpeakerData> _items = [];
+  final List<SpeakerData> _items = [];
   List<SpeakerData> items() {
     _populateItemsFromCache();
     return _items;

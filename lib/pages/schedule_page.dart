@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_week_view/flutter_week_view.dart';
@@ -97,7 +99,7 @@ class DayViewCalendarState extends State<DayViewCalendar> {
     return Column(
       children: [
         Expanded(
-          child: Consumer<EventsProvider>( // Wrap with Consumer
+          child: Consumer<EventsProvider>(
             builder: (context, itemList, child) {
               DateTime current = itemList.earliestEvent().start;
               // Normalize to start of day
@@ -147,8 +149,6 @@ class DayViewCalendarState extends State<DayViewCalendar> {
                     },
                   );
                 }).toList(),
-                //itemList.items,
-                inScrollableWidget: true,
                 userZoomable: true,
               );
             },

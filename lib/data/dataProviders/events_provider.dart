@@ -12,7 +12,7 @@ class EventsProvider with ChangeNotifier  {
 
   final List<EventData> _cache = [];
 
-  late final List<EventData> _items = [];
+  final List<EventData> _items = [];
   List<EventData> items() {
     _populateItemsFromCache();
     return _items;

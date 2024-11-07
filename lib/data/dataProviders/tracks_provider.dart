@@ -12,7 +12,7 @@ class TracksProvider with ChangeNotifier  {
 
   final List<TrackData> _cache = [];
 
-  late final List<TrackData> _items = [];
+  final List<TrackData> _items = [];
   List<TrackData> items() {
     _populateItemsFromCache();
     return _items;

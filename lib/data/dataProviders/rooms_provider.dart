@@ -12,7 +12,7 @@ class RoomsProvider with ChangeNotifier  {
 
   final List<RoomData> _cache = [];
 
-  late final List<RoomData> _items = [];
+  final List<RoomData> _items = [];
   List<RoomData> items() {
     _populateItemsFromCache();
     return _items;
