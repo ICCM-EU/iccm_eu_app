@@ -66,39 +66,52 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  Future<void> _fetchData ({
+    required BuildContext context,
+    bool force = false,
+  }) async {
+    Provider.of<GsheetsProvider>(context, listen: true).fetchData(
+      errorProvider: Provider.of<ErrorProvider>(context, listen: false),
+      force: force,
+    );
+  }
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    //final PrefsProvider prefsProvider = Provider.of<PrefsProvider>(context);
-    // Provider.of<GsheetsProvider>(context, listen: false).fetchData(
-    //   errorProvider: Provider.of<ErrorProvider>(context, listen: false),
-    //   eventsProvider: Provider.of<EventsProvider>(context, listen: false),
-    //   roomsProvider: Provider.of<RoomsProvider>(context, listen: false),
-    //   speakersProvider: Provider.of<SpeakersProvider>(context, listen: false),
-    //   tracksProvider: Provider.of<TracksProvider>(context, listen: false),
-    // );
     return MaterialApp(
-      title: 'ICCM Europe App',
-      theme: Provider.of<ThemeProvider>(context).themeData,
-      home: Scaffold(
-        body: Stack(
-          children: [
-            Navigator( // Use a Navigator for page transitions
-              onGenerateRoute: (settings) {
-                // Define routes for different pages
-                if (settings.name == '/') {
-                  return MaterialPageRoute(builder: (context) => const BasePage());
-                } else if (settings.name == '/speakerDetails') {
-                  final args = settings.arguments as SpeakerData;
-                  return MaterialPageRoute(builder: (context) => SpeakerDetailsPage(item: args));
-                }
-                return null; // Handle unknown routes
-              },
+        title: 'ICCM Europe App',
+        theme: Provider
+            .of<ThemeProvider>(context)
+            .themeData,
+        home: Scaffold(
+          body: RefreshIndicator(
+            onRefresh: () => _fetchData(
+                context: context,
+                force: true,
             ),
-            const ErrorOverlay(),
-          ],
-        ),
-      ),
+            // Call _fetchData with force: true
+            child: Stack(
+              children: [
+                Navigator( // Use a Navigator for page transitions
+                  onGenerateRoute: (settings) {
+                    // Define routes for different pages
+                    if (settings.name == '/') {
+                      return MaterialPageRoute(
+                          builder: (context) => const BasePage());
+                    } else if (settings.name == '/speakerDetails') {
+                      final args = settings.arguments as SpeakerData;
+                      return MaterialPageRoute(
+                          builder: (context) => SpeakerDetailsPage(item: args));
+                    }
+                    return null; // Handle unknown routes
+                  },
+                ),
+                const ErrorOverlay(),
+              ],
+            ),
+          ),
+        )
     );
   }
 }

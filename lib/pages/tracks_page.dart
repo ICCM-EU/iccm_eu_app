@@ -19,9 +19,10 @@ class TracksPage extends StatefulWidget {
 class TracksPageState extends State<TracksPage> {
   late Timer _timer;
 
-  void _fetchData() {
+  void _fetchData({bool force = false}) {
     Provider.of<GsheetsProvider>(context, listen: true).fetchData(
       errorProvider: Provider.of<ErrorProvider>(context, listen: false),
+      force: force,
     );
   }
 

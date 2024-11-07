@@ -23,9 +23,10 @@ class SpeakerDetailsPage extends StatefulWidget {
 class SpeakerDetailsPageState extends State<SpeakerDetailsPage> {
   late Timer _timer;
 
-  void _fetchData() {
+  void _fetchData({bool force = false}) {
     Provider.of<GsheetsProvider>(context, listen: true).fetchData(
       errorProvider: Provider.of<ErrorProvider>(context, listen: false),
+      force: force,
     );
   }
 
