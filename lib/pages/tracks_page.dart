@@ -1,51 +1,12 @@
-import 'dart:async';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/components/page_title.dart';
-import 'package:iccm_eu_app/data/dataProviders/error_provider.dart';
-import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
 import 'package:iccm_eu_app/pages/track_details_page.dart';
 import 'package:provider/provider.dart';
 
-class TracksPage extends StatefulWidget {
+class TracksPage extends StatelessWidget {
   const TracksPage({super.key});
-
-  @override
-  TracksPageState createState() => TracksPageState();
-}
-
-class TracksPageState extends State<TracksPage> {
-  late Timer _timer;
-
-  void _fetchData({bool force = false}) {
-    Provider.of<GsheetsProvider>(context, listen: true).fetchData(
-      errorProvider: Provider.of<ErrorProvider>(context, listen: false),
-      force: force,
-    );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _timer = Timer.periodic(const Duration(minutes: 5), (timer) {
-      _fetchData(); // Call fetchData every 5 minutes
-    });
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    Provider.of<TracksProvider>(context, listen: true).loadCache;
-    _fetchData(); // Call fetchData initially
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel(); // Cancel the timer when the widget is disposed
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {

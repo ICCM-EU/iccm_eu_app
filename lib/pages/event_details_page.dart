@@ -1,15 +1,9 @@
-import 'dart:async';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/controls/nav_bar.dart';
-import 'package:iccm_eu_app/data/dataProviders/error_provider.dart';
-import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
-import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/data/model/event_data.dart';
-import 'package:provider/provider.dart';
 
-class EventDetailsPage extends StatefulWidget {
+class EventDetailsPage extends StatelessWidget {
   final EventData item;
   const EventDetailsPage({
     super.key,
@@ -17,43 +11,7 @@ class EventDetailsPage extends StatefulWidget {
   });
 
   @override
-  EventDetailsPageState createState() => EventDetailsPageState();
-}
-
-class EventDetailsPageState extends State<EventDetailsPage> {
-  late Timer _timer;
-
-  void _fetchData({bool force = false}) {
-    Provider.of<GsheetsProvider>(context, listen: true).fetchData(
-      errorProvider: Provider.of<ErrorProvider>(context, listen: false),
-      force: force,
-    );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _timer = Timer.periodic(const Duration(minutes: 5), (timer) {
-      _fetchData(); // Call fetchData every 5 minutes
-    });
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    Provider.of<EventsProvider>(context, listen: true).loadCache;
-    _fetchData(); // Call fetchData initially
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel(); // Cancel the timer when the widget is disposed
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    EventData item = widget.item;
     return Scaffold(
       appBar: AppBar(
         title: const Text("Event Details"),

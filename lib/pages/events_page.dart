@@ -7,9 +7,7 @@ import 'package:iccm_eu_app/components/date_functions.dart';
 import 'package:iccm_eu_app/components/page_title.dart';
 import 'package:iccm_eu_app/components/text_functions.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
-import 'package:iccm_eu_app/data/dataProviders/error_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
-import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/rooms_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
 import 'package:iccm_eu_app/data/model/event_data.dart';
@@ -26,36 +24,12 @@ class EventsPage extends StatefulWidget {
 class _EventsPageState extends State<EventsPage> {
   late bool _isDayView = true;
   late bool _futureEvents = true;
-  late Timer _timer;
-
-  void _fetchData({bool force = false}) {
-    Provider.of<GsheetsProvider>(context, listen: true).fetchData(
-      errorProvider: Provider.of<ErrorProvider>(context, listen: false),
-      force: force,
-    );
-  }
 
   @override
   void initState() {
     super.initState();
     _loadIsDayView();
     _loadEventListFilter();
-    _timer = Timer.periodic(const Duration(minutes: 5), (timer) {
-      _fetchData(); // Call fetchData every 5 minutes
-    });
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    Provider.of<EventsProvider>(context, listen: true).loadCache;
-    _fetchData(); // Call fetchData initially
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel(); // Cancel the timer when the widget is disposed
-    super.dispose();
   }
 
   Future<void> _loadIsDayView() async {
@@ -109,15 +83,6 @@ class DayViewCalendar extends StatefulWidget {
 }
 
 class DayViewCalendarState extends State<DayViewCalendar> {
-  @override
-  void initState() {
-    super.initState();
-    Provider.of<EventsProvider>(context, listen: false).loadCache;
-    Provider.of<GsheetsProvider>(context, listen: false).fetchData(
-      errorProvider: Provider.of<ErrorProvider>(context, listen: false),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     // Implement your day view calendar here
@@ -235,17 +200,7 @@ class EventList extends StatefulWidget {
 }
 
 class EventListState extends State<EventList> {
-  late bool _futureEvents;
-
-  @override
-  void initState() {
-    super.initState();
-    _futureEvents = widget.futureEvents;
-    Provider.of<EventsProvider>(context, listen: false).loadCache;
-    Provider.of<GsheetsProvider>(context, listen: false).fetchData(
-      errorProvider: Provider.of<ErrorProvider>(context, listen: false),
-    );
-  }
+  late bool _futureEvents = false;
 
   @override
   void didUpdateWidget(EventList oldWidget) {

@@ -23,12 +23,12 @@ class GsheetsProvider with ChangeNotifier {
     _isFetchingData = false;
   }
 
-  Future<String> _loadCredentials(ErrorProvider errorProvider) async {
+  Future<String> _loadCredentials(ErrorProvider? errorProvider) async {
     try {
       return await rootBundle.loadString('assets/service.json');
     } catch (e) {
       // Show overlay message
-      errorProvider.setErrorSignal(ErrorSignal('Error: $e'));
+      errorProvider?.setErrorSignal(ErrorSignal('Error: $e'));
       rethrow; // Re-throw the exception to handle it elsewhere if needed
     }
   }
@@ -66,7 +66,7 @@ class GsheetsProvider with ChangeNotifier {
 
   Future<void> _readWorksheets({
       required List<String> worksheetTitles,
-      required ErrorProvider errorProvider,
+      ErrorProvider? errorProvider,
   }) async {
     try {
       final credentials = await _loadCredentials(errorProvider);
@@ -87,12 +87,12 @@ class GsheetsProvider with ChangeNotifier {
       final Match? match = regExp.firstMatch(stackTrace.toString());
       final fileName = match?.group(2) ?? 'unknown';
       final lineNumber = match?.group(3) ?? 'unknown';
-      errorProvider.setErrorSignal(ErrorSignal('Error ($fileName:$lineNumber): $e'));
+      errorProvider?.setErrorSignal(ErrorSignal('Error ($fileName:$lineNumber): $e'));
     }
   }
 
   Future<void> fetchData({
-    required ErrorProvider errorProvider,
+    ErrorProvider? errorProvider,
     bool force = false,
   }) async {
     if (_isFetchingData) {
