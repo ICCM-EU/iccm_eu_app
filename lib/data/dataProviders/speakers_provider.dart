@@ -87,4 +87,18 @@ class SpeakersProvider with ChangeNotifier  {
     final cacheJson = jsonEncode(_cache); // Convert _cache to JSON string
     await prefs.setString(_cacheTitle, cacheJson); // Save to SharedPreferences
   }
+
+  SpeakerData? getDataByName(String name) {
+    try {
+      return _items.firstWhere((item) => item.name.text == name);
+    } catch (e) {
+      if (e is StateError) {
+        // Handle the case where no matching element is found
+        return null;
+      } else {
+        // Re-throw other exceptions
+        rethrow;
+      }
+    }
+  }
 }

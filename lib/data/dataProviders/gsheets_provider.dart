@@ -105,9 +105,11 @@ class GsheetsProvider with ChangeNotifier {
     DateTime? lastUpdated = await PreferencesProvider.cacheLastUpdated;
     if (! force &&
         (lastUpdated != null && lastUpdated.isBefore(now.subtract(
-            const Duration(minutes: 5))))
+            const Duration(minutes: 4, seconds: 50,))))
     ) {
-      Debug.msg("Fetch omitted.");
+      final Duration duration = now.difference(lastUpdated);
+      Debug.msg('Fetch omitted. (${force ? 'force' : 'noforce'}, '
+          '${duration..inMinutes})');
       _isFetchingData = false;
       return;
     }
