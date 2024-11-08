@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/data/model/speaker_data.dart';
+import 'package:iccm_eu_app/utils/debug.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SpeakersProvider with ChangeNotifier  {
@@ -14,7 +15,6 @@ class SpeakersProvider with ChangeNotifier  {
 
   final List<SpeakerData> _items = [];
   List<SpeakerData> items() {
-    _populateItemsFromCache();
     return _items;
   }
 
@@ -22,6 +22,8 @@ class SpeakersProvider with ChangeNotifier  {
     required GsheetsProvider gsheetsProvider,
   }) : _gsheetsProvider = gsheetsProvider {
     _gsheetsProvider.addListener(updateCache);
+    _loadCache();
+    _populateItemsFromCache();
   }
 
   void updateCache() {
@@ -37,7 +39,7 @@ class SpeakersProvider with ChangeNotifier  {
     notifyListeners();
   }
 
-  Future<void> loadCache() async {
+  Future<void> _loadCache() async {
     final prefs = await SharedPreferences.getInstance();
     final cacheJson = prefs.getString(_cacheTitle);
     if (cacheJson != null && cacheJson.isNotEmpty) {
@@ -46,7 +48,10 @@ class SpeakersProvider with ChangeNotifier  {
       jsonList.map((json) => SpeakerData.fromJson(json)).toList().forEach((item) {
         _cacheAdd(item);
       });
+      Debug.msg('Speakers cache loaded');
       _commit();
+    } else {
+      Debug.msg('Speakers cache omitted');
     }
   }
 

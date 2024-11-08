@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/data/definitions/item_colors_dictionary.dart';
 import 'package:iccm_eu_app/data/model/room_data.dart';
+import 'package:iccm_eu_app/utils/debug.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RoomsProvider with ChangeNotifier  {
@@ -15,7 +16,6 @@ class RoomsProvider with ChangeNotifier  {
 
   final List<RoomData> _items = [];
   List<RoomData> items() {
-    _populateItemsFromCache();
     return _items;
   }
 
@@ -23,6 +23,9 @@ class RoomsProvider with ChangeNotifier  {
     required GsheetsProvider gsheetsProvider,
   }) : _gsheetsProvider = gsheetsProvider {
     _gsheetsProvider.addListener(updateCache);
+    _loadCache();
+    _populateItemsFromCache();
+    _initializeItemColors();
   }
 
   void updateCache() {
@@ -38,7 +41,7 @@ class RoomsProvider with ChangeNotifier  {
     notifyListeners();
   }
 
-  Future<void> loadCache() async {
+  Future<void> _loadCache() async {
     final prefs = await SharedPreferences.getInstance();
     final cacheJson = prefs.getString(_cacheTitle);
     if (cacheJson != null && cacheJson.isNotEmpty) {
@@ -47,7 +50,10 @@ class RoomsProvider with ChangeNotifier  {
       jsonList.map((json) => RoomData.fromJson(json)).toList().forEach((item) {
         _cacheAdd(item);
       });
+      Debug.msg('Rooms cache loaded');
       _commit();
+    } else {
+      Debug.msg('Rooms cache omitted');
     }
   }
 

@@ -72,20 +72,12 @@ class EventData extends FlutterWeekViewEvent {
   }
 
   factory EventData.fromJson(Map<String, dynamic> json) {
-    final startValue = double.tryParse(json['start'] ?? '0') ?? 0;
-    final startDaysSinceEpoch = startValue - 25569;
-    final startMsSinceEpoch = startDaysSinceEpoch * 24 * 60 * 60 * 1000;
-    final startTime = DateTime.fromMillisecondsSinceEpoch(startMsSinceEpoch.toInt());
-    final endValue = double.tryParse(json['end'] ?? '0') ?? 0;
-    final endDaysSinceEpoch = endValue - 25569;
-    final endMsSinceEpoch = endDaysSinceEpoch * 24 * 60 * 60 * 1000;
-    final endTime = DateTime.fromMillisecondsSinceEpoch(endMsSinceEpoch.toInt());
     return EventData(
       imageUrl: json['imageUrl'],
       name: TextSpan(text: json['name'] as String? ?? ''),
       details: TextSpan(text: json['details'] as String? ?? ''),
-      start: startTime,
-      end: endTime,
+      start: DateTime.parse(json['start']),
+      end: DateTime.parse(json['end']),
       track: TextSpan(text: json['track']),
       room: TextSpan(text: json['room']),
       speaker: TextSpan(text: json['speaker']),
@@ -99,12 +91,12 @@ class EventData extends FlutterWeekViewEvent {
       'imageUrl': imageUrl,
       'name': name.text.toString(),
       'details': details.text.toString(),
-      'start': super.start.millisecondsSinceEpoch.toString(),
-      'end': super.end.millisecondsSinceEpoch.toString(),
+      'start': super.start.toIso8601String(),
+      'end': super.end.toIso8601String(),
       'track': track?.text.toString(),
       'room': room?.text.toString(),
       'speaker': speaker?.text.toString(),
-      'facilitator': facilitator.toString(),
+      'facilitator': facilitator?.text.toString(),
       'id': id.toString(),
     };
   }

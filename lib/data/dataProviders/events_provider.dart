@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/data/model/event_data.dart';
+import 'package:iccm_eu_app/utils/debug.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EventsProvider with ChangeNotifier  {
@@ -14,7 +15,6 @@ class EventsProvider with ChangeNotifier  {
 
   final List<EventData> _items = [];
   List<EventData> items() {
-    _populateItemsFromCache();
     return _items;
   }
 
@@ -22,6 +22,8 @@ class EventsProvider with ChangeNotifier  {
     required GsheetsProvider gsheetsProvider,
   }) : _gsheetsProvider = gsheetsProvider {
     _gsheetsProvider.addListener(updateCache);
+    _loadCache();
+    _populateItemsFromCache();
   }
 
   void updateCache() {
@@ -37,16 +39,20 @@ class EventsProvider with ChangeNotifier  {
     notifyListeners();
   }
 
-  Future<void> loadCache() async {
+  Future<void> _loadCache() async {
     final prefs = await SharedPreferences.getInstance();
     final cacheJson = prefs.getString(_cacheTitle);
     if (cacheJson != null && cacheJson.isNotEmpty) {
+      // Debug.msg(cacheJson);
       _cacheClear();
       final List<dynamic> jsonList = jsonDecode(cacheJson);
       jsonList.map((json) => EventData.fromJson(json)).toList().forEach((item) {
         _cacheAdd(item);
       });
+      Debug.msg('Events cache loaded');
       _commit();
+    } else {
+      Debug.msg('Events cache omitted');
     }
   }
 
