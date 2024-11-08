@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/rooms_provider.dart';
 
@@ -26,6 +27,7 @@ class CountdownPageState extends State<CountdownPage> {
   @override
   void initState() {
     super.initState();
+    _loadSelectedRoom();
     _startTimer();
   }
 
@@ -33,6 +35,16 @@ class CountdownPageState extends State<CountdownPage> {
   void dispose() {
     _timer?.cancel();
     super.dispose();
+  }
+
+  Future<void> _loadSelectedRoom() async {
+    String? currentFilter = await PreferencesProvider.timerRoomFilter;
+    if (currentFilter.isEmpty) {
+      _selectedRoom = null;
+    } else {
+      _selectedRoom = currentFilter;
+    }
+    setState(() {}); // Trigger a rebuild after updating
   }
 
   void _startTimer() {
@@ -78,6 +90,7 @@ class CountdownPageState extends State<CountdownPage> {
               setState(() {
                 _selectedRoom = newValue;
               });
+              PreferencesProvider.setTimerRoomFilter(newValue ?? '');
             },
             items: [
               DropdownMenuItem<String>(

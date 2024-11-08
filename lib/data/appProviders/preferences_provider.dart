@@ -29,6 +29,19 @@ class PreferencesProvider {
   }
 
   // ---------------------------------------------------------
+  static const String _timerRoomFilterKey = 'timerRoomFilter';
+
+  static Future<String> get timerRoomFilter async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_timerRoomFilterKey) ?? ''; // Default
+  }
+
+  static Future<void> setTimerRoomFilter(String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_timerRoomFilterKey, value);
+  }
+
+  // ---------------------------------------------------------
   static const String _calendarColorByRoomKey = 'calendarColorByRoom';
   static final ValueNotifier<bool> calendarColorByRoomNotifier = ValueNotifier(false);
 
