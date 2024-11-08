@@ -42,7 +42,7 @@ class _BasePageState extends State<BasePage> {
     super.initState();
     _fetchData(
       errorProvider: Provider.of<ErrorProvider>(context, listen: false),
-      force: false,
+      force: true,
     );
     _timer = Timer.periodic(const Duration(minutes: 5), (timer) {
       _fetchData(

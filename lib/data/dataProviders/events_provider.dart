@@ -187,6 +187,6 @@ class EventsProvider with ChangeNotifier  {
 
     return items.where(
             (item) =>
-        item.toString().compareTo(name) == 0).toList();
+        item.speaker?.toPlainText().compareTo(name) == 0).toList();
   }
 }

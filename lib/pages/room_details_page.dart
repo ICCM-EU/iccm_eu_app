@@ -1,7 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:iccm_eu_app/components/event_list_tile.dart';
 import 'package:iccm_eu_app/controls/nav_bar.dart';
+import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
+import 'package:iccm_eu_app/data/model/event_data.dart';
 import 'package:iccm_eu_app/data/model/room_data.dart';
+import 'package:provider/provider.dart';
 
 class RoomDetailsPage extends StatelessWidget {
   final RoomData item;
@@ -12,19 +16,17 @@ class RoomDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    EventsProvider eventsProvider = Provider.of<EventsProvider>(
+      context,
+      listen: false,
+    );
+    List<EventData> listItems = eventsProvider.eventsByRoom(
+      name: item.name.text.toString(),
+    );
     return Scaffold(
       appBar: AppBar(
         title: const Text("Room Details"),
         actions: const [
-          // IconButton(
-          //   icon: Icon(
-          //     Icons.filter_alt,
-          //     color: Colors.grey[700],
-          //   ),
-          //   onPressed: () {
-          //
-          //   },
-          // ),
         ],
       ),
       body:
@@ -56,7 +58,14 @@ class RoomDetailsPage extends StatelessWidget {
                   text: item.details,
                   // style: const TextStyle(fontSize: 18),
                 ),
-                // Add more details here as needed
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: listItems.length,
+                  itemBuilder: (context, index) {
+                    return EventListTile(item: listItems[index]);
+                  },
+                ),
               ],
             ),
           ]

@@ -10,6 +10,7 @@ import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/rooms_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/speakers_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
+import 'package:iccm_eu_app/utils/debug.dart';
 import '../model/error_signal.dart';
 import 'error_provider.dart';
 
@@ -106,6 +107,7 @@ class GsheetsProvider with ChangeNotifier {
         (lastUpdated != null && lastUpdated.isBefore(now.subtract(
             const Duration(minutes: 5))))
     ) {
+      Debug.msg("Fetch omitted.");
       _isFetchingData = false;
       return;
     }
@@ -123,6 +125,7 @@ class GsheetsProvider with ChangeNotifier {
     // Terminate if data is empty
     if (_countDataObjects(_rawData) == 0) {
       _isFetchingData = false;
+      Debug.msg("Fetch: Not data found.");
       return;
     }
 
@@ -135,6 +138,7 @@ class GsheetsProvider with ChangeNotifier {
 
     }
     notifyListeners();
+    Debug.msg("Fetch completed successfully.");
     _isFetchingData = false;
   }
 
