@@ -1,11 +1,9 @@
 import 'dart:async';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_week_view/flutter_week_view.dart';
-import 'package:iccm_eu_app/components/date_functions.dart';
+import 'package:iccm_eu_app/components/event_list_tile.dart';
 import 'package:iccm_eu_app/components/page_title.dart';
-import 'package:iccm_eu_app/components/text_functions.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/rooms_provider.dart';
@@ -234,84 +232,7 @@ class EventListState extends State<EventList> {
               return ListView.builder(
                 itemCount: items.length,
                 itemBuilder: (context, index) {
-                  final item = items[index];
-                  return ListTile(
-                    leading: item.imageUrl!.startsWith("http") ?
-                      CachedNetworkImage(
-                        imageUrl: item.imageUrl ?? '',
-                        imageBuilder: (context, imageProvider) => CircleAvatar(
-                          backgroundImage: imageProvider,
-                          radius: 50,
-                        ),
-                        placeholder: (context, url) => const CircularProgressIndicator(),
-                        errorWidget: (context, url, error) => const Icon(Icons.error),
-                      ) :
-                      const SizedBox(
-                        height: 100,
-                        width: 100,
-                      ),
-                    title: RichText(
-                      text: TextSpan(
-                        children: <TextSpan>[
-                          TextSpan(
-                            text: item.name.text,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 22,
-                            ),
-                          ),
-                        ],
-                      ),
-                      softWrap: false,
-                    ),
-                    subtitle: RichText(
-                      text: TextSpan(
-                        children: <TextSpan>[
-                          TextSpan(
-                            text: DateFunctions().formatDate(
-                                date: item.start,
-                                format: 'EEE, dd.MM., HH:mm'),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          TextSpan(
-                            text: '\n',
-                            style: const TextStyle(
-                              fontSize: 10,
-                            ),
-                          ),
-                          TextSpan(
-                            text: '\n',
-                            style: const TextStyle(
-                              fontSize: 4,
-                            ),
-                          ),
-                          TextSpan(
-                            text: TextFunctions.cutTextToWords(
-                                text: item.details.text,
-                                length: 30),
-                            style: const TextStyle(
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                      softWrap: true,
-                    ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Theme(
-                            data: Theme.of(context),
-                            child: EventDetailsPage(item: item),
-                          ),
-                        ),
-                      );
-                    },
-                  );
+                  return EventListTile(item: items[index]);
                 },
               );
             },

@@ -1,7 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:iccm_eu_app/components/event_list_tile.dart';
 import 'package:iccm_eu_app/controls/nav_bar.dart';
+import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
+import 'package:iccm_eu_app/data/model/event_data.dart';
 import 'package:iccm_eu_app/data/model/track_data.dart';
+import 'package:provider/provider.dart';
 
 
 class TrackDetailsPage extends StatelessWidget {
@@ -13,6 +17,13 @@ class TrackDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    EventsProvider eventsProvider = Provider.of<EventsProvider>(
+        context,
+        listen: false,
+    );
+    List<EventData> listItems = eventsProvider.eventsByTrack(
+        name: item.name.text.toString(),
+    );
     return Scaffold(
       appBar: AppBar(
         title: const Text("Track Details"),
@@ -46,15 +57,14 @@ class TrackDetailsPage extends StatelessWidget {
                   text: item.details,
                   // style: const TextStyle(fontSize: 18),
                 ),
-                // ListView.builder(
-                //   itemCount: trackEvents.length,
-                //   itemBuilder: (context, index) {
-                //     final event = trackEvents[index];
-                //     return ListTile(
-                //       title: Text(event.title),
-                //     );
-                //   },
-                // ),
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: listItems.length,
+                  itemBuilder: (context, index) {
+                    return EventListTile(item: listItems[index]);
+                  },
+                ),
               ],
             ),
           ]

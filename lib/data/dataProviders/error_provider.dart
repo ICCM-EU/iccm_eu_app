@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:iccm_eu_app/components/debug.dart';
+import 'package:iccm_eu_app/utils/debug.dart';
 
 import '../model/error_signal.dart';
 
