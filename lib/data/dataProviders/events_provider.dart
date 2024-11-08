@@ -98,7 +98,6 @@ class EventsProvider with ChangeNotifier  {
         details: TextSpan(text: ''),
       );
     }
-
     return items.first;
   }
 
@@ -112,7 +111,6 @@ class EventsProvider with ChangeNotifier  {
         details: TextSpan(text: ''),
       );
     }
-
     return items.last;
   }
 
@@ -126,7 +124,6 @@ class EventsProvider with ChangeNotifier  {
     }
     final DateTime firstEventDate = earliestEvent().start;
     final cutoffDate = firstEventDate.add(Duration(days: days));
-
     return items.where(
             (item) =>
         item.end.isBefore(cutoffDate) ||
@@ -141,7 +138,6 @@ class EventsProvider with ChangeNotifier  {
       return [];
     }
     final DateTime now = DateTime.now();
-
     return items.where(
             (item) =>
         item.end.isAfter(now) ||
@@ -156,7 +152,6 @@ class EventsProvider with ChangeNotifier  {
     if (items.isEmpty) {
       return [];
     }
-
     return items.where(
             (item) =>
         item.room?.toPlainText().compareTo(name) == 0).toList();
@@ -170,7 +165,6 @@ class EventsProvider with ChangeNotifier  {
     if (items.isEmpty) {
       return [];
     }
-
     return items.where(
             (item) =>
         item.track?.toPlainText().compareTo(name) == 0).toList();
@@ -184,9 +178,76 @@ class EventsProvider with ChangeNotifier  {
     if (items.isEmpty) {
       return [];
     }
-
     return items.where(
             (item) =>
         item.speaker?.toPlainText().compareTo(name) == 0).toList();
+  }
+
+  List<EventData> currentEvents({
+    String? room,
+  }) {
+    List<EventData> items;
+    if (room == null) {
+      items = _items;
+    } else {
+      items = eventsByRoom(name: room);
+    }
+    if (items.isEmpty) {
+      return [];
+    }
+    DateTime now = DateTime.now();
+    return items.where(
+      (item) =>
+          item.start.isBefore(now) && item.end.isAfter(now)
+    ).toList();
+  }
+
+  List<EventData> nextEvents({
+    String? room,
+  }) {
+    List<EventData> items;
+    if (room == null) {
+      items = _items;
+    } else {
+      items = eventsByRoom(name: room);
+    }
+    if (items.isEmpty) {
+      return [];
+    }
+    DateTime? next = nextStartTime(room: room);
+    if (next == null) {
+      return [];
+    }
+    return items.where(
+            (item) =>
+        item.start.isAtSameMomentAs(next)
+    ).toList();
+  }
+
+  DateTime? nextStartTime({
+    String? room,
+  }) {
+    List<EventData> items;
+    if (room == null) {
+      items = _items;
+    } else {
+      items = eventsByRoom(name: room);
+    }
+    if (items.isEmpty) {
+      return null;
+    }
+    EventData? next;
+    try {
+      next = items.firstWhere(
+            (item) => item.start.isAfter(DateTime.now()),
+      );
+    } catch (e) {
+      next = null;
+    }
+    if (next == null) {
+      return null;
+    } else {
+      return next.start;
+    }
   }
 }
