@@ -19,9 +19,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-flutter-
 
+      - uses: mikefarah/yq@master
+
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: 'stable' # Or specify a specific version
+          # flutter-version: 'stable' # Or specify a specific version
+          flutter-version-file: pubspec.yaml
           channel: 'stable' # Or specify a specific channel
       - run: flutter pub get
 
