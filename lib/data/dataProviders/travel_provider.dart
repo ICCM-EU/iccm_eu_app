@@ -2,41 +2,39 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
-import 'package:iccm_eu_app/data/definitions/item_colors_dictionary.dart';
-import 'package:iccm_eu_app/data/model/track_data.dart';
+import 'package:iccm_eu_app/data/model/travel_data.dart';
 import 'package:iccm_eu_app/utils/debug.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class TracksProvider with ChangeNotifier {
-  static String get worksheetTitle => "Category";
+class TravelProvider with ChangeNotifier {
+  static String get worksheetTitle => "Travel";
 
-  String get _cacheTitle => "_trackDataCache";
+  String get _cacheTitle => "_travelDataCache";
   final GsheetsProvider _gsheetsProvider;
 
-  final List<TrackData> _cache = [];
+  final List<TravelData> _cache = [];
 
-  final List<TrackData> _items = [];
+  final List<TravelData> _items = [];
 
-  List<TrackData> items() {
+  List<TravelData> items() {
     return _items;
   }
 
-  TracksProvider({
+  TravelProvider({
     required GsheetsProvider gsheetsProvider,
   }) : _gsheetsProvider = gsheetsProvider {
     _gsheetsProvider.addListener(updateCache);
     _loadCache();
     _populateItemsFromCache();
-    _initializeItemColors();
   }
 
   void updateCache() {
     // Process raw data from GsheetsProvider and update _tracks
-    var data = _gsheetsProvider.getTrackData();
+    var data = _gsheetsProvider.getTravelData();
     if (data != null && data.isNotEmpty) {
       _cacheClear();
       for (final itemData in data) {
-        _cacheAdd(TrackData.fromItemData(itemData));
+        _cacheAdd(TravelData.fromItemData(itemData));
       }
       _commit();
     }
@@ -48,17 +46,17 @@ class TracksProvider with ChangeNotifier {
     if (cacheJson != null && cacheJson.isNotEmpty) {
       _cacheClear();
       final List<dynamic> jsonList = jsonDecode(cacheJson);
-      jsonList.map((json) => TrackData.fromJson(json)).toList().forEach((item) {
+      jsonList.map((json) => TravelData.fromJson(json)).toList().forEach((item) {
         _cacheAdd(item);
       });
-      Debug.msg('Cache loaded: Tracks');
+      Debug.msg('Cache loaded: Travel');
       _commit();
     } else {
-      Debug.msg('Cache OMITTED: Tracks');
+      Debug.msg('Cache OMITTED: Travel');
     }
   }
 
-  void _cacheAdd(TrackData item) {
+  void _cacheAdd(TravelData item) {
     _cache.add(item);
   }
 
@@ -70,7 +68,6 @@ class TracksProvider with ChangeNotifier {
     _cache.sort((a, b) => a.name.toPlainText().compareTo(b.name.toPlainText()));
     _saveCache();
     _populateItemsFromCache();
-    _initializeItemColors();
     notifyListeners();
   }
 
@@ -87,30 +84,5 @@ class TracksProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final cacheJson = jsonEncode(_cache); // Convert _cache to JSON string
     await prefs.setString(_cacheTitle, cacheJson); // Save to SharedPreferences
-  }
-
-  TrackData? getDataByName(String name) {
-    try {
-      return _items.firstWhere((item) => item.name.text == name);
-    } catch (e) {
-      if (e is StateError) {
-        // Handle the case where no matching element is found
-        return null;
-      } else {
-        // Re-throw other exceptions
-        rethrow;
-      }
-    }
-  }
-
-  void _initializeItemColors()
-  {
-    final colors = ItemColorsDictionary().colors.values.toList();
-    int colorIndex = 0;
-    for (var item in _items) {
-      item.colors = colors[colorIndex];
-
-      colorIndex = (colorIndex + 1) % colors.length; // Update color index, wrap around if necessary
-    }
   }
 }

@@ -67,17 +67,10 @@ class RoomsProvider with ChangeNotifier  {
 
   void _commit() {
     _cache.sort((a, b) => a.name.toPlainText().compareTo(b.name.toPlainText()));
-    _fillCacheItemIds();
     _saveCache();
     _populateItemsFromCache();
     _initializeItemColors();
     notifyListeners();
-  }
-
-  void _fillCacheItemIds() {
-    for (int i = 0; i < _cache.length; i++) {
-      _cache[i].id = i;
-    }
   }
 
   void _populateItemsFromCache() {

@@ -6,6 +6,8 @@ import 'package:iccm_eu_app/data/dataProviders/rooms_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/speakers_provider.dart';
 import 'package:iccm_eu_app/data/appProviders/page_index_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/travel_directions_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/travel_provider.dart';
 import 'package:iccm_eu_app/data/model/speaker_data.dart';
 import 'package:iccm_eu_app/pages/speaker_details_page.dart';
 import "package:provider/provider.dart" show ChangeNotifierProvider, ChangeNotifierProxyProvider, MultiProvider, Provider;
@@ -59,6 +61,18 @@ void main() {
         ),
         ChangeNotifierProxyProvider<GsheetsProvider, HomeProvider>(
           create: (context) => HomeProvider(
+            gsheetsProvider: Provider.of<GsheetsProvider>(context, listen: false),
+          ),
+          update: (context, gsheetsProvider, thisProvider) => thisProvider!..updateCache(),
+        ),
+        ChangeNotifierProxyProvider<GsheetsProvider, TravelProvider>(
+          create: (context) => TravelProvider(
+            gsheetsProvider: Provider.of<GsheetsProvider>(context, listen: false),
+          ),
+          update: (context, gsheetsProvider, thisProvider) => thisProvider!..updateCache(),
+        ),
+        ChangeNotifierProxyProvider<GsheetsProvider, TravelDirectionsProvider>(
+          create: (context) => TravelDirectionsProvider(
             gsheetsProvider: Provider.of<GsheetsProvider>(context, listen: false),
           ),
           update: (context, gsheetsProvider, thisProvider) => thisProvider!..updateCache(),

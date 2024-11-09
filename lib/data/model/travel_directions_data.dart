@@ -1,33 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/model/model_item.dart';
 
-class SpeakerData extends ModelItem {
+class TravelDirectionsData extends ModelItem {
   @override
   final String imageUrl;
   @override
   final TextSpan name;
   @override
   final TextSpan details;
+  final String? emoji;
 
-  SpeakerData._({
+  TravelDirectionsData._({
     required this.imageUrl,
     required this.name,
     required this.details,
+    this.emoji,
   });
 
-  factory SpeakerData.fromItemData(Map<String, dynamic> itemData) {
-    return SpeakerData._(
+  factory TravelDirectionsData.fromItemData(Map<String, dynamic> itemData) {
+    return TravelDirectionsData._(
       imageUrl: itemData['Photo'] ?? '',
       name: TextSpan(text: itemData['Name'] ?? ''),
-      details: TextSpan(text: itemData['Bio'] ?? ''),
+      details: TextSpan(text: itemData['Description'] ?? ''),
+      emoji: itemData['Emoji'] ?? '',
     );
   }
 
-  factory SpeakerData.fromJson(Map<String, dynamic> json) {
-    return SpeakerData._(
+  factory TravelDirectionsData.fromJson(Map<String, dynamic> json) {
+    return TravelDirectionsData._(
       imageUrl: json['imageUrl'],
       name: TextSpan(text: json['name'] as String? ?? ''),
       details: TextSpan(text: json['details'] as String? ?? ''),
+      emoji: json['emoji'] as String? ?? '',
     );
   }
 
@@ -36,6 +40,7 @@ class SpeakerData extends ModelItem {
       'imageUrl': imageUrl,
       'name': name.toPlainText(),
       'details': details.toPlainText(),
+      'emoji': emoji,
     };
   }
 }

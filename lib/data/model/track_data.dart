@@ -16,7 +16,6 @@ class TrackData extends ModelItem {
     required this.name,
     required this.details,
     this.colors,
-    int? id,
   });
 
   factory TrackData.fromItemData(Map<String, dynamic> itemData) {
@@ -33,7 +32,6 @@ class TrackData extends ModelItem {
       imageUrl: json['imageUrl'],
       name: TextSpan(text: json['name'] as String? ?? ''),
       details: TextSpan(text: json['details'] as String? ?? ''),
-      id: int.tryParse(json['id'] ?? '-1'),
     );
   }
 
@@ -42,7 +40,6 @@ class TrackData extends ModelItem {
       'imageUrl': imageUrl,
       'name': name.toPlainText(),
       'details': details.toPlainText(),
-      'id': id.toString(),
     };
   }
 }
