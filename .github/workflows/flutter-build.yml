@@ -106,12 +106,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: ios-app
-          path: build/ios/iphoneos/Release-iphoneos
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: windows-app
-          path: build/windows/runner/Release
+          path: build/ios/archive/
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
