@@ -3,7 +3,7 @@ name: Flutter Build
 on:  ["push", "pull_request"]
 
 jobs:
-  build-ios:
+  build-and-release-ios:
     runs-on: macos-latest # to be able to get ios build
 
     steps:
@@ -25,9 +25,6 @@ jobs:
         with:
           distribution: 'oracle'
           java-version: '17'
-
-      - name: Install yaml parser # prerequisite to parse pubspec
-        uses: mikefarah/yq@master
 
       - name: Setup Flutter SDK
         uses: subosito/flutter-action@v2
@@ -138,7 +135,8 @@ jobs:
         uses: subosito/flutter-action@v1
         with:
           channel: 'stable'
-          flutter-version: '2.10.0'
+          #flutter-version: '2.10.0'
+          flutter-version-file: pubspec.yaml
 
       - name: Install project dependencies
         run: flutter pub get
@@ -178,7 +176,8 @@ jobs:
         uses: subosito/flutter-action@v1
         with:
           channel: 'stable'
-          flutter-version: '2.10.0'
+          # flutter-version: '2.10.0'
+          flutter-version-file: pubspec.yaml
 
       - name: Install project dependencies
         run: flutter pub get
@@ -218,7 +217,8 @@ jobs:
         uses: subosito/flutter-action@v1
         with:
           channel: 'stable'
-          flutter-version: '2.10.0'
+          # flutter-version: '2.10.0'
+          flutter-version-file: pubspec.yaml
 
       - name: Install dependencies
         run: sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
