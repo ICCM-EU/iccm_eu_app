@@ -10,7 +10,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         name: Cache Flutter dependencies
         with:
           path: |
@@ -21,7 +21,7 @@ jobs:
             ${{ runner.os }}-flutter-
 
       - name: Set Up Java
-        uses: actions/setup-java@v3.12.0
+        uses: actions/setup-java@v4
         with:
           distribution: 'oracle'
           java-version: '17'
@@ -55,7 +55,7 @@ jobs:
           tar -czf ios_build.tar.gz ios
 
       #- name: Upload Artifacts
-      #  uses: actions/upload-artifact@v2
+      #  uses: actions/upload-artifact@v4
       #  with:
       #    name: Releases
       #    path: |
@@ -93,26 +93,26 @@ jobs:
       #    token: ${{ secrets.TOKEN }}
 
       - name: Upload Artefacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: web-build
+          name: iccm_eu_app-web
           path: build/web
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: android-apk
+          name: iccm_eu_app-android-apk
           path: build/app/outputs/flutter-apk/app-release.apk
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: ios-app
+          name: iccm_eu_app-ios-app
           path: build/ios/archive/
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./web
+          publish_dir: build/web
 
   build-and-release-windows:
     runs-on: windows-latest
@@ -120,6 +120,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        name: Cache Flutter dependencies
+        with:
+          path: |
+            ~/.pub-cache
+            /flutter
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
 
       - name: Install yq # as a prerequisite for flutter-version-file parsing
         uses: dcarbone/install-yq-action@v1.1.1
@@ -143,20 +153,25 @@ jobs:
       - name: Build artifacts
         run: flutter build windows --release
 
-      - name: Archive Release
-        uses: thedoctor0/zip-release@master
+      - uses: actions/upload-artifact@v4
         with:
-          type: 'zip'
-          filename: ${{github.ref_name}}-windows.zip
-          directory: build/windows/x64/runner/Release
+          name: iccm_eu_app-windows-desktop
+          path: build/windows/x64/runner/Release
 
-      - name: Windows Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          files: build/windows/runner/Release/MacRecoveryX-${{github.ref_name}}-windows.zip
+      #- name: Archive Release
+      #  uses: thedoctor0/zip-release@master
+      #  with:
+      #    type: 'zip'
+      #    filename: ${{github.ref_name}}-windows.zip
+      #    directory: build/windows/x64/runner/Release
+
+      #- name: Windows Release
+      #  uses: softprops/action-gh-release@v1
+      #  if: startsWith(github.ref, 'refs/tags/')
+      #  env:
+      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #  with:
+      #    files: build/windows/runner/Release/MacRecoveryX-${{github.ref_name}}-windows.zip
 
   build-and-release-macos:
     runs-on: macos-latest
@@ -164,6 +179,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        name: Cache Flutter dependencies
+        with:
+          path: |
+            ~/.pub-cache
+            /flutter
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
 
       - name: Flutter
         uses: subosito/flutter-action@v2
@@ -184,20 +209,25 @@ jobs:
       - name: Build artifacts
         run: flutter build macos --release
 
-      - name: Archive Release
-        uses: thedoctor0/zip-release@master
+      - uses: actions/upload-artifact@v4
         with:
-          type: 'zip'
-          filename: MacRecoveryX-${{github.ref_name}}-macos.zip
-          directory: build/macos/Build/Products/Release
+          name: iccm_eu_app-macos-desktop
+          path: build/macos/Build/Products/Release
 
-      - name: macOS Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          files: build/macos/Build/Products/Release/MacRecoveryX-${{github.ref_name}}-macos.zip
+      #- name: Archive Release
+      #  uses: thedoctor0/zip-release@master
+      #  with:
+      #    type: 'zip'
+      #    filename: MacRecoveryX-${{github.ref_name}}-macos.zip
+      #    directory: build/macos/Build/Products/Release
+
+      #- name: macOS Release
+      #  uses: softprops/action-gh-release@v1
+      #  if: startsWith(github.ref, 'refs/tags/')
+      #  env:
+      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #  with:
+      #    files: build/macos/Build/Products/Release/MacRecoveryX-${{github.ref_name}}-macos.zip
 
   build-and-release-linux:
     runs-on: ubuntu-latest
@@ -205,6 +235,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        name: Cache Flutter dependencies
+        with:
+          path: |
+            ~/.pub-cache
+            /flutter
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
 
       - name: Flutter
         uses: subosito/flutter-action@v2
@@ -228,17 +268,22 @@ jobs:
       - name: Build artifacts
         run: flutter build linux --release
 
-      - name: Archive Release
-        uses: thedoctor0/zip-release@master
+      - uses: actions/upload-artifact@v4
         with:
-          type: 'zip'
-          filename: MacRecoveryX-${{github.ref_name}}-linux.zip
-          directory: build/linux/x64/release/bundle
+          name: iccm_eu_app-linux-desktop
+          path: build/linux/x64/release/bundle
 
-      - name: Linux Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          files: build/linux/x64/release/bundle/MacRecoveryX-${{github.ref_name}}-linux.zip
+      #- name: Archive Release
+      #  uses: thedoctor0/zip-release@master
+      #  with:
+      #    type: 'zip'
+      #    filename: MacRecoveryX-${{github.ref_name}}-linux.zip
+      #    directory: build/linux/x64/release/bundle
+
+      #- name: Linux Release
+      #  uses: softprops/action-gh-release@v1
+      #  if: startsWith(github.ref, 'refs/tags/')
+      #  env:
+      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #  with:
+      #    files: build/linux/x64/release/bundle/MacRecoveryX-${{github.ref_name}}-linux.zip
