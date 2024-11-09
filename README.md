@@ -1,16 +1,18 @@
-# iccm_eu_app
+iccm_eu_app
 
-ICCM Europe App
+# ICCM Europe App
 
-## Getting Started
+## About
 
-This project is a starting point for a Flutter application.
+This is a Flutter-based app to display the conference schedule and allow for
+interactions with the participants.
 
-A few resources to get you started if this is your first Flutter project:
+The conference website is at https://www.iccm-europe.org/
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Data
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+The app receives its data from a Google spreadsheet. 
+
+## Configuring Github Pages
+
+For Github Pages, enable the {{github-pages}} plugin, direct it to the "docs/" directory.
