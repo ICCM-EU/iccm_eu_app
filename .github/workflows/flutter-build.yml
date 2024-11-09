@@ -31,8 +31,8 @@ jobs:
       # Build
       - run: flutter build web --release
       - run: flutter build apk --release
-      - run: flutter build ios --release --no-codesign
       - run: flutter build windows --release
+      # - run: flutter build ios --release --no-codesign
 
       # Optional: Upload artifacts (e.g., APK, IPA, web build)
       - uses: actions/upload-artifact@v3
