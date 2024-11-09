@@ -113,11 +113,6 @@ jobs:
           name: windows-app
           path: build/windows/runner/Release
 
-      - name: Copy web build to docs
-        run: |
-          rm -rf docs/*
-          cp -r build/web/* docs/
-
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
@@ -141,8 +136,8 @@ jobs:
       - name: Install project dependencies
         run: flutter pub get
 
-      - name: Generate intermediates
-        run: flutter pub run build_runner build --delete-conflicting-outputs
+      #- name: Generate intermediates
+      #  run: flutter pub run build_runner build --delete-conflicting-outputs
 
       - name: Enable windows build
         run: flutter config --enable-windows-desktop
@@ -182,8 +177,8 @@ jobs:
       - name: Install project dependencies
         run: flutter pub get
 
-      - name: Generate intermediates
-        run: flutter pub run build_runner build --delete-conflicting-outputs
+      #- name: Generate intermediates
+      #  run: flutter pub run build_runner build --delete-conflicting-outputs
 
       - name: Enable macOS build
         run: flutter config --enable-macos-desktop
@@ -226,8 +221,8 @@ jobs:
       - name: Install project dependencies
         run: flutter pub get
 
-      - name: Generate intermediates
-        run: flutter pub run build_runner build --delete-conflicting-outputs
+      #- name: Generate intermediates
+      #  run: flutter pub run build_runner build --delete-conflicting-outputs
 
       - name: Enable linux build
         run: flutter config --enable-linux-desktop
