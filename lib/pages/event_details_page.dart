@@ -152,6 +152,16 @@ class EventDetailsPage extends StatelessWidget {
                     return TrackListTile(item: trackItems[index]);
                   },
                 ),
+                const SizedBox(height: 8),
+                item.facilitator != null ? RichText(
+                  text: TextSpan(
+                    text: 'Facilitator: ${item.facilitator?.text}',
+                    style: TextStyle(
+                      fontSize: 8,
+                    ),
+                  ),
+                  // style: const TextStyle(fontSize: 18),
+                ) : const SizedBox.shrink(),
               ],
             ),
           ]
