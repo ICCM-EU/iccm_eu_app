@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:gsheets/gsheets.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/home_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/rooms_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/speakers_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
@@ -119,6 +120,7 @@ class GsheetsProvider with ChangeNotifier {
     workSheetTitles.add(RoomsProvider.worksheetTitle);
     workSheetTitles.add(SpeakersProvider.worksheetTitle);
     workSheetTitles.add(TracksProvider.worksheetTitle);
+    workSheetTitles.add(HomeProvider.worksheetTitle);
 
     await _readWorksheets(
         worksheetTitles: workSheetTitles,
@@ -170,6 +172,14 @@ class GsheetsProvider with ChangeNotifier {
 
   List<Map<String, String>>? getTrackData() {
     String worksheetTitle = TracksProvider.worksheetTitle;
+    if (_rawData.containsKey(worksheetTitle)) {
+      return _rawData[worksheetTitle];
+    }
+    return null;
+  }
+
+  List<Map<String, String>>? getHomeData() {
+    String worksheetTitle = HomeProvider.worksheetTitle;
     if (_rawData.containsKey(worksheetTitle)) {
       return _rawData[worksheetTitle];
     }

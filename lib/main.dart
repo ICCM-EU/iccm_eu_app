@@ -1,6 +1,7 @@
 import 'package:iccm_eu_app/data/dataProviders/error_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/home_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/rooms_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/speakers_provider.dart';
 import 'package:iccm_eu_app/data/appProviders/page_index_provider.dart';
@@ -36,25 +37,31 @@ void main() {
           create: (context) => TracksProvider(
               gsheetsProvider: Provider.of<GsheetsProvider>(context, listen: false),
           ),
-          update: (context, gsheetsProvider, tracksProvider) => tracksProvider!..updateCache(),
+          update: (context, gsheetsProvider, thisProvider) => thisProvider!..updateCache(),
         ),
         ChangeNotifierProxyProvider<GsheetsProvider, EventsProvider>(
           create: (context) => EventsProvider(
             gsheetsProvider: Provider.of<GsheetsProvider>(context, listen: false),
           ),
-          update: (context, gsheetsProvider, eventsProvider) => eventsProvider!..updateCache(),
+          update: (context, gsheetsProvider, thisProvider) => thisProvider!..updateCache(),
         ),
         ChangeNotifierProxyProvider<GsheetsProvider, RoomsProvider>(
           create: (context) => RoomsProvider(
             gsheetsProvider: Provider.of<GsheetsProvider>(context, listen: false),
           ),
-          update: (context, gsheetsProvider, eventsProvider) => eventsProvider!..updateCache(),
+          update: (context, gsheetsProvider, thisProvider) => thisProvider!..updateCache(),
         ),
         ChangeNotifierProxyProvider<GsheetsProvider, SpeakersProvider>(
           create: (context) => SpeakersProvider(
             gsheetsProvider: Provider.of<GsheetsProvider>(context, listen: false),
           ),
-          update: (context, gsheetsProvider, eventsProvider) => eventsProvider!..updateCache(),
+          update: (context, gsheetsProvider, thisProvider) => thisProvider!..updateCache(),
+        ),
+        ChangeNotifierProxyProvider<GsheetsProvider, HomeProvider>(
+          create: (context) => HomeProvider(
+            gsheetsProvider: Provider.of<GsheetsProvider>(context, listen: false),
+          ),
+          update: (context, gsheetsProvider, thisProvider) => thisProvider!..updateCache(),
         ),
       ],
       child: const MyApp(),
