@@ -51,10 +51,10 @@ class TracksProvider with ChangeNotifier {
       jsonList.map((json) => TrackData.fromJson(json)).toList().forEach((item) {
         _cacheAdd(item);
       });
-      Debug.msg('Track cache loaded');
+      Debug.msg('Cache loaded: Tracks');
       _commit();
     } else {
-      Debug.msg('Track cache omitted');
+      Debug.msg('Cache OMITTED: Tracks');
     }
   }
 

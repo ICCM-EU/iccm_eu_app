@@ -110,7 +110,7 @@ class GsheetsProvider with ChangeNotifier {
     ) {
       final Duration duration = now.difference(lastUpdated);
       Debug.msg('Fetch omitted. (${force ? 'force' : 'noforce'}, '
-          '${duration..inMinutes})');
+          '${duration..inMinutes} since $now)');
       _isFetchingData = false;
       return;
     }

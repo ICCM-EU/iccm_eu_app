@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:iccm_eu_app/components/url_button.dart';
 import 'package:iccm_eu_app/data/dataProviders/home_provider.dart';
-import 'package:iccm_eu_app/utils/url_launcher.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatelessWidget {
@@ -38,57 +38,15 @@ class HomePage extends StatelessWidget {
                 const SizedBox(height: 8.0),
                 RichText(
                   text: homeData.details,
-                ), // Descriptive text
-                if (homeData.nowPageUrl != null &&
-                    homeData.nowPageUrl!.startsWith('http'))
-                  const SizedBox(height: 16.0),
-                  Center(
-                    child: FractionallySizedBox(
-                      widthFactor: 0.9, // 90% of parent width
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          side: BorderSide(
-                            color: Colors.green,
-                            width: 2.0,
-                            style: BorderStyle.solid,
-                            strokeAlign: BorderSide.strokeAlignInside,
-                          ),
-                        ),
-                        onPressed: () => UrlLauncher.url(homeData.nowPageUrl!),
-                        child: const Text(
-                          'Now Page',
-                          style: TextStyle(
-                            fontSize: 20.0,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                if (homeData.votingPageUrl != null &&
-                    homeData.votingPageUrl!.startsWith('http'))
-                  const SizedBox(height: 16.0),
-                  Center(
-                    child: FractionallySizedBox(
-                      widthFactor: 0.9, // 90% of parent width
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          side: BorderSide(
-                            color: Colors.green,
-                            width: 2.0,
-                            style: BorderStyle.solid,
-                            strokeAlign: BorderSide.strokeAlignInside,
-                          ),
-                        ),
-                        onPressed: () => UrlLauncher.url(homeData.votingPageUrl!),
-                        child: const Text(
-                          'Voting Page',
-                          style: TextStyle(
-                            fontSize: 20.0,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                ),
+                UrlButton(
+                  title: 'Now Page',
+                  url: homeData.nowPageUrl,
+                ),
+                UrlButton(
+                  title: 'Voting Page',
+                  url: homeData.votingPageUrl,
+                ),
               ],
             ),
           );

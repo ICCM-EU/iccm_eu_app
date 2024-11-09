@@ -49,10 +49,10 @@ class EventsProvider with ChangeNotifier  {
       jsonList.map((json) => EventData.fromJson(json)).toList().forEach((item) {
         _cacheAdd(item);
       });
-      Debug.msg('Events cache loaded');
+      Debug.msg('Cache loaded: Events');
       _commit();
     } else {
-      Debug.msg('Events cache omitted');
+      Debug.msg('Cache OMITTED: Events');
     }
   }
 

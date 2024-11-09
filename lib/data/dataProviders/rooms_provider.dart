@@ -50,10 +50,10 @@ class RoomsProvider with ChangeNotifier  {
       jsonList.map((json) => RoomData.fromJson(json)).toList().forEach((item) {
         _cacheAdd(item);
       });
-      Debug.msg('Rooms cache loaded');
+      Debug.msg('Cache loaded: Rooms');
       _commit();
     } else {
-      Debug.msg('Rooms cache omitted');
+      Debug.msg('Cache OMITTED: Rooms');
     }
   }
 
