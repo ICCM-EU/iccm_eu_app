@@ -149,8 +149,8 @@ jobs:
         uses: thedoctor0/zip-release@master
         with:
           type: 'zip'
-          filename: MacRecoveryX-${{github.ref_name}}-windows.zip
-          directory: build/windows/runner/Release
+          filename: ${{github.ref_name}}-windows.zip
+          directory: build/windows/x64/runner/Release
 
       - name: Windows Release
         uses: softprops/action-gh-release@v1
