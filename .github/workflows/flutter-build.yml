@@ -121,6 +121,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install yq # as a prerequisite for flutter-version-file parsing
+        uses: mikefarah/yq@master
+
       - name: Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -202,9 +205,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Install yq # as a prerequisite for flutter-version-file parsing
-        uses: mikefarah/yq@master
 
       - name: Flutter
         uses: subosito/flutter-action@v2
