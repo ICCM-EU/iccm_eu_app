@@ -3,14 +3,15 @@ name: Flutter Build
 on:  ["push", "pull_request"]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  build-ios:
+    runs-on: macos-latest # to be able to get ios build
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
 
-      # Cache Flutter dependencies
       - uses: actions/cache@v3
+        name: Cache Flutter dependencies
         with:
           path: |
             ~/.pub-cache
@@ -19,48 +20,232 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-flutter-
 
-      - uses: mikefarah/yq@master
+      - name: Set Up Java
+        uses: actions/setup-java@v3.12.0
+        with:
+          distribution: 'oracle'
+          java-version: '17'
 
-      - uses: subosito/flutter-action@v2
+      - name: Install yaml parser # prerequisite to parse pubspec
+        uses: mikefarah/yq@master
+
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
         with:
           # flutter-version: 'stable' # Or specify a specific version
           flutter-version-file: pubspec.yaml
           channel: 'stable' # Or specify a specific channel
-      - run: flutter pub get
+
+      - name: Get Flutter dependencies
+        run: flutter pub get
 
       # Build
-      - run: flutter build web --release
-      - run: flutter build apk --release
-      # - run: flutter build windows --release
-      # - run: flutter build ios --release --no-codesign
+      - name: Build for Web
+        run: flutter build web --release
 
-      # Optional: Upload artifacts (e.g., APK, IPA, web build)
-      - uses: actions/upload-artifact@v3
+      - name: Build Android APK
+        run: flutter build apk --release
+
+      - name: Build Android App Bundle (AAB)
+        run: flutter build appbundle
+
+      - name: Build IPA (iOS Build)
+        run: flutter build ipa --no-codesign
+
+      - name: Compress Archives and IPAs
+        run: |
+          cd build
+          tar -czf ios_build.tar.gz ios
+
+      #- name: Upload Artifacts
+      #  uses: actions/upload-artifact@v2
+      #  with:
+      #    name: Releases
+      #    path: |
+      #      build/app/outputs/flutter-apk/app-release.apk
+      #      build/app/outputs/bundle/release/app-release.aab
+      #      build/ios_build.tar.g
+
+      #- name: Extract version from pubspec.yaml
+      #  id: extract_version
+      #  run: |
+      #    version=$(grep '^version: ' pubspec.yaml | cut -d ' ' -f 2 | tr -d '\r')
+      #    echo "VERSION=$version" >> $GITHUB_ENV
+
+      #- name: Check if Tag Exists
+      #  id: check_tag
+      #  run: |
+      #    if git rev-parse "v${{ env.VERSION }}" >/dev/null 2>&1; then
+      #      echo "TAG_EXISTS=true" >> $GITHUB_ENV
+      #    else
+      #      echo "TAG_EXISTS=false" >> $GITHUB_ENV
+      #    fi
+
+      #- name: Modify Release Tag
+      #  if: env.TAG_EXISTS == 'true'
+      #  id: modify_tag
+      #  run: |
+      #    new_version="${{ env.VERSION }}-build-${{ github.run_number }}"
+      #    echo "VERSION=$new_version" >> $GITHUB_ENV
+
+      #- name: Create Release
+      #  uses: ncipollo/release-action@v1
+      #  with:
+      #    artifacts: "build/app/outputs/flutter-apk/app-release.apk,build/app/outputs/bundle/release/app-release.aab,build/ios_build.tar.gz"
+      #    tag: v${{ env.VERSION }}
+      #    token: ${{ secrets.TOKEN }}
+
+      - name: Upload Artefacts
+        uses: actions/upload-artifact@v3
         with:
           name: web-build
           path: build/web
+
       - uses: actions/upload-artifact@v3
         with:
           name: android-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+
       - uses: actions/upload-artifact@v3
         with:
           name: ios-app
           path: build/ios/iphoneos/Release-iphoneos
+
       - uses: actions/upload-artifact@v3
         with:
           name: windows-app
           path: build/windows/runner/Release
 
-      # Copy web build to docs folder
       - name: Copy web build to docs
         run: |
           rm -rf docs/*
           cp -r build/web/* docs/
 
-      # Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs
+
+  build-and-release-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Flutter
+        uses: subosito/flutter-action@v1
+        with:
+          channel: 'stable'
+          flutter-version: '2.10.0'
+
+      - name: Install project dependencies
+        run: flutter pub get
+
+      - name: Generate intermediates
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Enable windows build
+        run: flutter config --enable-windows-desktop
+
+      - name: Build artifacts
+        run: flutter build windows --release
+
+      - name: Archive Release
+        uses: thedoctor0/zip-release@master
+        with:
+          type: 'zip'
+          filename: MacRecoveryX-${{github.ref_name}}-windows.zip
+          directory: build/windows/runner/Release
+
+      - name: Windows Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: build/windows/runner/Release/MacRecoveryX-${{github.ref_name}}-windows.zip
+
+  build-and-release-macos:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Flutter
+        uses: subosito/flutter-action@v1
+        with:
+          channel: 'stable'
+          flutter-version: '2.10.0'
+
+      - name: Install project dependencies
+        run: flutter pub get
+
+      - name: Generate intermediates
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Enable macOS build
+        run: flutter config --enable-macos-desktop
+
+      - name: Build artifacts
+        run: flutter build macos --release
+
+      - name: Archive Release
+        uses: thedoctor0/zip-release@master
+        with:
+          type: 'zip'
+          filename: MacRecoveryX-${{github.ref_name}}-macos.zip
+          directory: build/macos/Build/Products/Release
+
+      - name: macOS Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: build/macos/Build/Products/Release/MacRecoveryX-${{github.ref_name}}-macos.zip
+
+  build-and-release-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Flutter
+        uses: subosito/flutter-action@v1
+        with:
+          channel: 'stable'
+          flutter-version: '2.10.0'
+
+      - name: Install dependencies
+        run: sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+
+      - name: Install project dependencies
+        run: flutter pub get
+
+      - name: Generate intermediates
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Enable linux build
+        run: flutter config --enable-linux-desktop
+
+      - name: Build artifacts
+        run: flutter build linux --release
+
+      - name: Archive Release
+        uses: thedoctor0/zip-release@master
+        with:
+          type: 'zip'
+          filename: MacRecoveryX-${{github.ref_name}}-linux.zip
+          directory: build/linux/x64/release/bundle
+
+      - name: Linux Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: build/linux/x64/release/bundle/MacRecoveryX-${{github.ref_name}}-linux.zip
