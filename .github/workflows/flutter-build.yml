@@ -1,12 +1,6 @@
 name: Flutter Build
 
-on:
-  push:
-    branches:
-      - main # Trigger on pushes to the main branch
-  pull_request:
-    branches:
-      - main # Trigger on pull requests to the main branch
+on:  ["push", "pull_request"]
 
 jobs:
   build:
