@@ -9,14 +9,16 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home'),
-      ),
+      // appBar: AppBar(
+      //   title: const Text('Home'),
+      // ),
       body: Consumer<HomeProvider>(
         builder: (context, itemProvider, child) {
           final itemList = itemProvider.items();
           if (itemList.isEmpty) {
-            return const Center(child: Text('Loading dynamic content...'));
+            return const Center(
+                child: Text('Loading dynamic content...'),
+            );
           }
           final item = itemList.first; // Use the first item
           return Padding(
