@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/dataProviders/home_provider.dart';
+import 'package:iccm_eu_app/utils/url_launcher.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -54,7 +54,7 @@ class HomePage extends StatelessWidget {
                             strokeAlign: BorderSide.strokeAlignInside,
                           ),
                         ),
-                        onPressed: () => _launchUrl(homeData.nowPageUrl!),
+                        onPressed: () => UrlLauncher.url(homeData.nowPageUrl!),
                         child: const Text(
                           'Now Page',
                           style: TextStyle(
@@ -79,7 +79,7 @@ class HomePage extends StatelessWidget {
                             strokeAlign: BorderSide.strokeAlignInside,
                           ),
                         ),
-                        onPressed: () => _launchUrl(homeData.votingPageUrl!),
+                        onPressed: () => UrlLauncher.url(homeData.votingPageUrl!),
                         child: const Text(
                           'Voting Page',
                           style: TextStyle(
@@ -95,15 +95,5 @@ class HomePage extends StatelessWidget {
         },
       ),
     );
-  }
-
-  Future<void> _launchUrl(String url) async {
-    if (!await launchUrl(
-        Uri.parse(url),
-        mode: LaunchMode.externalApplication,
-      )
-    ) {
-      throw Exception('Could not launch $url');
-    }
   }
 }
