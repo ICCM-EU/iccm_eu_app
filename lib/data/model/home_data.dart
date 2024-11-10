@@ -34,7 +34,7 @@ class HomeData extends ModelItem {
       imageUrl: json['imageUrl'],
       name: TextSpan(text: json['name'] as String? ?? ''),
       details: TextSpan(text: json['details'] as String? ?? ''),
-      nowPageUrl: json['details'],
+      nowPageUrl: json['nowPageUrl'],
       votingPageUrl: json['votingPageUrl'],
     );
   }
