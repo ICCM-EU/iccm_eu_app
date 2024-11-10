@@ -38,7 +38,7 @@ jobs:
 
       # Build
       - name: Build for Web
-        run: flutter build web --release
+        run: flutter build web --base-href "/iccm_eu_app/" --release
 
       - name: Build Android APK
         run: flutter build apk --release
@@ -91,12 +91,6 @@ jobs:
       #    artifacts: "build/app/outputs/flutter-apk/app-release.apk,build/app/outputs/bundle/release/app-release.aab,build/ios_build.tar.gz"
       #    tag: v${{ env.VERSION }}
       #    token: ${{ secrets.TOKEN }}
-
-      - name: Upload Artefacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: iccm_eu_app-web
-          path: build/web
 
       - uses: actions/upload-artifact@v4
         with:
