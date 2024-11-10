@@ -18,7 +18,7 @@ ThemeData darkTheme = ThemeData(
     ),
   ),
   colorScheme: ColorScheme.dark(
-    surface: Colors.green[400]!,
+    surface: Colors.grey[900]!,
     onSurface: Colors.grey[700]!,
     primary: Colors.grey[100]!,
     secondary: Colors.grey[400]!,

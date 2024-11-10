@@ -1,10 +1,9 @@
 import 'dart:convert';
 import 'dart:core';
 
+import 'package:http/http.dart' as http;
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:gsheets/gsheets.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/home_provider.dart';
@@ -18,23 +17,15 @@ import '../model/error_signal.dart';
 import 'error_provider.dart';
 
 class GsheetsProvider with ChangeNotifier {
-  final String _sheetID =
+  final String _sheetId =
       '1dFLWrcbI1AltIvVCEjBx9I3I3d0ToGN2FmzcFuAYsZE';
+  final _deploymentID =
+      'AKfycbwQXXQuHnI0lyf5UU6RGkO7MQMb7BtUr-KkoRdBbruy7IZgh5qCXlKLpZ_Y0siXCto5';
   bool _isFetchingData = false;
   late final _rawData = <String, List<Map<String, String>>>{};
 
   GsheetsProvider() {
     _isFetchingData = false;
-  }
-
-  Future<String> _loadCredentials(ErrorProvider? errorProvider) async {
-    try {
-      return await rootBundle.loadString('assets/service.json');
-    } catch (e) {
-      // Show overlay message
-      errorProvider?.setErrorSignal(ErrorSignal('Error: $e'));
-      rethrow; // Re-throw the exception to handle it elsewhere if needed
-    }
   }
 
   String _generateChecksum(Map<String, List<Map<String, String>>> data) {
@@ -68,30 +59,91 @@ class GsheetsProvider with ChangeNotifier {
     return totalObjects;
   }
 
+  Future<Map<String, dynamic>> _triggerWebAPP({required Map body}) async {
+    Map<String, dynamic> dataDict = {};
+    Uri url =
+      Uri.parse("https://script.google.com/macros/s/$_deploymentID/exec");
+    try {
+      // Debug.msg("_triggerWebAPP post: $url");
+      // Debug.msg("_triggerWebAPP body: $body");
+      await http.post(
+          url,
+          body: body,
+      ).then((response) async {
+        // Debug.msg("_triggerWebAPP status: ${response.statusCode.toString()}");
+        if ([200, 201].contains(response.statusCode)) {
+          // Debug.msg("_triggerWebAPP body: ${response.body}");
+          dataDict = jsonDecode(response.body);
+        }
+        if (response.statusCode == 302) {
+          String redirectedUrl = response.headers['location'] ?? "";
+          if (redirectedUrl.isNotEmpty) {
+            // Debug.msg("_triggerWebAPP redirect: $redirectedUrl");
+            Uri url = Uri.parse(redirectedUrl);
+            await http.get(url).then((response) {
+              if ([200, 201].contains(response.statusCode)) {
+                dataDict = jsonDecode(response.body);
+              }
+            });
+          }
+        // } else {
+        //   Debug.msg("_triggerWebAPP statusCode: ${response.statusCode.toString()}");
+        }
+      });
+    } catch (e) {
+      Debug.msg("_triggerWebAPP FAILED: $e");
+    }
+
+    return dataDict;
+  }
+
+  Future<Map<String, dynamic>> _getSheetsData({
+    required String worksheetName,
+  }) async {
+    Map body = {
+      "sheetId": _sheetId,
+      "action": 'read',
+      'worksheet': worksheetName,
+    };
+    Map<String, dynamic> dataDict = await _triggerWebAPP(
+        body: body,
+    );
+
+    return dataDict;
+  }
+
   Future<void> _readWorksheets({
       required List<String> worksheetTitles,
       ErrorProvider? errorProvider,
   }) async {
-    try {
-      final credentials = await _loadCredentials(errorProvider);
-      final sheets = GSheets(credentials);
-      final spreadsheet = await sheets.spreadsheet(_sheetID);
-
-      for (final worksheetTitle in worksheetTitles) {
-        final worksheet = spreadsheet.worksheetByTitle(worksheetTitle);
-        if (worksheet == null) {
-          throw Exception('Worksheet "$worksheetTitle" not found.');
-        } else {
-          final rows = await worksheet.values.map.allRows() ?? [];
-          _rawData[worksheetTitle] = rows;
+    for (final worksheetTitle in worksheetTitles) {
+      try {
+        Map<String, dynamic> response =
+          await _getSheetsData(worksheetName: worksheetTitle);
+        if (response["status"] as String != 'SUCCESS') {
+          throw Exception('Worksheet "$worksheetTitle" not loaded.');
         }
+        // Debug.msg("Got data: $response");
+        List<String> columns = (response['columns'] as List).cast<String>();
+        List<List<dynamic>> data = (response["data"] as List)
+            .map((row) => (row as List).map((e) => e.toString()).toList())
+            .toList();
+        List<Map<String, String>> tableRows = data.map((row) {
+          Map<String, String> rowMap = {};
+          for (int colIndex = 0; colIndex < columns.length; colIndex++) {
+            rowMap[columns[colIndex]] = row[colIndex].toString();
+          }
+          return rowMap;
+        }).toList();
+        _rawData[worksheetTitle] = tableRows;
+      } catch (e, stackTrace) {
+        final RegExp regExp = RegExp(r'#0 +([^\s]+) \(([^\s]+):([0-9]+)\)');
+        final Match? match = regExp.firstMatch(stackTrace.toString());
+        final fileName = match?.group(2) ?? 'unknown';
+        final lineNumber = match?.group(3) ?? 'unknown';
+        errorProvider?.setErrorSignal(
+            ErrorSignal('Fetch Error ($fileName:$lineNumber): $e\n$stackTrace'));
       }
-    } catch (e, stackTrace) {
-      final RegExp regExp = RegExp(r'#0 +([^\s]+) \(([^\s]+):([0-9]+)\)');
-      final Match? match = regExp.firstMatch(stackTrace.toString());
-      final fileName = match?.group(2) ?? 'unknown';
-      final lineNumber = match?.group(3) ?? 'unknown';
-      errorProvider?.setErrorSignal(ErrorSignal('Error ($fileName:$lineNumber): $e'));
     }
   }
 
