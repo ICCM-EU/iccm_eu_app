@@ -45,23 +45,12 @@ class EventData extends FlutterWeekViewEvent {
   );
 
   factory EventData.fromItemData(Map<String, dynamic> itemData) {
-    final startValue = double.tryParse(itemData['Date & Time'] ?? '0') ?? 0;
-    final startDaysSinceEpoch = startValue - 25569;
-    final startMsSinceEpoch = startDaysSinceEpoch * 24 * 60 * 60 * 1000;
-    final startTime = DateTime.fromMillisecondsSinceEpoch(startMsSinceEpoch.toInt());
-    final endValue = double.tryParse(itemData['End Date & Time'] ?? '0') ?? 0;
-    final endDaysSinceEpoch = endValue - 25569;
-    final endMsSinceEpoch = endDaysSinceEpoch * 24 * 60 * 60 * 1000;
-    final endTime = DateTime.fromMillisecondsSinceEpoch(endMsSinceEpoch.toInt());
-
     return EventData(
       imageUrl: itemData['Photo'] ?? '',
       name: TextSpan(text: itemData['Session'] ?? ''),
       details: TextSpan(text: itemData['Description'] ?? ''),
-      // final dateFormat = DateFormat('dd/MM/yyyy HH:mm:ss');
-      // fineTime = dateFormat.parse(dateTimeString);
-      start: startTime,
-      end: endTime,
+      start: DateTime.parse(itemData['Date & Time']),
+      end: DateTime.parse(itemData['End Date & Time']),
       room: TextSpan(text: itemData['Room']),
       track: TextSpan(text: itemData['Category']),
       speaker: TextSpan(text: itemData['Speaker']),
