@@ -38,7 +38,7 @@ jobs:
 
       # Build
       - name: Build for Web
-        run: flutter build web --base-href "/iccm_eu_app/" --disable-web-security --release
+        run: flutter build web --base-href "/iccm_eu_app/" --release
 
       - name: Build Android APK
         run: flutter build apk --release
