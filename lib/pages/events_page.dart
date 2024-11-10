@@ -44,11 +44,15 @@ class _EventsPageState extends State<EventsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Calendar'),
+        title: const Text('Events'),
+        automaticallyImplyLeading: false,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        foregroundColor: Theme.of(context).colorScheme.tertiary,
         actions: [
           _isDayView ? const SizedBox.shrink() :
           IconButton(
             icon: Icon(_futureEvents ? Icons.filter_alt : Icons.filter_alt_off),
+            color: Theme.of(context).colorScheme.onSurface,
             onPressed: () {
               setState(() {
                 _futureEvents = !_futureEvents;
@@ -59,6 +63,7 @@ class _EventsPageState extends State<EventsPage> {
           ),
           IconButton(
             icon: Icon(_isDayView ? Icons.list : Icons.calendar_today),
+            color: Theme.of(context).colorScheme.onSurface,
             onPressed: () {
               setState(() {
                 _isDayView = !_isDayView;

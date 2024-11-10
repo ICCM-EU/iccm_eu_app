@@ -8,8 +8,6 @@ import 'package:iccm_eu_app/data/appProviders/page_index_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/travel_directions_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/travel_provider.dart';
-import 'package:iccm_eu_app/data/model/speaker_data.dart';
-import 'package:iccm_eu_app/pages/speaker_details_page.dart';
 import "package:provider/provider.dart" show ChangeNotifierProvider, ChangeNotifierProxyProvider, MultiProvider, Provider;
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/appProviders/theme_provider.dart';
@@ -92,12 +90,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         title: 'ICCM Europe App',
-        theme: Provider
-            .of<ThemeProvider>(context)
-            .themeData,
+        theme: Provider.of<ThemeProvider>(context).themeData,
         home: Scaffold(
-        body:
-          Stack(
+          body: Stack(
             children: [
               Navigator( // Use a Navigator for page transitions
                 onGenerateRoute: (settings) {
@@ -105,10 +100,10 @@ class MyApp extends StatelessWidget {
                   if (settings.name == '/') {
                     return MaterialPageRoute(
                         builder: (context) => const BasePage());
-                  } else if (settings.name == '/speakerDetails') {
-                    final args = settings.arguments as SpeakerData;
-                    return MaterialPageRoute(
-                        builder: (context) => SpeakerDetailsPage(item: args));
+                  // } else if (settings.name == '/speakerDetails') {
+                  //   final args = settings.arguments as SpeakerData;
+                  //   return MaterialPageRoute(
+                  //       builder: (context) => SpeakerDetailsPage(item: args));
                   }
                   return null; // Handle unknown routes
                 },

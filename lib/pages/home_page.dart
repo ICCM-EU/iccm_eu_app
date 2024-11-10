@@ -12,6 +12,7 @@ class HomePage extends StatelessWidget {
       // appBar: AppBar(
       //   title: const Text('Home'),
       // ),
+      // backgroundColor: Theme.of(context).colorScheme.surface,
       body: Consumer<HomeProvider>(
         builder: (context, itemProvider, child) {
           final itemList = itemProvider.items();

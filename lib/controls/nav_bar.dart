@@ -47,14 +47,8 @@ class _NavBarState extends State<NavBar> {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      selectedItemColor: Theme
-          .of(context)
-          .colorScheme
-          .primary,
-      unselectedItemColor: Theme
-          .of(context)
-          .colorScheme
-          .tertiary,
+      selectedItemColor: Theme.of(context).colorScheme.primary,
+      unselectedItemColor: Theme.of(context).colorScheme.tertiary,
       showUnselectedLabels: true,
       onTap: (index) {
         Provider.of<PageIndexProvider>(context, listen: false).

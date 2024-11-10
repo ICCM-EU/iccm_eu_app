@@ -10,7 +10,6 @@ import "package:provider/provider.dart" show Consumer, Provider;
 
 import 'package:iccm_eu_app/data/appProviders/theme_provider.dart';
 
-
 class BasePage extends StatefulWidget {
   const BasePage({
     super.key,
@@ -88,16 +87,11 @@ class _BasePageState extends State<BasePage> {
                   theme: Provider.of<ThemeProvider>(context).themeData,
                   home: Scaffold(
                     drawer: MenuDrawer(setPageIndex: _setPageIndex),
-                    backgroundColor: Colors.green[400]!,
+                    backgroundColor: Theme.of(context).colorScheme.surface,
                     appBar: AppBar(
                       automaticallyImplyLeading: false,
                       backgroundColor: Theme.of(context).colorScheme.surface,
                       foregroundColor: Theme.of(context).colorScheme.tertiary,
-                      // TRY THIS: Try changing the color here to a specific color (to
-                      // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-                      // change color while the other colors stay the same.
-                      // Here we take the value from the MyHomePage object that was created by
-                      // the App.build method, and use it to set our appbar title.
                       title: Row(
                         children: [
                           Builder(

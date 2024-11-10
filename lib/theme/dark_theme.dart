@@ -11,17 +11,33 @@ ThemeData darkTheme = ThemeData(
   // reload" button in a Flutter-supported IDE, or press "r" if you used
   // the command line to start the app).
   appBarTheme: AppBarTheme(
-    backgroundColor: Colors.green[900]!,
+    backgroundColor: Colors.black,
     titleTextStyle: const TextStyle(
       fontSize: 20,
       color: Colors.grey,
     ),
   ),
   colorScheme: ColorScheme.dark(
-    surface: Colors.grey[900]!,
+    surface: Colors.green[400]!,
+    onSurface: Colors.grey[700]!,
     primary: Colors.grey[100]!,
     secondary: Colors.grey[400]!,
     tertiary: Colors.grey[700]!,
+    inversePrimary: Colors.black,
+    inverseSurface: Colors.black,
+
+  ),
+  textTheme: TextTheme(
+    bodyMedium: TextStyle(
+      color: Colors.grey[300]!,
+    ),
+    headlineMedium: TextStyle(
+      color: Colors.grey[300]!,
+      fontSize: 24,
+    ),
+    displayMedium: TextStyle(
+      color: Colors.grey[300]!,
+    ),
   ),
   useMaterial3: true,
 );
