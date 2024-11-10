@@ -25509,7 +25509,7 @@ while(true)switch(s){case 0:o=A
 s=3
 return A.u(A.c7(),$async$a9W)
 case 3:p=o.lb(b.a.i(0,"isDarkTheme"))
-q=p===!0
+q=p!==!1
 s=1
 break
 case 1:return A.B(q,r)}})
@@ -76659,7 +76659,7 @@ A.a36.prototype={
 $1(a){var s,r=null,q=a.i(0,"imageUrl"),p=A.b6(a.i(0,"name"))
 p=A.at(r,r,p==null?"":p)
 s=A.b6(a.i(0,"details"))
-return new A.fm(q,p,A.at(r,r,s==null?"":s),a.i(0,"details"),a.i(0,"votingPageUrl"))},
+return new A.fm(q,p,A.at(r,r,s==null?"":s),a.i(0,"nowPageUrl"),a.i(0,"votingPageUrl"))},
 $S:532}
 A.a37.prototype={
 $1(a){this.a.b.push(a)},
