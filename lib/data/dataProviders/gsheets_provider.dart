@@ -106,13 +106,16 @@ class GsheetsProvider with ChangeNotifier {
 
     DateTime now = DateTime.now();
     DateTime? lastUpdated = await PreferencesProvider.cacheLastUpdated;
-    if (! force &&
-        (lastUpdated != null && lastUpdated.isBefore(now.subtract(
-            const Duration(minutes: 4, seconds: 50,))))
+    // set lastUpdated out of silent range
+    lastUpdated ??= DateTime.now().subtract(Duration(hours: 12));
+    if (lastUpdated.isAfter(now.subtract(
+            const Duration(minutes: 4, seconds: 50,))) &&
+        !force
     ) {
-      final Duration duration = now.difference(lastUpdated);
+      String duration = 'unset';
+      duration = now.difference(lastUpdated).inMinutes.toString();
       Debug.msg('Fetch omitted. (${force ? 'force' : 'noforce'}, '
-          '${duration..inMinutes} since $now)');
+          '$duration since $now)');
       _isFetchingData = false;
       return;
     }
@@ -140,7 +143,7 @@ class GsheetsProvider with ChangeNotifier {
     String cachedChecksum = await PreferencesProvider.cachedChecksum;
     String dataChecksum = _generateChecksum(_rawData);
 
-    if (lastUpdated == null || cachedChecksum != dataChecksum || force) {
+    if (cachedChecksum != dataChecksum || force) {
       await PreferencesProvider.setCachedChecksum(dataChecksum);
       await PreferencesProvider.setLastUpdated(now);
 
