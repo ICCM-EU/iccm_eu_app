@@ -76,7 +76,9 @@ class CountdownPageState extends State<CountdownPage> {
     final RoomsProvider roomsProvider = Provider.of<RoomsProvider>(context);
     final EventsProvider eventsProvider = Provider.of<EventsProvider>(context);
     _currentEvents = eventsProvider.currentEvents(room: _selectedRoom);
-    _upcomingEvents = eventsProvider.nextEvents(room: _selectedRoom);
+    if (_remainingDuration <= Duration.zero) {
+      _upcomingEvents = eventsProvider.filterPastEvents().take(5).toList();
+    }
     _nextEventTime = eventsProvider.nextStartTime(room: _selectedRoom);
     return Scaffold(
       backgroundColor: Colors.black, // Set Scaffold background to black
