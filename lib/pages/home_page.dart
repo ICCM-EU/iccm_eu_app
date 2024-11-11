@@ -88,26 +88,27 @@ class HomePageState extends State<HomePage> {
                   child: Column(
                     // crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // LayoutBuilder(
-                      //   builder: (BuildContext context, BoxConstraints constraints) {
-                      //     return SizedBox(
-                      //       width: constraints.maxWidth * 0.9,
-                      //       height: constraints.maxHeight * 0.3,
-                      //       child: CachedNetworkImage(
-                      //         imageUrl: item.imageUrl,
-                      //         fit: BoxFit.contain,
-                      //         placeholder: (context, url) => const CircularProgressIndicator(),
-                      //         errorWidget: (context, url, error) => const Icon(Icons.error),
-                      //       ),
-                      //     );
-                      //   },
-                      // ),
-                      CachedNetworkImage(
-                        imageUrl: item.imageUrl,
-                        fit: BoxFit.contain,
-                        placeholder: (context, url) => const CircularProgressIndicator(),
-                        errorWidget: (context, url, error) => const Icon(Icons.error),
-                      ), // Banner image
+                      LayoutBuilder(
+                        builder: (BuildContext context, BoxConstraints constraints) {
+                          return ClipRect(
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: ConstrainedBox( // Wrap SizedBox with ConstrainedBox
+                                constraints: BoxConstraints(
+                                  maxWidth: constraints.maxWidth * 0.9,
+                                  maxHeight: constraints.maxHeight * 0.3,
+                                ),
+                                child: CachedNetworkImage(
+                                  imageUrl: item.imageUrl,
+                                  fit: BoxFit.cover,
+                                  placeholder: (context, url) => const CircularProgressIndicator(),
+                                  errorWidget: (context, url, error) => const Icon(Icons.error),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                       const SizedBox(height: 16.0),
                       RichText(
                         text: TextSpan(
