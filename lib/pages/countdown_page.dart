@@ -76,9 +76,7 @@ class CountdownPageState extends State<CountdownPage> {
     final RoomsProvider roomsProvider = Provider.of<RoomsProvider>(context);
     final EventsProvider eventsProvider = Provider.of<EventsProvider>(context);
     _currentEvents = eventsProvider.currentEvents(room: _selectedRoom);
-    if (_remainingDuration <= Duration.zero) {
-      _upcomingEvents = eventsProvider.filterPastEvents().take(5).toList();
-    }
+    _upcomingEvents = eventsProvider.nextEvents(room: _selectedRoom);
     _nextEventTime = eventsProvider.nextStartTime(room: _selectedRoom);
     return Scaffold(
       backgroundColor: Colors.black, // Set Scaffold background to black
@@ -180,10 +178,18 @@ class CountdownPageState extends State<CountdownPage> {
                   return const SizedBox.shrink(); // Skip events not matching the filter
                 }
                 return ListTile(
-                  title: Text(event.title),
+                  title: Text(event.title,
+                    style: TextStyle(
+                        fontSize: 20,
+                    ),
+                  ),
                   leading:
                     Text('${event.start.hour.toString().padLeft(2, '0')}:'
-                      '${event.start.minute.toString().padLeft(2, '0')}'),
+                      '${event.start.minute.toString().padLeft(2, '0')}',
+                      style: TextStyle(
+                        fontSize: 20,
+                      ),
+                    ),
                 );
               },
             ),
@@ -210,9 +216,8 @@ class CountdownPageState extends State<CountdownPage> {
     } else {
       return
         '${days > 0 ? '${days.toString().padLeft(2, '0')}d ' : ''}'
-            '${hours > 0 ? '${hours.toString().padLeft(2, '0')}h ' : ''}'
-            '${minutes > 0 ? '${minutes.toString().padLeft(2, '0')}m ' : ''}'
-            '${hours == 0 ? '${seconds.toString().padLeft(2, '0')}s' : ''}';
+            '${hours.toString().padLeft(2, '0')}h '
+            '${minutes.toString().padLeft(2, '0')}m ';
     }
   }
 }
