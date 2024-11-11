@@ -52,7 +52,7 @@ class EventData extends FlutterWeekViewEvent {
   factory EventData.fromItemData(Map<String, dynamic> itemData) {
     tz.initializeTimeZones();
     tz.Location location = tz.getLocation('Europe/Berlin');
-    Duration offset = Duration(hours: -9);
+    const Duration offset = Duration(hours: -9);
     DateTime utcStart = DateTime.parse(itemData['Date & Time']).add(offset);
     tz.TZDateTime localStart = tz.TZDateTime.from(utcStart, location);
     DateTime utcEnd = DateTime.parse(itemData['End Date & Time']).add(offset);
