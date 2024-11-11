@@ -11,6 +11,7 @@ import 'package:iccm_eu_app/data/model/event_data.dart';
 import 'package:iccm_eu_app/data/model/room_data.dart';
 import 'package:iccm_eu_app/data/model/speaker_data.dart';
 import 'package:iccm_eu_app/data/model/track_data.dart';
+import 'package:iccm_eu_app/utils/date_functions.dart';
 import 'package:provider/provider.dart';
 
 class EventDetailsPage extends StatelessWidget {
@@ -86,9 +87,21 @@ class EventDetailsPage extends StatelessWidget {
                 const SizedBox(height: 16),
                 RichText(
                   text: TextSpan(
-                      text: item.title,
+                    text: item.title,
                   ),
                   // style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                RichText(
+                  text: TextSpan(
+                    text: DateFunctions().formatDate(
+                        date: item.start,
+                        format: 'EEE, dd.MM.yyyy, HH:mm'),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 8),
                 RichText(

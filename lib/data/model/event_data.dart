@@ -1,3 +1,6 @@
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_week_view/flutter_week_view.dart';
 import 'package:iccm_eu_app/utils/url_functions.dart';
@@ -11,6 +14,7 @@ class EventData extends FlutterWeekViewEvent {
   final TextSpan name;
   final TextSpan details;
   int? id = -1;
+
 
   EventData({
     // mandatory parameters
@@ -46,12 +50,19 @@ class EventData extends FlutterWeekViewEvent {
   );
 
   factory EventData.fromItemData(Map<String, dynamic> itemData) {
+    tz.initializeTimeZones();
+    tz.Location location = tz.getLocation('Europe/Berlin');
+    Duration offset = Duration(hours: -9);
+    DateTime utcStart = DateTime.parse(itemData['Date & Time']).add(offset);
+    tz.TZDateTime localStart = tz.TZDateTime.from(utcStart, location);
+    DateTime utcEnd = DateTime.parse(itemData['End Date & Time']);
+    tz.TZDateTime localEnd = tz.TZDateTime.from(utcEnd, location);
     return EventData(
       imageUrl: UrlFunctions.proxy(itemData['Photo']),
       name: TextSpan(text: itemData['Session'] ?? ''),
       details: TextSpan(text: itemData['Description'] ?? ''),
-      start: DateTime.parse(itemData['Date & Time']),
-      end: DateTime.parse(itemData['End Date & Time']),
+      start: localStart,
+      end: localEnd,
       room: TextSpan(text: itemData['Room']),
       track: TextSpan(text: itemData['Category']),
       speaker: TextSpan(text: itemData['Speaker']),
