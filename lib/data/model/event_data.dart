@@ -55,7 +55,7 @@ class EventData extends FlutterWeekViewEvent {
     Duration offset = Duration(hours: -9);
     DateTime utcStart = DateTime.parse(itemData['Date & Time']).add(offset);
     tz.TZDateTime localStart = tz.TZDateTime.from(utcStart, location);
-    DateTime utcEnd = DateTime.parse(itemData['End Date & Time']);
+    DateTime utcEnd = DateTime.parse(itemData['End Date & Time']).add(offset);
     tz.TZDateTime localEnd = tz.TZDateTime.from(utcEnd, location);
     return EventData(
       imageUrl: UrlFunctions.proxy(itemData['Photo']),
