@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/model/colors_data.dart';
 import 'package:iccm_eu_app/data/model/model_item.dart';
+import 'package:iccm_eu_app/utils/url_functions.dart';
 
 class RoomData extends ModelItem {
   @override
@@ -20,7 +21,7 @@ class RoomData extends ModelItem {
 
   factory RoomData.fromItemData(Map<String, dynamic> itemData) {
     return RoomData._(
-      imageUrl: itemData['Photo 1'] ?? '',
+      imageUrl: UrlFunctions.proxy(itemData['Photo 1']),
       name: TextSpan(text: itemData['Name'] ?? ''),
       details: TextSpan(text: itemData['Description'] ?? ''),
       colors: null,

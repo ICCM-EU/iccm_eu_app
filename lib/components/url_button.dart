@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:iccm_eu_app/utils/url_launcher.dart';
+import 'package:iccm_eu_app/utils/url_functions.dart';
 
 class UrlButton extends StatelessWidget {
   final String? url;
@@ -30,7 +30,7 @@ class UrlButton extends StatelessWidget {
                     strokeAlign: BorderSide.strokeAlignInside,
                   ),
                 ),
-                onPressed: () => UrlLauncher.url(url!),
+                onPressed: () => UrlFunctions.launch(url!),
                 child: Text(
                   title,
                   style: const TextStyle(

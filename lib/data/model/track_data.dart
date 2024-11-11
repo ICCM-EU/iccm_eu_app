@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/model/model_item.dart';
 import 'package:iccm_eu_app/data/model/colors_data.dart';
+import 'package:iccm_eu_app/utils/url_functions.dart';
 
 class TrackData extends ModelItem {
   @override
@@ -20,7 +21,7 @@ class TrackData extends ModelItem {
 
   factory TrackData.fromItemData(Map<String, dynamic> itemData) {
     return TrackData._(
-      imageUrl: itemData['Photo'] ?? '',
+      imageUrl: UrlFunctions.proxy(itemData['Photo']),
       name: TextSpan(text: itemData['Name'] ?? ''),
       details: TextSpan(text: itemData['Description'] ?? ''),
       colors: null,

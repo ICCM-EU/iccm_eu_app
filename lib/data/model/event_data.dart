@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_week_view/flutter_week_view.dart';
+import 'package:iccm_eu_app/utils/url_functions.dart';
 
 class EventData extends FlutterWeekViewEvent {
   final String? imageUrl;
@@ -46,7 +47,7 @@ class EventData extends FlutterWeekViewEvent {
 
   factory EventData.fromItemData(Map<String, dynamic> itemData) {
     return EventData(
-      imageUrl: itemData['Photo'] ?? '',
+      imageUrl: UrlFunctions.proxy(itemData['Photo']),
       name: TextSpan(text: itemData['Session'] ?? ''),
       details: TextSpan(text: itemData['Description'] ?? ''),
       start: DateTime.parse(itemData['Date & Time']),

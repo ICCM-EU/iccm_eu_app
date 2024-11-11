@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/model/model_item.dart';
+import 'package:iccm_eu_app/utils/url_functions.dart';
 
 class TravelData extends ModelItem {
   @override
@@ -21,7 +22,7 @@ class TravelData extends ModelItem {
 
   factory TravelData.fromItemData(Map<String, dynamic> itemData) {
     return TravelData._(
-      imageUrl: itemData['Photo 1'] ?? '',
+      imageUrl: UrlFunctions.proxy(itemData['Photo 1']),
       name: TextSpan(text: itemData['Title'] ?? ''),
       details: TextSpan(text: itemData['Location'] ?? ''),
       locationUrl: itemData['Website'] ?? '',

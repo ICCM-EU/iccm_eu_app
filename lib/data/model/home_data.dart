@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/model/model_item.dart';
+import 'package:iccm_eu_app/utils/url_functions.dart';
 
 class HomeData extends ModelItem {
   @override
@@ -21,7 +22,7 @@ class HomeData extends ModelItem {
 
   factory HomeData.fromItemData(Map<String, dynamic> itemData) {
     return HomeData._(
-      imageUrl: itemData['Photo 1'] ?? '',
+      imageUrl: UrlFunctions.proxy(itemData['Photo 1']),
       name: TextSpan(text: itemData['Title'] ?? ''),
       details: TextSpan(text: itemData['Description'] ?? ''),
       nowPageUrl: itemData['Now Page Link'] ?? '',
