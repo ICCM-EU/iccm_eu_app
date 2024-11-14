@@ -1,11 +1,11 @@
 {
-    "name": "iccm_eu_app",
-    "short_name": "iccm_eu_app",
+    "name": "ICCM Europe conference app",
+    "short_name": "ICCM EU",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#61b531",
     "theme_color": "#61b531",
-    "description": "ICCM Europe App",
+    "description": "ICCM Europe schedule, countdown, sessions, tracks and interactions app",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
