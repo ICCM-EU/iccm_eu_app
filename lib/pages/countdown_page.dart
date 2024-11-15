@@ -40,11 +40,11 @@ class CountdownPageState extends State<CountdownPage> {
   Future<void> _loadSelectedRoom() async {
     String? currentFilter = await PreferencesProvider.timerRoomFilter;
     if (currentFilter.isEmpty) {
-      _selectedRoom = null;
-    } else {
-      _selectedRoom = currentFilter;
+      currentFilter = null;
     }
-    setState(() {}); // Trigger a rebuild after updating
+    setState(() {
+      _selectedRoom = currentFilter;
+    }); // Trigger a rebuild after updating
   }
 
   void _startTimer() {
@@ -87,10 +87,10 @@ class CountdownPageState extends State<CountdownPage> {
           DropdownButton<String>(
             value: _selectedRoom,
             onChanged: (String? newValue) {
+              PreferencesProvider.setTimerRoomFilter(newValue ?? '');
               setState(() {
                 _selectedRoom = newValue;
               });
-              PreferencesProvider.setTimerRoomFilter(newValue ?? '');
             },
             items: [
               DropdownMenuItem<String>(

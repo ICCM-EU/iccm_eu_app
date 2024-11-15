@@ -41,13 +41,13 @@ class PreferencesPage extends StatelessWidget {
             );
           },
         ),
-        const Divider(),
-        const Text('Profile',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        // const Divider(),
+        // const Text('Profile',
+        //   style: TextStyle(
+        //     fontSize: 18,
+        //     fontWeight: FontWeight.bold,
+        //   ),
+        // ),
       ],
     );
   }
