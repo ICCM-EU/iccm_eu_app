@@ -37,9 +37,6 @@ jobs:
         run: flutter pub get
 
       # Build
-      - name: Build for Web
-        run: flutter build web --base-href "/iccm_eu_app/" --release
-
       - name: Build Android APK
         run: flutter build apk --release
 
@@ -101,12 +98,6 @@ jobs:
         with:
           name: iccm_eu_app-ios-app
           path: build/ios/archive/
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: build/web
 
   build-and-release-windows:
     runs-on: windows-latest
@@ -256,6 +247,10 @@ jobs:
       #- name: Generate intermediates
       #  run: flutter pub run build_runner build --delete-conflicting-outputs
 
+      # Build
+      - name: Build for Web
+        run: flutter build web --base-href "/iccm_eu_app/" --release
+
       - name: Enable linux build
         run: flutter config --enable-linux-desktop
 
@@ -266,6 +261,13 @@ jobs:
         with:
           name: iccm_eu_app-linux-desktop
           path: build/linux/x64/release/bundle
+
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/master'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: build/web
 
       #- name: Archive Release
       #  uses: thedoctor0/zip-release@master
