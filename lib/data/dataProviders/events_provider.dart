@@ -210,8 +210,10 @@ class EventsProvider with ChangeNotifier  {
 
   List<EventData> nextEvents({
     String? room,
+    bool withCurrent = false;
   }) {
     List<EventData> items;
+    DateTime now = DateTime.now();
     if (room == null) {
       items = _items;
     } else {
@@ -224,10 +226,19 @@ class EventsProvider with ChangeNotifier  {
     if (next == null) {
       return [];
     }
-    return items.where(
-            (item) =>
-        item.start.isAtSameMomentAs(next)
-    ).toList();
+    if (withCurrent) {
+      return items.where(
+        (item) =>
+          item.start.isAtSameMomentAs(next) ||
+            item.start.isAtSameMomentAs(now) ||
+            (item.start.isBefore(now) && item.end.isAfter(now))
+      ).toList();
+    } else {
+      return items.where(
+              (item) =>
+              item.start.isAtSameMomentAs(next)
+      ).toList();
+    }
   }
 
   DateTime? nextStartTime({
