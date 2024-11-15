@@ -210,7 +210,7 @@ class EventsProvider with ChangeNotifier  {
 
   List<EventData> nextEvents({
     String? room,
-    bool withCurrent = false;
+    bool withCurrent = false,
   }) {
     List<EventData> items;
     DateTime now = DateTime.now();
