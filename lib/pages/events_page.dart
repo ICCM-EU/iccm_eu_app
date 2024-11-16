@@ -31,13 +31,17 @@ class _EventsPageState extends State<EventsPage> {
   }
 
   Future<void> _loadIsDayView() async {
-    _isDayView = await PreferencesProvider.isDayView;
-    setState(() {}); // Trigger a rebuild after updating _isDayView
+    bool value = await PreferencesProvider.isDayView;
+    setState(() {
+      _isDayView = value;
+    }); // Trigger a rebuild after updating _isDayView
   }
 
   Future<void> _loadEventListFilter() async {
-    _futureEvents = await PreferencesProvider.futureEvents;
-    setState(() {}); // Trigger a rebuild after updating _isDayView
+    bool value = await PreferencesProvider.futureEvents;
+    setState(() {
+      _futureEvents = value;
+    }); // Trigger a rebuild after updating _isDayView
   }
 
   @override
@@ -86,6 +90,17 @@ class DayViewCalendar extends StatefulWidget {
 }
 
 class DayViewCalendarState extends State<DayViewCalendar> {
+
+  @override
+  void initState() {
+    super.initState();
+    _loadColorByRoom();
+  }
+
+  Future<void> _loadColorByRoom() async {
+    PreferencesProvider.loadCalendarColorByRoom();
+  }
+
   @override
   Widget build(BuildContext context) {
     // Implement your day view calendar here

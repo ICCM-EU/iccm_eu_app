@@ -45,11 +45,10 @@ class PreferencesProvider {
   static const String _calendarColorByRoomKey = 'calendarColorByRoom';
   static final ValueNotifier<bool> calendarColorByRoomNotifier = ValueNotifier(false);
 
-  static Future<bool> get calendarColorByRoom async {
+  static Future<void> loadCalendarColorByRoom() async {
     final prefs = await SharedPreferences.getInstance();
-    bool value = prefs.getBool(_calendarColorByRoomKey) ?? false;
+    bool value = prefs.getBool(_calendarColorByRoomKey) ?? false; // Default
     calendarColorByRoomNotifier.value = value;
-    return value; // Default
   }
 
   static Future<void> setCalendarColorByRoom(bool value) async {
