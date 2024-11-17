@@ -41488,7 +41488,7 @@ A.dS(a,B.ag,t.v).toString
 s=A.c0("About ICCM Europe Licenses",r,r,r,r,r,r)
 return A.fQ(!1,r,r,r,!0,r,r,!1,B.Ec,r,new A.VR(this,a),!1,r,r,r,r,r,s,r,r)}}
 A.VR.prototype={
-$0(){A.aQQ(B.Ee,"Licensed under MIT","ICCM Europe Licenses","2025-eu.0",B.c7,this.b)},
+$0(){A.aQQ(B.Ee,"Licensed under GPLv3","ICCM Europe Licenses","2025-eu.0",B.c7,this.b)},
 $S:0}
 A.aqD.prototype={
 $1(a){var s=this
@@ -74416,7 +74416,7 @@ $1(a){return B.CB},
 $S:503}
 A.a70.prototype={
 $0(){A.jl(this.b).r9()
-this.a.c.$1(8)},
+this.a.c.$1(7)},
 $S:0}
 A.yd.prototype={
 aa(){return new A.Q7()}}
