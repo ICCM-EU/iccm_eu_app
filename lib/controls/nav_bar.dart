@@ -11,15 +11,14 @@ import 'package:iccm_eu_app/pages/travel_information_page.dart';
 import 'package:provider/provider.dart';
 
 enum PageList {
-  home,
-  schedule,
-  tracks,
-  speakers,
-  rooms,
-  preferences,
-  travelInformation,
-  countdownSchedule,
-  about,
+  home, // 0
+  events, // 1
+  tracks, // 2
+  speakers, // 3
+  rooms, // 4
+  preferences, // 5
+  travelInformation, // 6
+  about, // 8
 }
 
 class NavBar extends StatefulWidget {

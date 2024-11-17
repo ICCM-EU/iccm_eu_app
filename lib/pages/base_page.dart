@@ -13,7 +13,6 @@ import 'package:iccm_eu_app/data/appProviders/theme_provider.dart';
 class BasePage extends StatefulWidget {
   const BasePage({
     super.key,
-    //required this.prefsProvider,
   });
 
   final String title = 'ICCM Europe App';
