@@ -73,6 +73,36 @@ class HomePageState extends State<HomePage> {
       // backgroundColor: Theme.of(context).colorScheme.surface,
       body: CustomScrollView(
         slivers: [
+          SliverAppBar(
+            expandedHeight: MediaQuery.of(context).size.height * 0.3, // 30% of screen height
+            flexibleSpace: FlexibleSpaceBar(
+              collapseMode: CollapseMode.parallax,
+              background: LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  return Consumer<HomeProvider>(
+                    builder: (context, itemProvider, child) {
+                      final itemList = itemProvider.items();
+                      if (itemList.isEmpty) {
+                        return const Center(
+                          child: Text('Loading dynamic content...'),
+                        );
+                      }
+                      final item = itemList.first;
+                      return CachedNetworkImage(
+                        imageUrl: item.imageUrl,
+                        fit: BoxFit.cover,
+                        width: constraints.maxWidth,
+                        height: constraints.maxHeight,
+                        placeholder: (context, url) => const CircularProgressIndicator(),
+                        errorWidget: (context, url, error) => const Icon(Icons.error),
+                        colorBlendMode: BlendMode.srcIn,
+                      );
+                    },
+                  );
+                }
+              ),
+            ),
+          ),
           SliverToBoxAdapter(
             child: Consumer<HomeProvider>(
               builder: (context, itemProvider, child) {
@@ -88,27 +118,6 @@ class HomePageState extends State<HomePage> {
                   child: Column(
                     // crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      LayoutBuilder(
-                        builder: (BuildContext context, BoxConstraints constraints) {
-                          return ClipRect(
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: ConstrainedBox( // Wrap SizedBox with ConstrainedBox
-                                constraints: BoxConstraints(
-                                  maxWidth: constraints.maxWidth * 0.9,
-                                  maxHeight: constraints.maxHeight * 0.3,
-                                ),
-                                child: CachedNetworkImage(
-                                  imageUrl: item.imageUrl,
-                                  fit: BoxFit.cover,
-                                  placeholder: (context, url) => const CircularProgressIndicator(),
-                                  errorWidget: (context, url, error) => const Icon(Icons.error),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
                       const SizedBox(height: 16.0),
                       RichText(
                         text: TextSpan(
