@@ -15,14 +15,21 @@ class RoomListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       leading: item.imageUrl.startsWith("http") ?
-      CachedNetworkImage(
-        imageUrl: item.imageUrl,
-        imageBuilder: (context, imageProvider) => CircleAvatar(
-          backgroundImage: imageProvider,
-          radius: 50,
-        ),
-        placeholder: (context, url) => const CircularProgressIndicator(),
-        errorWidget: (context, url, error) => const Icon(Icons.error),
+      CircleAvatar(
+          radius: 50.0,
+          child: SizedBox(
+              width: 100.0, // Diameter of CircleAvatar
+              height: 100.0,
+              child: CachedNetworkImage(
+                imageUrl: item.imageUrl,
+                placeholder: (context, url) => FittedBox(
+                  child: CircularProgressIndicator(),
+                ),
+                errorWidget: (context, url, error) => FittedBox(
+                  child: Icon(Icons.error),
+                ),
+              )
+          )
       ) :
       const SizedBox(
         height: 100,
