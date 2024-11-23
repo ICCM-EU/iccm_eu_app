@@ -6,6 +6,8 @@ import 'package:iccm_eu_app/controls/nav_bar.dart';
 import 'package:iccm_eu_app/data/appProviders/page_index_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/error_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
+import 'package:iccm_eu_app/theme/dark_theme.dart';
+import 'package:iccm_eu_app/theme/light_theme.dart';
 import "package:provider/provider.dart" show Consumer, Provider;
 
 import 'package:iccm_eu_app/data/appProviders/theme_provider.dart';
@@ -83,14 +85,25 @@ class _BasePageState extends State<BasePage> {
               builder: (context, appState, child) {
                 return MaterialApp(
                   debugShowCheckedModeBanner: false,
-                  theme: Provider.of<ThemeProvider>(context).themeData,
+                  theme: lightTheme,
+                  darkTheme: darkTheme,
+                  themeMode: Provider.of<ThemeProvider>(context).themeMode,
                   home: Scaffold(
                     drawer: MenuDrawer(setPageIndex: _setPageIndex),
-                    backgroundColor: Theme.of(context).colorScheme.surface,
+                    backgroundColor: Theme
+                        .of(context)
+                        .appBarTheme
+                        .backgroundColor,
                     appBar: AppBar(
                       automaticallyImplyLeading: false,
-                      backgroundColor: Theme.of(context).colorScheme.surface,
-                      foregroundColor: Theme.of(context).colorScheme.tertiary,
+                      backgroundColor: Theme
+                          .of(context)
+                          .appBarTheme
+                          .backgroundColor,
+                      foregroundColor: Theme
+                          .of(context)
+                          .appBarTheme
+                          .foregroundColor,
                       title: Row(
                         children: [
                           Builder(

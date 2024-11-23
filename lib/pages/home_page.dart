@@ -119,18 +119,16 @@ class HomePageState extends State<HomePage> {
                     // crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 16.0),
-                      RichText(
-                        text: TextSpan(
-                          text: item.name.text,
-                          style: TextStyle(
-                            fontSize: 24.0,
-                            fontWeight: FontWeight.bold,
-                          )
-                        ),
+                      Text(
+                        item.name.text!,
+                        style: TextStyle(
+                          fontSize: 24.0,
+                          fontWeight: FontWeight.bold,
+                        )
                       ),
                       const SizedBox(height: 8.0),
-                      RichText(
-                        text: item.details,
+                      Text(
+                        item.details.text!,
                       ),
                       UrlButton(
                         title: 'Now Page',

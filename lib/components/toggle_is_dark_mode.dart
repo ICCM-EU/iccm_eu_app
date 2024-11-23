@@ -9,7 +9,8 @@ class ToggleIsDarkModeListTile extends ToggleButtonListTile {
     super.key,
     required BuildContext context})
   : super (
-    value: Provider.of<ThemeProvider>(context, listen: true).isDarkMode,
+    value: Provider.of<ThemeProvider>(context, listen: true).themeMode ==
+        ThemeMode.dark,
     onChanged: (value) {
       Provider.of<ThemeProvider>(context, listen: false).saveTheme(value);
     },

@@ -16,12 +16,12 @@ class SpeakersPage extends StatelessWidget {
         automaticallyImplyLeading: false,
         backgroundColor: Theme
             .of(context)
-            .colorScheme
-            .surface,
+            .appBarTheme
+            .backgroundColor,
         foregroundColor: Theme
             .of(context)
-            .colorScheme
-            .tertiary,
+            .appBarTheme
+            .foregroundColor,
       ),
       body: Column(
         children: [

@@ -1,29 +1,22 @@
 import 'package:flutter/material.dart';
 
-import 'package:iccm_eu_app/theme/dark_theme.dart';
-import 'package:iccm_eu_app/theme/light_theme.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 
 class ThemeProvider with ChangeNotifier {
-  bool _isDarkMode = false;
-  ThemeData themeData = lightTheme;
-
-  bool get isDarkMode => _isDarkMode;
+  ThemeMode themeMode = ThemeMode.system;
 
   ThemeProvider() {
     _loadTheme(); // Load theme on initialization
   }
 
   Future<void> saveTheme(bool isDark) async {
-    _isDarkMode = isDark;
-    themeData = _isDarkMode ? darkTheme : lightTheme;
+    themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
     await PreferencesProvider.setDarkTheme(isDark);
     notifyListeners();
   }
 
   Future<void> _loadTheme() async {
-    _isDarkMode = await PreferencesProvider.isDarkTheme;
-    themeData = _isDarkMode ? darkTheme : lightTheme;
+    themeMode = await PreferencesProvider.isDarkTheme;
     notifyListeners();
   }
 }

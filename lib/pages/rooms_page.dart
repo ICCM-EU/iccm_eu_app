@@ -10,18 +10,18 @@ class RoomsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(
-          child: const Text('Rooms'),
-        ),
-        automaticallyImplyLeading: false,
-        backgroundColor: Theme
-            .of(context)
-            .colorScheme
-            .surface,
-        foregroundColor: Theme
-            .of(context)
-            .colorScheme
-            .tertiary,
+          title: Center(
+            child: const Text('Rooms'),
+          ),
+          automaticallyImplyLeading: false,
+          backgroundColor: Theme
+              .of(context)
+              .appBarTheme
+              .backgroundColor,
+          foregroundColor: Theme
+              .of(context)
+              .appBarTheme
+              .foregroundColor
       ),
       body: Column(
         children: [

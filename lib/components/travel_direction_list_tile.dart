@@ -39,6 +39,7 @@ class TravelDirectionListTile extends StatelessWidget {
           ),
       title: RichText(
         text: TextSpan(
+          style: DefaultTextStyle.of(context).style,
           children: <TextSpan>[
             TextSpan(
               text: item.name.text,
@@ -53,6 +54,7 @@ class TravelDirectionListTile extends StatelessWidget {
       ),
       subtitle: RichText(
         text: TextSpan(
+          style: DefaultTextStyle.of(context).style,
           children: <TextSpan>[
             TextSpan(
               text: TextFunctions.cutTextToWords(

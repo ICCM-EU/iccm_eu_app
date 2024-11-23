@@ -5,14 +5,25 @@ class PreferencesProvider {
   // ---------------------------------------------------------
   static const String _isDarkThemeKey = 'isDarkTheme';
 
-  static Future<bool> get isDarkTheme async {
+  static Future<ThemeMode> get isDarkTheme async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_isDarkThemeKey) ?? true; // Default
+    bool? darkMode = prefs.getBool(_isDarkThemeKey);
+    if (darkMode == null) {
+      // var brightness = SchedulerBinding.instance.platformDispatcher
+      //     .platformBrightness;
+      // result = brightness == Brightness.dark;
+      return ThemeMode.system;
+    }
+    return darkMode ? ThemeMode.dark: ThemeMode.light;
   }
 
-  static Future<void> setDarkTheme(bool value) async {
+  static Future<void> setDarkTheme(bool? value) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_isDarkThemeKey, value);
+    if (value == null) {
+      await prefs.remove(_isDarkThemeKey);
+    } else {
+      await prefs.setBool(_isDarkThemeKey, value);
+    }
   }
 
   // ---------------------------------------------------------

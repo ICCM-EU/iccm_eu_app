@@ -8,6 +8,8 @@ import 'package:iccm_eu_app/data/appProviders/page_index_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/travel_directions_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/travel_provider.dart';
+import 'package:iccm_eu_app/theme/dark_theme.dart';
+import 'package:iccm_eu_app/theme/light_theme.dart';
 import "package:provider/provider.dart" show ChangeNotifierProvider, ChangeNotifierProxyProvider, MultiProvider, Provider;
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/appProviders/theme_provider.dart';
@@ -90,7 +92,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         title: 'ICCM Europe App',
-        theme: Provider.of<ThemeProvider>(context).themeData,
+        theme: lightTheme,
+        darkTheme: darkTheme,
+        themeMode: Provider.of<ThemeProvider>(context).themeMode,
         home: Scaffold(
           body: Stack(
             children: [

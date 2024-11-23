@@ -37,6 +37,7 @@ class TrackListTile extends StatelessWidget {
       ),
       title: RichText(
         text: TextSpan(
+          style: DefaultTextStyle.of(context).style,
           children: <TextSpan>[
             TextSpan(
               text: item.name.text,
@@ -51,6 +52,7 @@ class TrackListTile extends StatelessWidget {
       ),
       subtitle: RichText(
         text: TextSpan(
+          style: DefaultTextStyle.of(context).style,
           children: <TextSpan>[
             TextSpan(
               text: item.details.text,
