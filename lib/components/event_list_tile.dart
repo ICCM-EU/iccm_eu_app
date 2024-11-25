@@ -17,21 +17,18 @@ class EventListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       leading: item.imageUrl!.startsWith("http") ?
-      CircleAvatar(
-          radius: 50.0,
-          child: SizedBox(
-              width: 100.0, // Diameter of CircleAvatar
-              height: 100.0,
-              child: CachedNetworkImage(
-                imageUrl: item.imageUrl ?? '',
-                placeholder: (context, url) => FittedBox(
-                  child: CircularProgressIndicator(),
-                ),
-                errorWidget: (context, url, error) => FittedBox(
-                  child: Icon(Icons.error),
-                ),
-              )
-          )
+        SizedBox(
+          width: 100.0, // Diameter of CircleAvatar
+          height: 100.0,
+            child: CachedNetworkImage(
+              imageUrl: item.imageUrl ?? '',
+              placeholder: (context, url) => FittedBox(
+                child: CircularProgressIndicator(),
+              ),
+              errorWidget: (context, url, error) => FittedBox(
+                child: Icon(Icons.error),
+              ),
+            )
       ) :
       const SizedBox(
         height: 100,
@@ -43,10 +40,7 @@ class EventListTile extends StatelessWidget {
           children: <TextSpan>[
             TextSpan(
               text: item.name.text,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 22,
-              ),
+              style: Theme.of(context).textTheme.titleMedium,
             ),
           ],
         ),
@@ -60,10 +54,7 @@ class EventListTile extends StatelessWidget {
               text: DateFunctions().formatDate(
                   date: item.start,
                   format: 'EEE, dd.MM., HH:mm'),
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(context).textTheme.titleMedium,
             ),
             TextSpan(
               text: '\n',
@@ -72,18 +63,10 @@ class EventListTile extends StatelessWidget {
               ),
             ),
             TextSpan(
-              text: '\n',
-              style: const TextStyle(
-                fontSize: 4,
-              ),
-            ),
-            TextSpan(
               text: TextFunctions.cutTextToWords(
                   text: item.details.text,
                   length: 30),
-              style: const TextStyle(
-                fontSize: 16,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
           ],
         ),

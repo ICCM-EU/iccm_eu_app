@@ -32,6 +32,12 @@ ThemeData darkTheme = ThemeData(
       color: Colors.grey[300]!,
       fontSize: 24,
     ),
+    headlineSmall: TextStyle(
+      fontWeight: FontWeight.bold,
+    ),
+    titleLarge: TextStyle(
+      fontWeight: FontWeight.bold,
+    ),
     displayMedium: TextStyle(
       color: Colors.grey[300]!,
     ),

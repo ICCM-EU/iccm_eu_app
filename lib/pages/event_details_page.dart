@@ -85,30 +85,19 @@ class EventDetailsPage extends StatelessWidget {
                 else
                   const SizedBox.shrink(), // Display a placeholder widget
                 const SizedBox(height: 16),
-                RichText(
-                  text: TextSpan(
-                    text: item.title,
-                  ),
-                  // style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                Text(item.title,
+                  style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 const SizedBox(height: 8),
-                RichText(
-                  text: TextSpan(
-                    text: DateFunctions().formatDate(
-                        date: item.start,
-                        format: 'EEE, dd.MM.yyyy, HH:mm'),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                Text(
+                  DateFunctions().formatDate(
+                    date: item.start,
+                    format: 'EEE, dd.MM.yyyy, HH:mm'),
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 8),
-                RichText(
-                  text: TextSpan(
-                    text: item.description,
-                  ),
-                  // style: const TextStyle(fontSize: 18),
+                Text(item.description,
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 8),
                 if (speakerItems.isNotEmpty)

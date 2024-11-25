@@ -121,14 +121,12 @@ class HomePageState extends State<HomePage> {
                       const SizedBox(height: 16.0),
                       Text(
                         item.name.text!,
-                        style: TextStyle(
-                          fontSize: 24.0,
-                          fontWeight: FontWeight.bold,
-                        )
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 8.0),
                       Text(
                         item.details.text!,
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       UrlButton(
                         title: 'Now Page',

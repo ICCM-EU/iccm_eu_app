@@ -31,6 +31,12 @@ ThemeData lightTheme = ThemeData(
       color: Colors.grey[900]!,
       fontSize: 24,
     ),
+    headlineSmall: TextStyle(
+      fontWeight: FontWeight.bold,
+    ),
+    titleLarge: TextStyle(
+      fontWeight: FontWeight.bold,
+    ),
     displayMedium: TextStyle(
       color: Colors.grey[900]!,
     ),

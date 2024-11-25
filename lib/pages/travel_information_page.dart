@@ -28,18 +28,12 @@ class TravelInformationPage extends StatelessWidget {
                   children: [
                     Image.network(item.imageUrl), // Banner image
                     const SizedBox(height: 16.0),
-                    RichText(
-                      text: TextSpan(
-                          text: item.name.text,
-                          style: TextStyle(
-                            fontSize: 24.0,
-                            fontWeight: FontWeight.bold,
-                          )
-                      ),
+                    Text(item.name.text!,
+                      style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: 8.0),
-                    RichText(
-                      text: item.details,
+                    Text(item.details.text!,
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     UrlButton(
                       title: 'Website',

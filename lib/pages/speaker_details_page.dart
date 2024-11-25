@@ -48,14 +48,12 @@ class SpeakerDetailsPage extends StatelessWidget {
                 else
                   const SizedBox.shrink(),
                 const SizedBox(height: 16),
-                RichText(
-                  text: item.name,
-                  // style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                Text(item.name.text!,
+                  style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 const SizedBox(height: 8),
-                RichText(
-                  text: item.details,
-                  // style: const TextStyle(fontSize: 18),
+                Text(item.details.text!,
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 ListView.builder(
                   shrinkWrap: true,
