@@ -1,13 +1,13 @@
 ---
-name: Feature request
+name: Enhancement Suggestion
 about: Suggest an idea for this project
-title: 'Feature: '
+title: 'Enhancement: '
 labels: 'enhancement'
 assignees: ''
 
 ---
 
-**Is your feature request related to a problem? Please describe.**
+**Is your enhancement suggestion related to a problem or use case? Please describe.**
 A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
 
 **Describe the solution you'd like**
