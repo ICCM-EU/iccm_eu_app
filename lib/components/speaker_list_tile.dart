@@ -40,7 +40,7 @@ class SpeakerListTile extends StatelessWidget {
           style: DefaultTextStyle.of(context).style,
           children: <TextSpan>[
             TextSpan(
-              text: item.name.text,
+              text: item.name,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 22,
@@ -55,7 +55,7 @@ class SpeakerListTile extends StatelessWidget {
           style: DefaultTextStyle.of(context).style,
           children: <TextSpan>[
             TextSpan(
-              text: item.details.text,
+              text: item.details,
               style: const TextStyle(
                 fontSize: 16,
               ),

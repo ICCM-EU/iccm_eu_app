@@ -43,14 +43,14 @@ class TravelInformationPage extends StatelessWidget {
                     children: [
                       Image.network(item.imageUrl), // Banner image
                       const SizedBox(height: 16.0),
-                      Text(item.name.text!,
+                      Text(item.name,
                         style: Theme
                             .of(context)
                             .textTheme
                             .headlineSmall,
                       ),
                       const SizedBox(height: 8.0),
-                      Text(item.details.text!,
+                      Text(item.details,
                         style: Theme
                             .of(context)
                             .textTheme

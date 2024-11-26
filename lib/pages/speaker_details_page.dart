@@ -21,7 +21,7 @@ class SpeakerDetailsPage extends StatelessWidget {
       listen: false,
     );
     List<EventData> listItems = eventsProvider.eventsBySpeaker(
-      name: item.name.text.toString(),
+      name: item.name,
     );    return Scaffold(
       appBar: AppBar(
         title: const Text("Speaker Details"),
@@ -48,11 +48,11 @@ class SpeakerDetailsPage extends StatelessWidget {
                 else
                   const SizedBox.shrink(),
                 const SizedBox(height: 16),
-                Text(item.name.text!,
+                Text(item.name,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 const SizedBox(height: 8),
-                Text(item.details.text!,
+                Text(item.details,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 ListView.builder(

@@ -64,7 +64,7 @@ class SpeakersProvider with ChangeNotifier  {
   }
 
   void _commit() {
-    _cache.sort((a, b) => a.name.toPlainText().compareTo(b.name.toPlainText()));
+    _cache.sort((a, b) => a.name.compareTo(b.name));
     _saveCache();
     _populateItemsFromCache();
     notifyListeners();
@@ -88,7 +88,7 @@ class SpeakersProvider with ChangeNotifier  {
 
   SpeakerData? getDataByName(String name) {
     try {
-      return _items.firstWhere((item) => item.name.text == name);
+      return _items.firstWhere((item) => item.name == name);
     } catch (e) {
       if (e is StateError) {
         // Handle the case where no matching element is found

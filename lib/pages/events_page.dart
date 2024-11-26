@@ -162,7 +162,7 @@ class DayViewCalendarState extends State<DayViewCalendar> {
                           final roomsProvider = Provider.of<RoomsProvider>(
                               context, listen: false);
                           final room = roomsProvider.getDataByName(
-                              item.room!.text.toString());
+                              item.room!);
                           if (room != null && room.colors != null) {
                             backgroundColor = room.colors?.primary;
                             textColor = room.colors?.secondary;
@@ -173,7 +173,7 @@ class DayViewCalendarState extends State<DayViewCalendar> {
                           final tracksProvider = Provider.of<TracksProvider>(
                               context, listen: false);
                           final track = tracksProvider.getDataByName(
-                              item.track!.text.toString());
+                              item.track!);
                           if (track != null && track.colors != null) {
                             backgroundColor = track.colors?.primary;
                             textColor = track.colors?.secondary;

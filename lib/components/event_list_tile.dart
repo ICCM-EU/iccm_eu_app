@@ -39,7 +39,7 @@ class EventListTile extends StatelessWidget {
           style: DefaultTextStyle.of(context).style,
           children: <TextSpan>[
             TextSpan(
-              text: item.name.text,
+              text: item.name,
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ],
@@ -64,7 +64,7 @@ class EventListTile extends StatelessWidget {
             ),
             TextSpan(
               text: TextFunctions.cutTextToWords(
-                  text: item.details.text,
+                  text: item.details,
                   length: 30),
               style: Theme.of(context).textTheme.bodyMedium,
             ),

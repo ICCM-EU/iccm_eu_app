@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/model/model_item.dart';
 import 'package:iccm_eu_app/utils/url_functions.dart';
 
@@ -6,9 +5,9 @@ class TravelData extends ModelItem {
   @override
   final String imageUrl;
   @override
-  final TextSpan name;
+  final String name;
   @override
-  final TextSpan details;
+  final String details;
   final String? locationUrl;
   final String? mapsUrl;
 
@@ -23,8 +22,8 @@ class TravelData extends ModelItem {
   factory TravelData.fromItemData(Map<String, dynamic> itemData) {
     return TravelData._(
       imageUrl: UrlFunctions.proxy(itemData['Photo 1']),
-      name: TextSpan(text: itemData['Title'] ?? ''),
-      details: TextSpan(text: itemData['Location'] ?? ''),
+      name: itemData['Title'] ?? '',
+      details: itemData['Location'] ?? '',
       locationUrl: itemData['Website'] ?? '',
       mapsUrl: itemData['Google Maps'] ?? '',
     );
@@ -33,8 +32,8 @@ class TravelData extends ModelItem {
   factory TravelData.fromJson(Map<String, dynamic> json) {
     return TravelData._(
       imageUrl: json['imageUrl'],
-      name: TextSpan(text: json['name'] as String? ?? ''),
-      details: TextSpan(text: json['details'] as String? ?? ''),
+      name: json['name'] as String? ?? '',
+      details: json['details'] as String? ?? '',
       locationUrl: json['locationUrl'] as String? ?? '',
       mapsUrl: json['mapsUrl'] as String? ?? '',
     );
@@ -43,8 +42,8 @@ class TravelData extends ModelItem {
   Map<String, dynamic> toJson() {
     return {
       'imageUrl': imageUrl,
-      'name': name.toPlainText(),
-      'details': details.toPlainText(),
+      'name': name.toString(),
+      'details': details.toString(),
       'locationUrl': locationUrl,
       'mapsUrl': mapsUrl,
     };

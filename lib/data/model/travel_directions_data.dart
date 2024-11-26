@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/model/model_item.dart';
 import 'package:iccm_eu_app/utils/url_functions.dart';
 
@@ -6,9 +5,9 @@ class TravelDirectionsData extends ModelItem {
   @override
   final String imageUrl;
   @override
-  final TextSpan name;
+  final String name;
   @override
-  final TextSpan details;
+  final String details;
   final String? emoji;
 
   TravelDirectionsData._({
@@ -21,8 +20,8 @@ class TravelDirectionsData extends ModelItem {
   factory TravelDirectionsData.fromItemData(Map<String, dynamic> itemData) {
     return TravelDirectionsData._(
       imageUrl: UrlFunctions.proxy(itemData['Photo']),
-      name: TextSpan(text: itemData['Name'] ?? ''),
-      details: TextSpan(text: itemData['Description'] ?? ''),
+      name: itemData['Name'] ?? '',
+      details: itemData['Description'] ?? '',
       emoji: itemData['Emoji'] ?? '',
     );
   }
@@ -30,8 +29,8 @@ class TravelDirectionsData extends ModelItem {
   factory TravelDirectionsData.fromJson(Map<String, dynamic> json) {
     return TravelDirectionsData._(
       imageUrl: json['imageUrl'],
-      name: TextSpan(text: json['name'] as String? ?? ''),
-      details: TextSpan(text: json['details'] as String? ?? ''),
+      name: json['name'] as String? ?? '',
+      details: json['details'] as String? ?? '',
       emoji: json['emoji'] as String? ?? '',
     );
   }
@@ -39,8 +38,8 @@ class TravelDirectionsData extends ModelItem {
   Map<String, dynamic> toJson() {
     return {
       'imageUrl': imageUrl,
-      'name': name.toPlainText(),
-      'details': details.toPlainText(),
+      'name': name.toString(),
+      'details': details.toString(),
       'emoji': emoji,
     };
   }

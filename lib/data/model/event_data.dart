@@ -7,12 +7,12 @@ import 'package:iccm_eu_app/utils/url_functions.dart';
 
 class EventData extends FlutterWeekViewEvent {
   final String? imageUrl;
-  final TextSpan? track;
-  final TextSpan? room;
-  final TextSpan? speaker;
-  final TextSpan? facilitator;
-  final TextSpan name;
-  final TextSpan details;
+  final String? track;
+  final String? room;
+  final String? speaker;
+  final String? facilitator;
+  final String name;
+  final String details;
   int? id = -1;
 
 
@@ -45,8 +45,8 @@ class EventData extends FlutterWeekViewEvent {
 
     super.eventTextBuilder,
   }) : super(
-    title: name.text ?? '',
-    description: details.text ?? '',
+    title: name.toString(),
+    description: details.toString(),
   );
 
   factory EventData.fromItemData(Map<String, dynamic> itemData) {
@@ -59,14 +59,14 @@ class EventData extends FlutterWeekViewEvent {
     tz.TZDateTime localEnd = tz.TZDateTime.from(utcEnd, location);
     return EventData(
       imageUrl: UrlFunctions.proxy(itemData['Photo']),
-      name: TextSpan(text: itemData['Session'] ?? ''),
-      details: TextSpan(text: itemData['Description'] ?? ''),
+      name: itemData['Session'] ?? '',
+      details: itemData['Description'] ?? '',
       start: localStart,
       end: localEnd,
-      room: TextSpan(text: itemData['Room']),
-      track: TextSpan(text: itemData['Category']),
-      speaker: TextSpan(text: itemData['Speaker']),
-      facilitator: TextSpan(text: itemData['Facilitator']),
+      room: itemData['Room'],
+      track: itemData['Category'],
+      speaker: itemData['Speaker'],
+      facilitator: itemData['Facilitator'],
       backgroundColor: Colors.red,
       padding: EdgeInsets.all(0),
     );
@@ -75,14 +75,14 @@ class EventData extends FlutterWeekViewEvent {
   factory EventData.fromJson(Map<String, dynamic> json) {
     return EventData(
       imageUrl: json['imageUrl'],
-      name: TextSpan(text: json['name'] as String? ?? ''),
-      details: TextSpan(text: json['details'] as String? ?? ''),
+      name: json['name'] as String? ?? '',
+      details: json['details'] as String? ?? '',
       start: DateTime.parse(json['start']),
       end: DateTime.parse(json['end']),
-      track: TextSpan(text: json['track']),
-      room: TextSpan(text: json['room']),
-      speaker: TextSpan(text: json['speaker']),
-      facilitator: TextSpan(text: json['facilitator']),
+      track: json['track'],
+      room: json['room'],
+      speaker: json['speaker'],
+      facilitator: json['facilitator'],
       id: int.tryParse(json['id'] ?? '-1'),
     );
   }
@@ -90,14 +90,14 @@ class EventData extends FlutterWeekViewEvent {
   Map<String, dynamic> toJson() {
     return {
       'imageUrl': imageUrl,
-      'name': name.text.toString(),
-      'details': details.text.toString(),
+      'name': name.toString(),
+      'details': details.toString(),
       'start': super.start.toIso8601String(),
       'end': super.end.toIso8601String(),
-      'track': track?.text.toString(),
-      'room': room?.text.toString(),
-      'speaker': speaker?.text.toString(),
-      'facilitator': facilitator?.text.toString(),
+      'track': track?.toString(),
+      'room': room?.toString(),
+      'speaker': speaker?.toString(),
+      'facilitator': facilitator?.toString(),
       'id': id.toString(),
     };
   }

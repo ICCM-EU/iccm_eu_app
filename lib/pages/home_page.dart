@@ -120,12 +120,12 @@ class HomePageState extends State<HomePage> {
                     children: [
                       const SizedBox(height: 16.0),
                       Text(
-                        item.name.text!,
+                        item.name,
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 8.0),
                       Text(
-                        item.details.text!,
+                        item.details,
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       UrlButton(

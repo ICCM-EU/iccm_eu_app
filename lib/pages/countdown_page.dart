@@ -103,9 +103,9 @@ class CountdownPageState extends State<CountdownPage> {
                 ),
               ),
               ...roomsProvider.items().map((room) => DropdownMenuItem<String>(
-                value: room.name.text.toString(),
+                value: room.name,
                 child: Text(
-                  room.name.text.toString(),
+                  room.name,
                   style: TextStyle(
                     color: Colors.grey[700], // Use the custom color
                   ),
@@ -132,7 +132,7 @@ class CountdownPageState extends State<CountdownPage> {
               itemBuilder: (context, index) {
                 final event = _currentEvents[index];
                 if (_selectedRoom != null &&
-                    event.room?.text.toString() != _selectedRoom) {
+                    event.room != _selectedRoom) {
                   // Skip events not matching the filter
                   return const SizedBox.shrink();
                 }
@@ -174,7 +174,7 @@ class CountdownPageState extends State<CountdownPage> {
               itemBuilder: (context, index) {
                 final event = _upcomingEvents[index];
                 if (_selectedRoom != null &&
-                    event.room?.text.toString() != _selectedRoom) {
+                    event.room != _selectedRoom) {
                   return const SizedBox.shrink(); // Skip events not matching the filter
                 }
                 return ListTile(

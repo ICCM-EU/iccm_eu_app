@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/model/model_item.dart';
 import 'package:iccm_eu_app/utils/url_functions.dart';
 
@@ -6,9 +5,9 @@ class HomeData extends ModelItem {
   @override
   final String imageUrl;
   @override
-  final TextSpan name;
+  final String name;
   @override
-  final TextSpan details;
+  final String details;
   final String? nowPageUrl;
   final String? votingPageUrl;
 
@@ -23,8 +22,8 @@ class HomeData extends ModelItem {
   factory HomeData.fromItemData(Map<String, dynamic> itemData) {
     return HomeData._(
       imageUrl: UrlFunctions.proxy(itemData['Photo 1']),
-      name: TextSpan(text: itemData['Title'] ?? ''),
-      details: TextSpan(text: itemData['Description'] ?? ''),
+      name: itemData['Title'] ?? '',
+      details: itemData['Description'] ?? '',
       nowPageUrl: itemData['Now Page Link'] ?? '',
       votingPageUrl: itemData['Survey Link'] ?? '',
     );
@@ -33,8 +32,8 @@ class HomeData extends ModelItem {
   factory HomeData.fromJson(Map<String, dynamic> json) {
     return HomeData._(
       imageUrl: json['imageUrl'],
-      name: TextSpan(text: json['name'] as String? ?? ''),
-      details: TextSpan(text: json['details'] as String? ?? ''),
+      name: json['name'] as String? ?? '',
+      details: json['details'] as String? ?? '',
       nowPageUrl: json['nowPageUrl'],
       votingPageUrl: json['votingPageUrl'],
     );
@@ -43,8 +42,8 @@ class HomeData extends ModelItem {
   Map<String, dynamic> toJson() {
     return {
       'imageUrl': imageUrl,
-      'name': name.toPlainText(),
-      'details': details.toPlainText(),
+      'name': name.toString(),
+      'details': details.toString(),
       'nowPageUrl': nowPageUrl,
       'votingPageUrl': votingPageUrl,
     };

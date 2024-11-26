@@ -29,7 +29,7 @@ class EventDetailsPage extends StatelessWidget {
     );
     List<TrackData> trackItems = [];
     TrackData? trackItem = tracksProvider.getDataByName(
-      item.track!.text.toString(),
+      item.track!,
     );
     if (trackItem != null) {
       trackItems.add(trackItem);
@@ -41,7 +41,7 @@ class EventDetailsPage extends StatelessWidget {
     );
     List<SpeakerData> speakerItems = [];
     SpeakerData? speakerItem = speakersProvider.getDataByName(
-      item.speaker!.text.toString(),
+      item.speaker!,
     );
     if (speakerItem != null) {
       speakerItems.add(speakerItem);
@@ -53,7 +53,7 @@ class EventDetailsPage extends StatelessWidget {
     );
     List<RoomData> roomItems = [];
     RoomData? roomItem = roomsProvider.getDataByName(
-      item.room!.text.toString(),
+      item.room!,
     );
     if (roomItem != null) {
       roomItems.add(roomItem);
@@ -157,7 +157,7 @@ class EventDetailsPage extends StatelessWidget {
                 const SizedBox(height: 8),
                 item.facilitator != null ? RichText(
                   text: TextSpan(
-                    text: 'Facilitator: ${item.facilitator?.text}',
+                    text: 'Facilitator: ${item.facilitator}',
                     style: TextStyle(
                       fontSize: 8,
                     ),

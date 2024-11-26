@@ -42,7 +42,7 @@ class TravelDirectionListTile extends StatelessWidget {
           style: DefaultTextStyle.of(context).style,
           children: <TextSpan>[
             TextSpan(
-              text: item.name.text,
+              text: item.name,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 22,
@@ -58,7 +58,7 @@ class TravelDirectionListTile extends StatelessWidget {
           children: <TextSpan>[
             TextSpan(
               text: TextFunctions.cutTextToWords(
-                text: item.details.text,
+                text: item.details,
                 length: 20,
               ),
               style: const TextStyle(

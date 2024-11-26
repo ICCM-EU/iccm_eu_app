@@ -98,10 +98,10 @@ class EventsProvider with ChangeNotifier  {
     items ??= _items;
     if (items.isEmpty) {
       return EventData(
-        name: TextSpan(text: '---'),
+        name: '---',
         start: DateTime.now(),
         end: DateTime.now().add(Duration(hours: 1,)),
-        details: TextSpan(text: ''),
+        details: '',
       );
     }
     return items.first;
@@ -111,10 +111,10 @@ class EventsProvider with ChangeNotifier  {
     items ??= _items;
     if (items.isEmpty) {
       return EventData(
-        name: TextSpan(text: '---'),
+        name: '---',
         start: DateTime.now(),
         end: DateTime.now().add(Duration(hours: 1,)),
-        details: TextSpan(text: ''),
+        details: '',
       );
     }
     return items.last;
@@ -160,7 +160,7 @@ class EventsProvider with ChangeNotifier  {
     }
     return items.where(
             (item) =>
-        item.room?.toPlainText().compareTo(name) == 0).toList();
+        item.room?.compareTo(name) == 0).toList();
   }
 
   List<EventData> eventsByTrack({
@@ -173,7 +173,7 @@ class EventsProvider with ChangeNotifier  {
     }
     return items.where(
             (item) =>
-        item.track?.toPlainText().compareTo(name) == 0).toList();
+        item.track?.compareTo(name) == 0).toList();
   }
 
   List<EventData> eventsBySpeaker({
@@ -186,7 +186,7 @@ class EventsProvider with ChangeNotifier  {
     }
     return items.where(
             (item) =>
-        item.speaker?.toPlainText().compareTo(name) == 0).toList();
+        item.speaker?.compareTo(name) == 0).toList();
   }
 
   List<EventData> currentEvents({

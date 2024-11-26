@@ -65,7 +65,7 @@ class HomeProvider with ChangeNotifier {
   }
 
   void _commit() {
-    _cache.sort((a, b) => a.name.toPlainText().compareTo(b.name.toPlainText()));
+    _cache.sort((a, b) => a.name.compareTo(b.name));
     _saveCache();
     _populateItemsFromCache();
     notifyListeners();

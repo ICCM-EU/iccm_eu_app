@@ -37,11 +37,11 @@ class TravelDirectionsDetailsPage extends StatelessWidget {
                 else
                   const SizedBox.shrink(),
                 const SizedBox(height: 16),
-                Text(item.name.text!,
+                Text(item.name,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 const SizedBox(height: 8),
-                Text(item.details.text!,
+                Text(item.details,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ],
