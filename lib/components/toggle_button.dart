@@ -18,10 +18,7 @@ class ToggleButtonListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return  SwitchListTile(
       title: Text(title,
-          style: const TextStyle(
-            fontSize: 18,
-            //fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
       value: value,
       onChanged: onChanged,
