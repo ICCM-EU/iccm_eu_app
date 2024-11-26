@@ -4,6 +4,7 @@ import 'package:iccm_eu_app/components/room_list_tile.dart';
 import 'package:iccm_eu_app/components/speaker_list_tile.dart';
 import 'package:iccm_eu_app/components/track_list_tile.dart';
 import 'package:iccm_eu_app/controls/nav_bar.dart';
+import 'package:iccm_eu_app/data/dataProviders/favorites_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/rooms_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/speakers_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
@@ -59,14 +60,17 @@ class EventDetailsPage extends StatelessWidget {
       roomItems.add(roomItem);
     }
 
+    FavoritesProvider favProvider =
+        Provider.of<FavoritesProvider>(context, listen: true);
+    bool isFavorite = favProvider.isInFavorites(item.name);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Event Details"),
         actions: const [
         ],
       ),
-      body:
-      ListView(
+      body: ListView(
           padding: const EdgeInsets.all(16.0),
           children: <Widget>[
             Column(
@@ -75,40 +79,74 @@ class EventDetailsPage extends StatelessWidget {
                 if (item.imageUrl!.startsWith("http"))
                   CachedNetworkImage(
                     imageUrl: item.imageUrl ?? '',
-                    imageBuilder: (context, imageProvider) => CircleAvatar(
-                      backgroundImage: imageProvider,
-                      radius: 50,
-                    ),
-                    placeholder: (context, url) => const CircularProgressIndicator(),
-                    errorWidget: (context, url, error) => const Icon(Icons.error),
+                    imageBuilder: (context, imageProvider) =>
+                        CircleAvatar(
+                          backgroundImage: imageProvider,
+                          radius: 50,
+                        ),
+                    placeholder: (context,
+                        url) => const CircularProgressIndicator(),
+                    errorWidget: (context, url, error) =>
+                    const Icon(Icons.error),
                   )
                 else
                   const SizedBox.shrink(), // Display a placeholder widget
                 const SizedBox(height: 16),
                 Text(item.title,
-                  style: Theme.of(context).textTheme.headlineSmall,
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .headlineSmall,
                 ),
                 const SizedBox(height: 8),
                 RichText(
                   text: TextSpan(
-                    style: Theme.of(context).textTheme.titleMedium,
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .titleMedium,
                     children: [
                       if (item.notifyAfterBreak == true) TextSpan(
                         text: '📢 ',
-                        style: Theme.of(context).textTheme.titleMedium,
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .titleMedium,
                       ),
                       TextSpan(
                         text: DateFunctions().formatDate(
                             date: item.start,
                             format: 'EEE, dd.MM.yyyy, HH:mm'),
-                        style: Theme.of(context).textTheme.bodyMedium,
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .bodyMedium,
                       ),
                     ],
                   ),
                 ),
+                IconButton(
+                  icon: Icon(
+                    isFavorite ? Icons.favorite : Icons.favorite_border,
+                    size: 30,
+                    color: Colors.red,
+                  ),
+                  color: Colors.red,
+                  onPressed: () {
+                    if (isFavorite) {
+                      favProvider.rmEvent(item.name);
+                    } else {
+                      favProvider.addEvent(item.name);
+                    }
+                    isFavorite = !isFavorite;
+                  },
+                ),
                 const SizedBox(height: 8),
                 Text(item.description,
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .bodyMedium,
                 ),
                 const SizedBox(height: 8),
                 if (speakerItems.isNotEmpty)
@@ -121,14 +159,14 @@ class EventDetailsPage extends StatelessWidget {
                 else
                   const SizedBox.shrink(),
                 const SizedBox(height: 8),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: speakerItems.length,
-                    itemBuilder: (context, index) {
-                      return SpeakerListTile(item: speakerItems[index]);
-                    },
-                  ),
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: speakerItems.length,
+                  itemBuilder: (context, index) {
+                    return SpeakerListTile(item: speakerItems[index]);
+                  },
+                ),
                 const SizedBox(height: 8),
                 if (roomItems.isNotEmpty)
                   RichText(

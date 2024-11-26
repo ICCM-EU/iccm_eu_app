@@ -1,5 +1,6 @@
 import 'package:iccm_eu_app/data/dataProviders/error_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/favorites_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/home_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/rooms_provider.dart';
@@ -76,6 +77,9 @@ void main() {
             gsheetsProvider: Provider.of<GsheetsProvider>(context, listen: false),
           ),
           update: (context, gsheetsProvider, thisProvider) => thisProvider!..updateCache(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => FavoritesProvider(),
         ),
       ],
       child: const MyApp(),
