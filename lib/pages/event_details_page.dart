@@ -89,11 +89,22 @@ class EventDetailsPage extends StatelessWidget {
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  DateFunctions().formatDate(
-                    date: item.start,
-                    format: 'EEE, dd.MM.yyyy, HH:mm'),
-                  style: Theme.of(context).textTheme.bodyMedium,
+                RichText(
+                  text: TextSpan(
+                    style: Theme.of(context).textTheme.titleMedium,
+                    children: [
+                      if (item.notifyAfterBreak == true) TextSpan(
+                        text: '📢 ',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      TextSpan(
+                        text: DateFunctions().formatDate(
+                            date: item.start,
+                            format: 'EEE, dd.MM.yyyy, HH:mm'),
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(item.description,
