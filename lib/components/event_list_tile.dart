@@ -50,6 +50,10 @@ class EventListTile extends StatelessWidget {
         text: TextSpan(
           style: DefaultTextStyle.of(context).style,
           children: <TextSpan>[
+            if (item.notifyAfterBreak == true) TextSpan(
+              text: '📢 ',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             TextSpan(
               text: DateFunctions().formatDate(
                   date: item.start,

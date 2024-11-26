@@ -13,6 +13,7 @@ class EventData extends FlutterWeekViewEvent {
   final String? facilitator;
   final String name;
   final String details;
+  bool? notifyAfterBreak = false;
   int? id = -1;
 
 
@@ -29,6 +30,7 @@ class EventData extends FlutterWeekViewEvent {
     this.room,
     this.speaker,
     this.facilitator,
+    this.notifyAfterBreak,
     this.id,
 
     // optional inherited parameters
@@ -67,6 +69,7 @@ class EventData extends FlutterWeekViewEvent {
       track: itemData['Category'],
       speaker: itemData['Speaker'],
       facilitator: itemData['Facilitator'],
+      notifyAfterBreak: itemData['Notify-after-Break'] == 'true',
       backgroundColor: Colors.red,
       padding: EdgeInsets.all(0),
     );
@@ -83,6 +86,7 @@ class EventData extends FlutterWeekViewEvent {
       room: json['room'],
       speaker: json['speaker'],
       facilitator: json['facilitator'],
+      notifyAfterBreak: bool.tryParse(json['notifyAfterBreak']),
       id: int.tryParse(json['id'] ?? '-1'),
     );
   }
@@ -98,6 +102,7 @@ class EventData extends FlutterWeekViewEvent {
       'room': room?.toString(),
       'speaker': speaker?.toString(),
       'facilitator': facilitator?.toString(),
+      'notifyAfterBreak': notifyAfterBreak.toString(),
       'id': id.toString(),
     };
   }
