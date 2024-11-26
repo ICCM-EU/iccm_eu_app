@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iccm_eu_app/controls/nav_bar.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 
 class PageIndexProvider with ChangeNotifier {
@@ -18,5 +19,21 @@ class PageIndexProvider with ChangeNotifier {
     _selectedIndex = index;
     PreferencesProvider.setCurrentNavigation(index);
     notifyListeners();
+  }
+
+  void incrementSelectedIndex() {
+    if (_selectedIndex >= 0 &&
+        _selectedIndex < NavBar.bottomNavigationBarItems.length) {
+      _selectedIndex ++;
+      notifyListeners();
+    }
+  }
+
+  void decrementSelectedIndex() {
+    if (_selectedIndex > 0 &&
+        _selectedIndex <= NavBar.bottomNavigationBarItems.length) {
+      _selectedIndex --;
+      notifyListeners();
+    }
   }
 }

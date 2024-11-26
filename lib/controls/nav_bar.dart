@@ -36,7 +36,31 @@ class NavBar extends StatefulWidget {
     const TravelInformationPage(), // 6
     const AboutPage(), // 7
   ];
+
   List<Widget> get widgetOptions => _widgetOptions;
+
+  static final List<BottomNavigationBarItem> bottomNavigationBarItems = [
+    BottomNavigationBarItem(
+      icon: Icon(Icons.home_filled),
+      label: "Home",
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.calendar_today),
+      label: "Schedule",
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.directions_train),
+      label: "Tracks",
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.people),
+      label: "Speakers",
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.room),
+      label: "Rooms",
+    ),
+  ];
 
   @override
   State<NavBar> createState() => _NavBarState();
@@ -55,30 +79,9 @@ class _NavBarState extends State<NavBar> {
         Navigator.popUntil(context, (route) => route.settings.name == '/');
       },
       currentIndex: Provider.of<PageIndexProvider>(context, listen: true).
-        selectedIndex >= 5 ? 0 :
+        selectedIndex >= NavBar.bottomNavigationBarItems.length ? 0 :
         Provider.of<PageIndexProvider>(context, listen: true).selectedIndex,
-      items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home_filled),
-          label: "Home",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.calendar_today),
-          label: "Schedule",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.directions_train),
-          label: "Tracks",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.people),
-          label: "Speakers",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.room),
-          label: "Rooms",
-        ),
-      ],
+      items: NavBar.bottomNavigationBarItems,
     );
   }
 }

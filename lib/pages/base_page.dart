@@ -129,7 +129,28 @@ class _BasePageState extends State<BasePage> {
                       index: Provider.of<PageIndexProvider>(
                           context,
                           listen: true).selectedIndex,
-                      children: navBar.widgetOptions,
+                      children: navBar.widgetOptions, //.asMap().entries.map((entry) {
+                      //   final index = entry.key;
+                      //   final widget = entry.value;
+                      //
+                      //   // Wrap with GestureDetector if index is 0 or 1
+                      //   if (index == 0 || index == 1) {
+                      //     return GestureDetector(
+                      //       onHorizontalDragEnd: (DragEndDetails details) {
+                      //         if (details.primaryVelocity! > 0) {
+                      //           Provider.of<PageIndexProvider>(context, listen: false).
+                      //             decrementSelectedIndex();
+                      //         } else if (details.primaryVelocity! < 0) {
+                      //           Provider.of<PageIndexProvider>(context, listen: false).
+                      //             incrementSelectedIndex();
+                      //         }
+                      //       },
+                      //       child: widget,
+                      //     );
+                      //   } else {
+                      //     return widget;
+                      //   }
+                      // }).toList(),
                     ),
                   ),
                 );
