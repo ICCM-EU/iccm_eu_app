@@ -2,23 +2,23 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
-import 'package:iccm_eu_app/data/model/travel_directions_data.dart';
+import 'package:iccm_eu_app/data/model/travel_details_data.dart';
 import 'package:iccm_eu_app/utils/debug.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class TravelDirectionsProvider with ChangeNotifier  {
+class TravelDetailsProvider with ChangeNotifier  {
   static String get worksheetTitle => "Travel-Directions";
   String get _cacheTitle => "_travelDirectionsDataCache";
   final GsheetsProvider _gsheetsProvider;
 
-  final List<TravelDirectionsData> _cache = [];
+  final List<TravelDetailsData> _cache = [];
 
-  final List<TravelDirectionsData> _items = [];
-  List<TravelDirectionsData> items() {
+  final List<TravelDetailsData> _items = [];
+  List<TravelDetailsData> items() {
     return _items;
   }
 
-  TravelDirectionsProvider({
+  TravelDetailsProvider({
     required GsheetsProvider gsheetsProvider,
   }) : _gsheetsProvider = gsheetsProvider {
     _gsheetsProvider.addListener(updateCache);
@@ -32,7 +32,7 @@ class TravelDirectionsProvider with ChangeNotifier  {
     if (data != null && data.isNotEmpty) {
       _cacheClear();
       for (final itemData in data) {
-        _cacheAdd(TravelDirectionsData.fromItemData(itemData));
+        _cacheAdd(TravelDetailsData.fromItemData(itemData));
       }
       _commit();
     }
@@ -45,7 +45,7 @@ class TravelDirectionsProvider with ChangeNotifier  {
     if (cacheJson != null && cacheJson.isNotEmpty) {
       _cacheClear();
       final List<dynamic> jsonList = jsonDecode(cacheJson);
-      jsonList.map((json) => TravelDirectionsData.fromJson(json)).toList().forEach((item) {
+      jsonList.map((json) => TravelDetailsData.fromJson(json)).toList().forEach((item) {
         _cacheAdd(item);
       });
       Debug.msg('Cache loaded: Travel Directions');
@@ -55,7 +55,7 @@ class TravelDirectionsProvider with ChangeNotifier  {
     }
   }
 
-  void _cacheAdd(TravelDirectionsData item) {
+  void _cacheAdd(TravelDetailsData item) {
     _cache.add(item);
   }
 
@@ -67,6 +67,7 @@ class TravelDirectionsProvider with ChangeNotifier  {
     _cache.sort((a, b) => a.name.compareTo(b.name));
     _saveCache();
     _populateItemsFromCache();
+    Debug.msg("Found ${_items.length} travel elements");
     notifyListeners();
   }
 

@@ -1,7 +1,7 @@
 import 'package:iccm_eu_app/data/model/model_item.dart';
 import 'package:iccm_eu_app/utils/url_functions.dart';
 
-class TravelDirectionsData extends ModelItem {
+class TravelDetailsData extends ModelItem {
   @override
   final String imageUrl;
   @override
@@ -10,15 +10,15 @@ class TravelDirectionsData extends ModelItem {
   final String details;
   final String? emoji;
 
-  TravelDirectionsData._({
+  TravelDetailsData._({
     required this.imageUrl,
     required this.name,
     required this.details,
     this.emoji,
   });
 
-  factory TravelDirectionsData.fromItemData(Map<String, dynamic> itemData) {
-    return TravelDirectionsData._(
+  factory TravelDetailsData.fromItemData(Map<String, dynamic> itemData) {
+    return TravelDetailsData._(
       imageUrl: UrlFunctions.proxy(itemData['Photo']),
       name: itemData['Name'] ?? '',
       details: itemData['Description'] ?? '',
@@ -26,8 +26,8 @@ class TravelDirectionsData extends ModelItem {
     );
   }
 
-  factory TravelDirectionsData.fromJson(Map<String, dynamic> json) {
-    return TravelDirectionsData._(
+  factory TravelDetailsData.fromJson(Map<String, dynamic> json) {
+    return TravelDetailsData._(
       imageUrl: json['imageUrl'],
       name: json['name'] as String? ?? '',
       details: json['details'] as String? ?? '',

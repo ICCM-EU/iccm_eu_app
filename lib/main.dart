@@ -7,7 +7,7 @@ import 'package:iccm_eu_app/data/dataProviders/rooms_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/speakers_provider.dart';
 import 'package:iccm_eu_app/data/appProviders/page_index_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
-import 'package:iccm_eu_app/data/dataProviders/travel_directions_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/travel_details_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/travel_provider.dart';
 import 'package:iccm_eu_app/theme/dark_theme.dart';
 import 'package:iccm_eu_app/theme/light_theme.dart';
@@ -72,8 +72,8 @@ void main() {
           ),
           update: (context, gsheetsProvider, thisProvider) => thisProvider!..updateCache(),
         ),
-        ChangeNotifierProxyProvider<GsheetsProvider, TravelDirectionsProvider>(
-          create: (context) => TravelDirectionsProvider(
+        ChangeNotifierProxyProvider<GsheetsProvider, TravelDetailsProvider>(
+          create: (context) => TravelDetailsProvider(
             gsheetsProvider: Provider.of<GsheetsProvider>(context, listen: false),
           ),
           update: (context, gsheetsProvider, thisProvider) => thisProvider!..updateCache(),
