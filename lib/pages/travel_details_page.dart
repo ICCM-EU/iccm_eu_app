@@ -1,12 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/controls/nav_bar.dart';
-import 'package:iccm_eu_app/data/model/travel_directions_data.dart';
+import 'package:iccm_eu_app/data/model/travel_details_data.dart';
 
 
-class TravelDirectionsDetailsPage extends StatelessWidget {
-  final TravelDirectionsData item;
-  const TravelDirectionsDetailsPage({
+class TravelDetailsPage extends StatelessWidget {
+  final TravelDetailsData item;
+  const TravelDetailsPage({
     super.key,
     required this.item,
   });

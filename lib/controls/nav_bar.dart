@@ -7,7 +7,7 @@ import 'package:iccm_eu_app/pages/rooms_page.dart';
 import 'package:iccm_eu_app/pages/events_page.dart';
 import 'package:iccm_eu_app/pages/speakers_page.dart';
 import 'package:iccm_eu_app/pages/tracks_page.dart';
-import 'package:iccm_eu_app/pages/travel_information_page.dart';
+import 'package:iccm_eu_app/pages/travel_page.dart';
 import 'package:provider/provider.dart';
 
 enum PageList {
@@ -33,7 +33,7 @@ class NavBar extends StatefulWidget {
     const SpeakersPage(), // 3
     const RoomsPage(), // 4
     const PreferencesPage(), // 5
-    const TravelInformationPage(), // 6
+    const TravelPage(), // 6
     const AboutPage(), // 7
   ];
 

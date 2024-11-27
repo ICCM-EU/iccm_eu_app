@@ -10,7 +10,7 @@ import 'package:iccm_eu_app/data/dataProviders/home_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/rooms_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/speakers_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
-import 'package:iccm_eu_app/data/dataProviders/travel_directions_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/travel_details_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/travel_provider.dart';
 import 'package:iccm_eu_app/utils/debug.dart';
 import '../model/error_signal.dart';
@@ -179,7 +179,7 @@ class GsheetsProvider with ChangeNotifier {
     workSheetTitles.add(TracksProvider.worksheetTitle);
     workSheetTitles.add(HomeProvider.worksheetTitle);
     workSheetTitles.add(TravelProvider.worksheetTitle);
-    workSheetTitles.add(TravelDirectionsProvider.worksheetTitle);
+    workSheetTitles.add(TravelDetailsProvider.worksheetTitle);
 
     await _readWorksheets(
         worksheetTitles: workSheetTitles,
@@ -254,7 +254,7 @@ class GsheetsProvider with ChangeNotifier {
   }
 
   List<Map<String, String>>? getTravelDirectionsData() {
-    String worksheetTitle = TravelDirectionsProvider.worksheetTitle;
+    String worksheetTitle = TravelDetailsProvider.worksheetTitle;
     if (_rawData.containsKey(worksheetTitle)) {
       return _rawData[worksheetTitle];
     }
