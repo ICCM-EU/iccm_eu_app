@@ -121,7 +121,7 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
 
-  plugin:
-    platforms:
-      ios:
-        pluginClass: AppDelegate
+  #plugin:
+  #  platforms:
+  #    ios:
+  #      pluginClass: AppDelegate
