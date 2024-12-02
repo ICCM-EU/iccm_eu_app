@@ -3,8 +3,8 @@ name: Flutter Build
 on:  ["push", "pull_request"]
 
 jobs:
-  build-and-release-ios:
-    runs-on: macos-latest # to be able to get ios build
+  build-and-release-android:
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
@@ -20,11 +20,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-flutter-
 
-      - name: Set Up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'oracle'
-          java-version: '17'
+      #- name: Set Up Java
+      #  uses: actions/setup-java@v4
+      #  with:
+      #    distribution: 'oracle'
+      #    java-version: '17'
 
       - name: Setup Flutter SDK
         uses: subosito/flutter-action@v2
@@ -43,6 +43,84 @@ jobs:
       - name: Build Android App Bundle (AAB)
         run: flutter build appbundle
 
+      #- name: Upload Artifacts
+      #  uses: actions/upload-artifact@v4
+      #  with:
+      #    name: Releases
+      #    path: |
+      #      build/app/outputs/flutter-apk/app-release.apk
+      #      build/app/outputs/bundle/release/app-release.aab
+
+      #- name: Extract version from pubspec.yaml
+      #  id: extract_version
+      #  run: |
+      #    version=$(grep '^version: ' pubspec.yaml | cut -d ' ' -f 2 | tr -d '\r')
+      #    echo "VERSION=$version" >> $GITHUB_ENV
+
+      #- name: Check if Tag Exists
+      #  id: check_tag
+      #  run: |
+      #    if git rev-parse "v${{ env.VERSION }}" >/dev/null 2>&1; then
+      #      echo "TAG_EXISTS=true" >> $GITHUB_ENV
+      #    else
+      #      echo "TAG_EXISTS=false" >> $GITHUB_ENV
+      #    fi
+
+      #- name: Modify Release Tag
+      #  if: env.TAG_EXISTS == 'true'
+      #  id: modify_tag
+      #  run: |
+      #    new_version="${{ env.VERSION }}-build-${{ github.run_number }}"
+      #    echo "VERSION=$new_version" >> $GITHUB_ENV
+
+      #- name: Create Release
+      #  uses: ncipollo/release-action@v1
+      #  with:
+      #    artifacts: "build/app/outputs/flutter-apk/app-release.apk,build/app/outputs/bundle/release/app-release.aab"
+      #    tag: v${{ env.VERSION }}
+      #    token: ${{ secrets.TOKEN }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: iccm_eu_app-android-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+
+  build-and-release-ios:
+    runs-on: macos-latest # to be able to get ios build
+    #if: false # Deactivate until we find a maintainer
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        name: Cache Flutter dependencies
+        with:
+          path: |
+            ~/.pub-cache
+            /flutter
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
+
+      #- name: Set Up Java
+      #  uses: actions/setup-java@v4
+      #  with:
+      #    distribution: 'oracle'
+      #    java-version: '17'
+
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          # flutter-version: 'stable' # Or specify a specific version
+          flutter-version-file: pubspec.yaml
+          channel: 'stable' # Or specify a specific channel
+
+      - name: Get Flutter dependencies
+        run: flutter pub get
+
+      # Build
       - name: Build IPA (iOS Build)
         run: flutter build ipa --no-codesign
 
@@ -56,8 +134,6 @@ jobs:
       #  with:
       #    name: Releases
       #    path: |
-      #      build/app/outputs/flutter-apk/app-release.apk
-      #      build/app/outputs/bundle/release/app-release.aab
       #      build/ios_build.tar.g
 
       #- name: Extract version from pubspec.yaml
@@ -85,14 +161,9 @@ jobs:
       #- name: Create Release
       #  uses: ncipollo/release-action@v1
       #  with:
-      #    artifacts: "build/app/outputs/flutter-apk/app-release.apk,build/app/outputs/bundle/release/app-release.aab,build/ios_build.tar.gz"
+      #    artifacts: "build/ios_build.tar.gz"
       #    tag: v${{ env.VERSION }}
       #    token: ${{ secrets.TOKEN }}
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: iccm_eu_app-android-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
 
       - uses: actions/upload-artifact@v4
         with:
@@ -160,6 +231,7 @@ jobs:
 
   build-and-release-macos:
     runs-on: macos-latest
+    if: false # Deactivate until we find a maintainer
 
     steps:
       - name: Checkout
