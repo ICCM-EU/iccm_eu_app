@@ -88,7 +88,7 @@ jobs:
 
   build-and-release-ios:
     runs-on: macos-latest # to be able to get ios build
-    #if: false # Deactivate until we find a maintainer
+    if: false # Deactivate until we find a maintainer
 
     steps:
       - name: Checkout
