@@ -11,6 +11,13 @@ class TrackData extends ModelItem {
   final String details;
   late ColorsData? colors;
 
+  TrackData({
+    required this.imageUrl,
+    required this.name,
+    required this.details,
+    this.colors,
+  });
+
   TrackData._({
     required this.imageUrl,
     required this.name,

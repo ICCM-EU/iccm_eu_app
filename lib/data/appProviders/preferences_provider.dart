@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart' show SharedPreferences;
 
@@ -68,6 +69,28 @@ class PreferencesProvider {
     await prefs.setBool(_calendarColorByRoomKey, value);
   }
 
+  // ---------------------------------------------------------
+  static const String _useTestDataKey = 'useTestData';
+  static final ValueNotifier<bool> useTestDataNotifier = ValueNotifier(false);
+
+  static Future<void> loadUseTestData() async {
+    bool value = false;
+    if (kDebugMode) {
+      final prefs = await SharedPreferences.getInstance();
+      value = prefs.getBool(_useTestDataKey) ?? false; // Default
+    }
+    useTestDataNotifier.value = value;
+  }
+
+  static Future<void> setUseTestData(bool value) async {
+    if (kDebugMode) {
+      useTestDataNotifier.value = value;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_useTestDataKey, value);
+    } else {
+      useTestDataNotifier.value = false;
+    }
+  }
   // ---------------------------------------------------------
   static const String _isDayViewKey = 'isDayView';
 

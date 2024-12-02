@@ -67,7 +67,6 @@ class TravelDetailsProvider with ChangeNotifier  {
     _cache.sort((a, b) => a.name.compareTo(b.name));
     _saveCache();
     _populateItemsFromCache();
-    Debug.msg("Found ${_items.length} travel elements");
     notifyListeners();
   }
 

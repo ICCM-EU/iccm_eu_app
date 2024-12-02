@@ -29,10 +29,10 @@ class NavBar extends StatefulWidget {
   static final List<Widget> _widgetOptions = <Widget>[
     const HomePage(), // 0
     const EventsPage(), // 1
-    const TracksPage(), // 2
-    const SpeakersPage(), // 3
-    const RoomsPage(), // 4
-    const PreferencesPage(), // 5
+    TracksPage(), // 2
+    SpeakersPage(), // 3
+    RoomsPage(), // 4
+    PreferencesPage(), // 5
     const TravelPage(), // 6
     const AboutPage(), // 7
   ];

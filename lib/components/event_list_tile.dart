@@ -20,13 +20,14 @@ class EventListTile extends StatelessWidget {
     FavoritesProvider favProvider =
     Provider.of<FavoritesProvider>(context, listen: true);
     bool isFavorite = favProvider.isInFavorites(item.name);
+    String imageUrl = item.imageUrl ?? '';
     return ListTile(
-      leading: item.imageUrl!.startsWith("http") ?
+      leading: imageUrl.startsWith("http") ?
       SizedBox(
           width: 100.0, // Diameter of CircleAvatar
           height: 100.0,
           child: CachedNetworkImage(
-            imageUrl: item.imageUrl ?? '',
+            imageUrl: imageUrl,
             placeholder: (context, url) =>
                 FittedBox(
                   child: CircularProgressIndicator(),

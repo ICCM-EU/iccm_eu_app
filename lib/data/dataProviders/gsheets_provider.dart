@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:core';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:crypto/crypto.dart';
-import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/home_provider.dart';
@@ -172,33 +172,34 @@ class GsheetsProvider with ChangeNotifier {
       return;
     }
 
-    List<String> workSheetTitles = [];
-    workSheetTitles.add(EventsProvider.worksheetTitle);
-    workSheetTitles.add(RoomsProvider.worksheetTitle);
-    workSheetTitles.add(SpeakersProvider.worksheetTitle);
-    workSheetTitles.add(TracksProvider.worksheetTitle);
-    workSheetTitles.add(HomeProvider.worksheetTitle);
-    workSheetTitles.add(TravelProvider.worksheetTitle);
-    workSheetTitles.add(TravelDetailsProvider.worksheetTitle);
+    if (!kDebugMode || !PreferencesProvider.useTestDataNotifier.value) {
+      List<String> workSheetTitles = [];
+      workSheetTitles.add(EventsProvider.worksheetTitle);
+      workSheetTitles.add(RoomsProvider.worksheetTitle);
+      workSheetTitles.add(SpeakersProvider.worksheetTitle);
+      workSheetTitles.add(TracksProvider.worksheetTitle);
+      workSheetTitles.add(HomeProvider.worksheetTitle);
+      workSheetTitles.add(TravelProvider.worksheetTitle);
+      workSheetTitles.add(TravelDetailsProvider.worksheetTitle);
 
-    await _readWorksheets(
-        worksheetTitles: workSheetTitles,
-        errorProvider: errorProvider);
+      await _readWorksheets(
+          worksheetTitles: workSheetTitles,
+          errorProvider: errorProvider);
 
-    // Terminate if data is empty
-    if (_countDataObjects(_rawData) == 0) {
-      _isFetchingData = false;
-      Debug.msg("Fetch: Not data found.");
-      return;
-    }
+      // Terminate if data is empty
+      if (_countDataObjects(_rawData) == 0) {
+        _isFetchingData = false;
+        Debug.msg("Fetch: Not data found.");
+        return;
+      }
 
-    String cachedChecksum = await PreferencesProvider.cachedChecksum;
-    String dataChecksum = _generateChecksum(_rawData);
+      String cachedChecksum = await PreferencesProvider.cachedChecksum;
+      String dataChecksum = _generateChecksum(_rawData);
 
-    if (cachedChecksum != dataChecksum || force) {
-      await PreferencesProvider.setCachedChecksum(dataChecksum);
-      await PreferencesProvider.setLastUpdated(now);
-
+      if (cachedChecksum != dataChecksum || force) {
+        await PreferencesProvider.setCachedChecksum(dataChecksum);
+        await PreferencesProvider.setLastUpdated(now);
+      }
     }
     notifyListeners();
     Debug.msg("Fetch completed successfully.");

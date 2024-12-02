@@ -63,6 +63,7 @@ class EventDetailsPage extends StatelessWidget {
     FavoritesProvider favProvider =
         Provider.of<FavoritesProvider>(context, listen: true);
     bool isFavorite = favProvider.isInFavorites(item.name);
+    String imageUrl = item.imageUrl ?? '';
 
     return Scaffold(
       appBar: AppBar(
@@ -76,9 +77,9 @@ class EventDetailsPage extends StatelessWidget {
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (item.imageUrl!.startsWith("http"))
+                if (imageUrl.startsWith("http"))
                   CachedNetworkImage(
-                    imageUrl: item.imageUrl ?? '',
+                    imageUrl: imageUrl,
                     imageBuilder: (context, imageProvider) =>
                         CircleAvatar(
                           backgroundImage: imageProvider,

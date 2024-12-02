@@ -1,8 +1,10 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/data/model/event_data.dart';
+import 'package:iccm_eu_app/data/testData/test_data.dart';
 import 'package:iccm_eu_app/utils/debug.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -27,16 +29,21 @@ class EventsProvider with ChangeNotifier  {
   }
 
   void updateCache() {
-    // Process raw data from GsheetsProvider and update _tracks
-    var data = _gsheetsProvider.getEventData();
-    if (data != null && data.isNotEmpty) {
+    if (kDebugMode && PreferencesProvider.useTestDataNotifier.value) {
       _cacheClear();
-      for (final itemData in data) {
-        _cacheAdd(EventData.fromItemData(itemData));
+      for (EventData item in TestData.getEvents()) {
+        _cacheAdd(item);
       }
-      _commit();
+    } else { // Process raw data from GsheetsProvider and update _tracks
+      var data = _gsheetsProvider.getEventData();
+      if (data != null && data.isNotEmpty) {
+        _cacheClear();
+        for (final itemData in data) {
+          _cacheAdd(EventData.fromItemData(itemData));
+        }
+      }
     }
-    notifyListeners();
+    _commit();
   }
 
   Future<void> _loadCache() async {

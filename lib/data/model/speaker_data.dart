@@ -9,6 +9,12 @@ class SpeakerData extends ModelItem {
   @override
   final String details;
 
+  SpeakerData({
+    required this.imageUrl,
+    required this.name,
+    required this.details,
+  });
+
   SpeakerData._({
     required this.imageUrl,
     required this.name,

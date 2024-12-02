@@ -11,6 +11,13 @@ class RoomData extends ModelItem {
   final String details;
   late ColorsData? colors;
 
+  RoomData({
+    required this.imageUrl,
+    required this.name,
+    required this.details,
+    this.colors,
+  });
+
   RoomData._({
     required this.imageUrl,
     required this.name,

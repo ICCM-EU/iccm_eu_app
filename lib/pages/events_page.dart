@@ -107,11 +107,12 @@ class DayViewCalendarState extends State<DayViewCalendar> {
   @override
   void initState() {
     super.initState();
-    _loadColorByRoom();
+    _loadPreferences();
   }
 
-  Future<void> _loadColorByRoom() async {
+  Future<void> _loadPreferences() async {
     PreferencesProvider.loadCalendarColorByRoom();
+    PreferencesProvider.loadUseTestData();
   }
 
   @override

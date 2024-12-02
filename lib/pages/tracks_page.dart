@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/components/track_list_tile.dart';
+import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
 import 'package:provider/provider.dart';
 
 class TracksPage extends StatelessWidget {
-  const TracksPage({super.key});
+  TracksPage({super.key}) {
+    _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    PreferencesProvider.loadUseTestData();
+  }
 
   @override
   Widget build(BuildContext context) {
