@@ -20,7 +20,6 @@ class EventsPage extends StatefulWidget {
 
 class _EventsPageState extends State<EventsPage> {
   late bool _isDayView = true;
-  late bool _futureEvents = true;
 
   @override
   void initState() {
@@ -33,63 +32,64 @@ class _EventsPageState extends State<EventsPage> {
     bool value = await PreferencesProvider.isDayView;
     setState(() {
       _isDayView = value;
-    }); // Trigger a rebuild after updating _isDayView
+    });
   }
 
   Future<void> _loadEventListFilter() async {
-    bool value = await PreferencesProvider.futureEvents;
-    setState(() {
-      _futureEvents = value;
-    }); // Trigger a rebuild after updating _isDayView
+    await PreferencesProvider.loadFutureEvents();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Events'),
-        automaticallyImplyLeading: false,
-        backgroundColor: Theme
-            .of(context)
-            .appBarTheme
-            .backgroundColor,
-        foregroundColor: Theme
-            .of(context)
-            .appBarTheme
-            .foregroundColor,
-        actions: [
-          _isDayView ? const SizedBox.shrink() :
-          IconButton(
-            icon: Icon(_futureEvents ? Icons.filter_alt : Icons.filter_alt_off),
-            color: Theme
+    return ValueListenableBuilder<bool>(
+      valueListenable: PreferencesProvider.futureEventsNotifier,
+      builder: (context, futureEvents, child) {
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Events'),
+            automaticallyImplyLeading: false,
+            backgroundColor: Theme
                 .of(context)
-                .colorScheme
-                .onSurface,
-            onPressed: () {
-              setState(() {
-                _futureEvents = !_futureEvents;
-                PreferencesProvider.setFutureEvents(_futureEvents);
-              });
-            },
-            tooltip: 'Filter only future events',
-          ),
-          IconButton(
-            icon: Icon(_isDayView ? Icons.list : Icons.calendar_today),
-            color: Theme
+                .appBarTheme
+                .backgroundColor,
+            foregroundColor: Theme
                 .of(context)
-                .colorScheme
-                .onSurface,
-            onPressed: () {
-              setState(() {
-                _isDayView = !_isDayView;
-                PreferencesProvider.setIsDayView(_isDayView);
-              });
-            },
+                .appBarTheme
+                .foregroundColor,
+            actions: [
+              _isDayView ? const SizedBox.shrink() :
+              IconButton(
+                icon: Icon(
+                    futureEvents ? Icons.filter_alt : Icons.filter_alt_off),
+                color: Theme
+                    .of(context)
+                    .colorScheme
+                    .onSurface,
+                onPressed: () {
+                  futureEvents = !futureEvents;
+                  PreferencesProvider.setFutureEvents(futureEvents);
+                },
+                tooltip: 'Filter only future events',
+              ),
+              IconButton(
+                icon: Icon(_isDayView ? Icons.list : Icons.calendar_today),
+                color: Theme
+                    .of(context)
+                    .colorScheme
+                    .onSurface,
+                onPressed: () {
+                  setState(() {
+                    _isDayView = !_isDayView;
+                    PreferencesProvider.setIsDayView(_isDayView);
+                  });
+                },
+              ),
+            ],
           ),
-        ],
-      ),
-      body: _isDayView ? DayViewCalendar() : EventList(
-          futureEvents: _futureEvents),
+          body: _isDayView ? DayViewCalendar() : EventList(
+              futureEvents: futureEvents),
+        );
+      },
     );
   }
 }
@@ -227,14 +227,14 @@ class EventList extends StatefulWidget {
 }
 
 class EventListState extends State<EventList> {
-  late bool _futureEvents = false;
-
   @override
-  void didUpdateWidget(EventList oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.futureEvents != widget.futureEvents) {
-      _futureEvents = widget.futureEvents; // Update local variable if futureEvents changed
-    }
+  void initState() {
+    super.initState();
+    _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    PreferencesProvider.loadFutureEvents();
   }
 
   @override
@@ -250,21 +250,27 @@ class EventListState extends State<EventList> {
         //     ]
         // ),
         Expanded( // Use Expanded to allow ListView.builder to take available space
-          child: Consumer<EventsProvider>( // Wrap ListView.builder with Consumer
-            builder: (context, itemList, child) {
-              List<EventData> items;
-              if (_futureEvents) {
-                items = itemList.filterPastEvents();
-              } else {
-                items = itemList.items();
+          child: ValueListenableBuilder<bool>(
+              valueListenable: PreferencesProvider.futureEventsNotifier,
+              builder: (context, builderValue, child) {
+                return Consumer<
+                    EventsProvider>( // Wrap ListView.builder with Consumer
+                  builder: (context, itemList, child) {
+                    List<EventData> items;
+                    if (builderValue) {
+                      items = itemList.filterPastEvents();
+                    } else {
+                      items = itemList.items();
+                    }
+                    return ListView.builder(
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        return EventListTile(item: items[index]);
+                      },
+                    );
+                  },
+                );
               }
-              return ListView.builder(
-                itemCount: items.length,
-                itemBuilder: (context, index) {
-                  return EventListTile(item: items[index]);
-                },
-              );
-            },
           ),
         ),
       ],

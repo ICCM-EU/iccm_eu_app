@@ -106,13 +106,16 @@ class PreferencesProvider {
 
   // ---------------------------------------------------------
   static const String _futureEventsKey = 'futureEvents';
+  static final ValueNotifier<bool> futureEventsNotifier = ValueNotifier(false);
 
-  static Future<bool> get futureEvents async {
+  static Future<void> loadFutureEvents() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_futureEventsKey) ?? false; // Default
+    bool value = prefs.getBool(_futureEventsKey) ?? false; // Default
+    futureEventsNotifier.value = value;
   }
 
   static Future<void> setFutureEvents(bool value) async {
+    futureEventsNotifier.value = value;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_futureEventsKey, value);
   }
