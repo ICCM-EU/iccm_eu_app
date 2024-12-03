@@ -13,21 +13,24 @@ class TrackListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String imageUrl = item.imageUrl;
     return ListTile(
-      leading: item.imageUrl.startsWith("http") ?
+      leading: imageUrl.startsWith("http") ?
       CircleAvatar(
           radius: 50.0,
           child: SizedBox(
               width: 100.0, // Diameter of CircleAvatar
               height: 100.0,
               child: CachedNetworkImage(
-                imageUrl: item.imageUrl,
-                placeholder: (context, url) => FittedBox(
-                  child: CircularProgressIndicator(),
-                ),
-                errorWidget: (context, url, error) => FittedBox(
-                  child: Icon(Icons.error),
-                ),
+                imageUrl: imageUrl,
+                placeholder: (context, url) =>
+                    FittedBox(
+                      child: CircularProgressIndicator(),
+                    ),
+                errorWidget: (context, url, error) =>
+                    FittedBox(
+                      child: Icon(Icons.error),
+                    ),
               )
           )
       ) :
@@ -37,14 +40,16 @@ class TrackListTile extends StatelessWidget {
       ),
       title: RichText(
         text: TextSpan(
-          style: DefaultTextStyle.of(context).style,
+          style: DefaultTextStyle
+              .of(context)
+              .style,
           children: <TextSpan>[
             TextSpan(
               text: item.name,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 22,
-              ),
+              style: Theme
+                  .of(context)
+                  .textTheme
+                  .titleMedium,
             ),
           ],
         ),
@@ -52,13 +57,16 @@ class TrackListTile extends StatelessWidget {
       ),
       subtitle: RichText(
         text: TextSpan(
-          style: DefaultTextStyle.of(context).style,
+          style: DefaultTextStyle
+              .of(context)
+              .style,
           children: <TextSpan>[
             TextSpan(
               text: item.details,
-              style: const TextStyle(
-                fontSize: 16,
-              ),
+              style: Theme
+                  .of(context)
+                  .textTheme
+                  .bodyMedium,
             ),
           ],
         ),
@@ -68,10 +76,11 @@ class TrackListTile extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => Theme(
-              data: Theme.of(context),
-              child: TrackDetailsPage(item: item),
-            ),
+            builder: (context) =>
+                Theme(
+                  data: Theme.of(context),
+                  child: TrackDetailsPage(item: item),
+                ),
           ),
         );
       },

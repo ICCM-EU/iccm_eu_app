@@ -15,38 +15,42 @@ class TravelDetailsListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool isValidEmoji = (item.emoji != null && item.emoji!.isNotEmpty);
-    bool isValidImageUrl = item.imageUrl.startsWith("http");
+    String imageUrl = item.imageUrl;
+    bool isValidImageUrl = imageUrl.startsWith("http");
     return ListTile(
       leading: isValidEmoji ?
-        Text(item.emoji ?? '',
-          style: TextStyle(
-            fontSize: 24,
-          ),
-        ) :
-        isValidImageUrl ?
-          CachedNetworkImage(
-            imageUrl: item.imageUrl,
-            imageBuilder: (context, imageProvider) => CircleAvatar(
+      Text(item.emoji ?? '',
+        style: TextStyle(
+          fontSize: 24,
+        ),
+      ) :
+      isValidImageUrl ?
+      CachedNetworkImage(
+        imageUrl: imageUrl,
+        imageBuilder: (context, imageProvider) =>
+            CircleAvatar(
               backgroundImage: imageProvider,
               radius: 50,
             ),
-            placeholder: (context, url) => const CircularProgressIndicator(),
-            errorWidget: (context, url, error) => const Icon(Icons.error),
-          ) :
-        const SizedBox(
-          height: 100,
-          width: 100,
-        ),
+        placeholder: (context, url) => const CircularProgressIndicator(),
+        errorWidget: (context, url, error) => const Icon(Icons.error),
+      ) :
+      const SizedBox(
+        height: 100,
+        width: 100,
+      ),
       title: RichText(
         text: TextSpan(
-          style: DefaultTextStyle.of(context).style,
+          style: DefaultTextStyle
+              .of(context)
+              .style,
           children: <TextSpan>[
             TextSpan(
               text: item.name,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 22,
-              ),
+              style: Theme
+                  .of(context)
+                  .textTheme
+                  .titleMedium,
             ),
           ],
         ),
@@ -54,16 +58,19 @@ class TravelDetailsListTile extends StatelessWidget {
       ),
       subtitle: RichText(
         text: TextSpan(
-          style: DefaultTextStyle.of(context).style,
+          style: DefaultTextStyle
+              .of(context)
+              .style,
           children: <TextSpan>[
             TextSpan(
               text: TextFunctions.cutTextToWords(
                 text: item.details,
                 length: 20,
               ),
-              style: const TextStyle(
-                fontSize: 16,
-              ),
+              style: Theme
+                  .of(context)
+                  .textTheme
+                  .bodyMedium,
             ),
           ],
         ),
@@ -73,10 +80,11 @@ class TravelDetailsListTile extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => Theme(
-              data: Theme.of(context),
-              child: TravelDetailsPage(item: item),
-            ),
+            builder: (context) =>
+                Theme(
+                  data: Theme.of(context),
+                  child: TravelDetailsPage(item: item),
+                ),
           ),
         );
       },
