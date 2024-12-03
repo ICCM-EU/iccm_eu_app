@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_week_view/flutter_week_view.dart';
 import 'package:iccm_eu_app/components/event_list_tile.dart';
-import 'package:iccm_eu_app/components/page_title.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/rooms_provider.dart';
@@ -125,11 +124,7 @@ class DayViewCalendarState extends State<DayViewCalendar> {
             builder: (context, itemList, child) {
               DateTime current = itemList.earliestEvent().start;
               // Normalize to start of day
-              current.subtract(Duration(
-                hours: current.hour,
-                minutes: current.minute,
-                seconds: current.second,
-              ));
+              current = DateTime(current.year, current.month, current.day);
               List<EventData> cutoffList = itemList.cutoffAfterDays(days: 16);
               DateTime last = itemList.latestEvent(
                 items: cutoffList,
@@ -154,6 +149,7 @@ class DayViewCalendarState extends State<DayViewCalendar> {
                     maximumTime: HourMinute(hour: 23, minute: 0),
                     initialTime: initialTime,
                     dates: dates,
+                    userZoomable: false,
                     events: Provider.of<EventsProvider>(context).items().map((
                         item) {
                       Color? backgroundColor = Colors.red;
@@ -206,7 +202,6 @@ class DayViewCalendarState extends State<DayViewCalendar> {
                         },
                       );
                     }).toList(),
-                    userZoomable: true,
                   );
                 }
               );
@@ -246,14 +241,14 @@ class EventListState extends State<EventList> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        ListView(
-            shrinkWrap: true, // Important to prevent unbounded height issues
-            physics: const NeverScrollableScrollPhysics(), // Disable scrolling for static list
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            children: const <Widget>[
-              PageTitle(title: 'Events'),
-            ]
-        ),
+        // ListView(
+        //     shrinkWrap: true, // Important to prevent unbounded height issues
+        //     physics: const NeverScrollableScrollPhysics(), // Disable scrolling for static list
+        //     padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        //     children: const <Widget>[
+        //       PageTitle(title: 'Events'),
+        //     ]
+        // ),
         Expanded( // Use Expanded to allow ListView.builder to take available space
           child: Consumer<EventsProvider>( // Wrap ListView.builder with Consumer
             builder: (context, itemList, child) {

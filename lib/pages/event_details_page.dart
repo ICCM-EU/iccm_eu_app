@@ -29,11 +29,13 @@ class EventDetailsPage extends StatelessWidget {
       listen: false,
     );
     List<TrackData> trackItems = [];
-    TrackData? trackItem = tracksProvider.getDataByName(
-      item.track!,
-    );
-    if (trackItem != null) {
-      trackItems.add(trackItem);
+    if (item.track != null) {
+      TrackData? trackItem = tracksProvider.getDataByName(
+        item.track!,
+      );
+      if (trackItem != null) {
+        trackItems.add(trackItem);
+      }
     }
 
     SpeakersProvider speakersProvider = Provider.of<SpeakersProvider>(
@@ -41,11 +43,13 @@ class EventDetailsPage extends StatelessWidget {
       listen: false,
     );
     List<SpeakerData> speakerItems = [];
-    SpeakerData? speakerItem = speakersProvider.getDataByName(
-      item.speaker!,
-    );
-    if (speakerItem != null) {
-      speakerItems.add(speakerItem);
+    if (item.speaker != null) {
+      SpeakerData? speakerItem = speakersProvider.getDataByName(
+        item.speaker!,
+      );
+      if (speakerItem != null) {
+        speakerItems.add(speakerItem);
+      }
     }
 
     RoomsProvider roomsProvider = Provider.of<RoomsProvider>(
@@ -53,11 +57,13 @@ class EventDetailsPage extends StatelessWidget {
       listen: false,
     );
     List<RoomData> roomItems = [];
-    RoomData? roomItem = roomsProvider.getDataByName(
-      item.room!,
-    );
-    if (roomItem != null) {
-      roomItems.add(roomItem);
+    if (item.room != null) {
+      RoomData? roomItem = roomsProvider.getDataByName(
+        item.room!,
+      );
+      if (roomItem != null) {
+        roomItems.add(roomItem);
+      }
     }
 
     FavoritesProvider favProvider =

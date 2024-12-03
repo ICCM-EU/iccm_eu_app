@@ -82,21 +82,16 @@ class TestData {
     // Schedule a series of events
     // Around now(), add a series of short events
     DateTime now = DateTime.now();
-    DateTime scheduleStart = now.subtract(Duration(
-      hours: now.hour,
-      minutes: now.minute,
-      seconds: now.second,
-      milliseconds: now.millisecond,
-    ));
+    DateTime scheduleStart = DateTime(now.year, now.month, now.day);
     List<DateTime> scheduleDays = [
       scheduleStart.subtract(Duration(days: 1)),
       scheduleStart,
       scheduleStart.add(Duration(days: 1)),
     ];
     int eventCount = 0;
-    TrackData track = tracks[0];
-    SpeakerData? speaker = speakers[0];
-    RoomData room = rooms[0];
+    TrackData track;
+    SpeakerData? speaker;
+    RoomData room;
     for (DateTime day in scheduleDays) {
       DateTime startTime = day.add(Duration(hours: 8));
       while (startTime.hour < 22) {
@@ -105,13 +100,20 @@ class TestData {
         if (startTime.isAfter(now.subtract(Duration(hours: 1, minutes: 1))) &&
             startTime.isBefore(now.add(Duration(hours: 1, minutes: 1)))) {
           duration = Duration(hours: 0, minutes: 30);
-          parallel = 3;
+          parallel = 2;
         } else {
           duration = Duration(hours: 1, minutes: 0);
           parallel = 0;
         }
         DateTime endTime = startTime.add(duration);
         for (int i = 0; i <= parallel; i++) {
+          track = tracks[eventCount % tracks.length];
+          room = rooms[eventCount % rooms.length];
+          if (eventCount % 2 == 0) {
+            speaker = speakers[eventCount % speakers.length];
+          } else {
+            speaker = null;
+          }
           items.add(EventData(
             start: startTime,
             end: endTime,
@@ -121,16 +123,9 @@ class TestData {
             speaker: speaker?.name,
             room: room.name,
           ));
-          startTime = endTime;
-          track = tracks[eventCount % tracks.length];
-          room = rooms[eventCount % rooms.length];
-          if (eventCount % 2 == 0) {
-            speaker = speakers[eventCount % speakers.length];
-          } else {
-            speaker = null;
-          }
           eventCount ++;
         }
+        startTime = endTime;
       }
     }
     return items;
