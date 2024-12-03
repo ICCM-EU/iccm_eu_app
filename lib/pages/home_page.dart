@@ -63,7 +63,8 @@ class HomePageState extends State<HomePage> {
     final EventsProvider eventsProvider = Provider.of<EventsProvider>(context);
     _nextEventTime = eventsProvider.nextStartTime();
     if (_remainingDuration <= Duration.zero) {
-      _upcomingEvents = eventsProvider.filterPastEvents().take(5).toList();
+      _upcomingEvents = eventsProvider.filterPastEvents(withCurrent: false).
+          take(5).toList();
     }
 
     return Scaffold(

@@ -145,16 +145,24 @@ class EventsProvider with ChangeNotifier  {
 
   List<EventData> filterPastEvents({
     List<EventData>? items,
+    bool withCurrent = true,
   }) {
     items ??= _items;
     if (items.isEmpty) {
       return [];
     }
     final DateTime now = DateTime.now();
-    return items.where(
-            (item) =>
-        item.end.isAfter(now) ||
-            item.end.isAtSameMomentAs(now)).toList();
+    if (withCurrent) {
+      return items.where(
+              (item) =>
+          item.end.isAfter(now) ||
+              item.end.isAtSameMomentAs(now)).toList();
+    } else {
+      return items.where(
+              (item) =>
+          item.start.isAfter(now) ||
+              item.start.isAtSameMomentAs(now)).toList();
+    }
   }
 
   List<EventData> eventsByRoom({
