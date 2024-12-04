@@ -121,7 +121,7 @@ class EventDetailsPage extends StatelessWidget {
                             .titleMedium,
                       ),
                       TextSpan(
-                        text: DateFunctions().formatDate(
+                        text: DateFunctions.formatDate(
                             date: item.start,
                             format: 'EEE, dd.MM.yyyy, HH:mm'),
                         style: Theme

@@ -73,7 +73,7 @@ class EventListTile extends StatelessWidget {
                   .titleMedium,
             ),
             TextSpan(
-              text: DateFunctions().formatDate(
+              text: DateFunctions.formatDate(
                   date: item.start,
                   format: 'EEE, dd.MM., HH:mm'),
               style: Theme

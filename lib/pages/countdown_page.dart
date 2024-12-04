@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/rooms_provider.dart';
+import 'package:iccm_eu_app/utils/date_functions.dart';
 
 import 'package:provider/provider.dart';
 
@@ -96,21 +97,22 @@ class CountdownPageState extends State<CountdownPage> {
               DropdownMenuItem<String>(
                 value: null,
                 child: Text(
-                    'All Rooms',
+                  'All Rooms',
                   style: TextStyle(
                     color: Colors.grey[700], // Use the custom color
                   ),
                 ),
               ),
-              ...roomsProvider.items().map((room) => DropdownMenuItem<String>(
-                value: room.name,
-                child: Text(
-                  room.name,
-                  style: TextStyle(
-                    color: Colors.grey[700], // Use the custom color
-                  ),
-                ),
-              )),
+              ...roomsProvider.items().map((room) =>
+                  DropdownMenuItem<String>(
+                    value: room.name,
+                    child: Text(
+                      room.name,
+                      style: TextStyle(
+                        color: Colors.grey[700], // Use the custom color
+                      ),
+                    ),
+                  )),
             ],
           ),
           IconButton(
@@ -124,100 +126,130 @@ class CountdownPageState extends State<CountdownPage> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: _currentEvents.length,
-              itemBuilder: (context, index) {
-                final event = _currentEvents[index];
-                if (_selectedRoom != null &&
-                    event.room != _selectedRoom) {
-                  // Skip events not matching the filter
-                  return const SizedBox.shrink();
-                }
-                return ListTile(
-                  title: Text(event.title),
-                );
-              },
-            ),
-          ),
-          if (_nextEventTime != null)
-            Center(
-              child: Container(
-                // 90% window width
-                width: MediaQuery.of(context).size.width * 0.9,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.grey[900],
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: Colors.white,
-                    width: 2.0,
-                  ),
-                ),
-                child:FittedBox(
-                  fit: BoxFit.fitWidth,
-                  child: Text(
-                    formatDuration(_remainingDuration),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: MediaQuery
+                  .of(context)
+                  .size
+                  .width * 0.9, // 90% width
+              height: MediaQuery
+                  .of(context)
+                  .size
+                  .height * 0.2, // 30% height
+              child: ListView.builder(
+                itemCount: _currentEvents.length,
+                itemBuilder: (context, index) {
+                  final event = _currentEvents[index];
+                  if (_selectedRoom != null &&
+                      event.room != _selectedRoom) {
+                    // Skip events not matching the filter
+                    return const SizedBox.shrink();
+                  }
+                  return ListTile(
+                    title: Text(event.title,
+                      style: Theme
+                          .of(context)
+                          .textTheme
+                          .titleLarge,
                     ),
+                  );
+                },
+              ),
+            ),
+            Expanded(
+              flex: 1, // Adjust flex as needed
+              child: SizedBox(
+                width: MediaQuery
+                    .of(context)
+                    .size
+                    .width * 0.9,
+                height: MediaQuery
+                    .of(context)
+                    .size
+                    .height * 0.6,
+                child: Container(
+                  // 90% window width
+                  width: MediaQuery
+                      .of(context)
+                      .size
+                      .width * 0.9,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[900],
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: Colors.white,
+                      width: 2.0,
+                    ),
+                  ),
+                  child: OrientationBuilder(
+                      builder: (context, orientation) {
+                        return Padding(
+                          padding: const EdgeInsets.all(1.0),
+                          child: FittedBox(
+                            fit: orientation == Orientation.portrait ? BoxFit
+                                .fitWidth : BoxFit
+                                .fitHeight,
+                            child:
+                            (_nextEventTime != null) ?
+                            Text(
+                              DateFunctions.formatDuration(_remainingDuration),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                              ),
+                            )
+                                : Text(''),
+                          ),
+                        );
+                      }
                   ),
                 ),
               ),
             ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: _upcomingEvents.length,
-              itemBuilder: (context, index) {
-                final event = _upcomingEvents[index];
-                if (_selectedRoom != null &&
-                    event.room != _selectedRoom) {
-                  return const SizedBox.shrink(); // Skip events not matching the filter
-                }
-                return ListTile(
-                  title: Text(event.title,
-                    style: TextStyle(
-                        fontSize: 20,
+            SizedBox(
+              width: MediaQuery
+                  .of(context)
+                  .size
+                  .width * 0.9, // 90% width
+              height: MediaQuery
+                  .of(context)
+                  .size
+                  .height * 0.2, // 30% height
+              child: ListView.builder(
+                itemCount: _upcomingEvents.length,
+                itemBuilder: (context, index) {
+                  final event = _upcomingEvents[index];
+                  if (_selectedRoom != null &&
+                      event.room != _selectedRoom) {
+                    return const SizedBox
+                        .shrink(); // Skip events not matching the filter
+                  }
+                  return ListTile(
+                    title: Text(event.title,
+                      style: Theme
+                          .of(context)
+                          .textTheme
+                          .titleLarge,
                     ),
-                  ),
-                  leading:
-                    Text('${event.start.hour.toString().padLeft(2, '0')}:'
-                      '${event.start.minute.toString().padLeft(2, '0')}',
-                      style: TextStyle(
-                        fontSize: 20,
-                      ),
+                    leading: Text(
+                      '${event.start.hour.toString().padLeft(2, '0')}:'
+                          '${event.start.minute.toString().padLeft(2, '0')}',
+                      style: Theme
+                          .of(context)
+                          .textTheme
+                          .titleLarge,
                     ),
-                );
-              },
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
-  }
-
-  String formatDuration(Duration? duration) {
-    if (duration == null) {
-      return '--:--:--';
-    }
-    final days = duration.inDays;
-    final hours = duration.inHours % 24;
-    final minutes = duration.inMinutes % 60;
-    final seconds = duration.inSeconds % 60;
-
-    if (days == 0) {
-      return
-        '${hours > 0 ? '${hours.toString().padLeft(2, '0')}:' : ''}'
-            '${minutes.toString().padLeft(2, '0')}:'
-            '${seconds.toString().padLeft(2, '0')}';
-    } else {
-      return
-        '${days > 0 ? '${days.toString().padLeft(2, '0')}d ' : ''}'
-            '${hours.toString().padLeft(2, '0')}h '
-            '${minutes.toString().padLeft(2, '0')}m ';
-    }
   }
 }
