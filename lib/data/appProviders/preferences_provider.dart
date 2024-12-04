@@ -1,5 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart' show SharedPreferences;
 
 class PreferencesProvider {
@@ -75,7 +75,7 @@ class PreferencesProvider {
 
   static Future<void> loadUseTestData() async {
     bool value = false;
-    if (kDebugMode) {
+    if (EventsProvider.showTestDataOption()) {
       final prefs = await SharedPreferences.getInstance();
       value = prefs.getBool(_useTestDataKey) ?? false; // Default
     }
@@ -83,7 +83,7 @@ class PreferencesProvider {
   }
 
   static Future<void> setUseTestData(bool value) async {
-    if (kDebugMode) {
+    if (EventsProvider.showTestDataOption()) {
       useTestDataNotifier.value = value;
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(_useTestDataKey, value);

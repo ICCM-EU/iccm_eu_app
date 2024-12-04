@@ -172,7 +172,8 @@ class GsheetsProvider with ChangeNotifier {
       return;
     }
 
-    if (!kDebugMode || !PreferencesProvider.useTestDataNotifier.value) {
+    if (!EventsProvider.showTestDataOption() ||
+        !PreferencesProvider.useTestDataNotifier.value) {
       List<String> workSheetTitles = [];
       workSheetTitles.add(EventsProvider.worksheetTitle);
       workSheetTitles.add(RoomsProvider.worksheetTitle);

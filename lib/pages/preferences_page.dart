@@ -1,9 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/components/toggle_button.dart';
 import 'package:iccm_eu_app/components/toggle_is_dark_mode.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/error_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -73,11 +73,11 @@ class PreferencesPage extends StatelessWidget {
               );
             },
           ),
-          if (kDebugMode)
+          if (EventsProvider.showTestDataOption())
             const Divider()
           else
             const SizedBox.shrink(),
-          if (kDebugMode)
+          if (EventsProvider.showTestDataOption())
             Text('Test Data',
               style: Theme
                   .of(context)
@@ -86,7 +86,7 @@ class PreferencesPage extends StatelessWidget {
             )
           else
             const SizedBox.shrink(),
-          if (kDebugMode)
+          if (EventsProvider.showTestDataOption())
             ValueListenableBuilder<bool>(
               valueListenable: PreferencesProvider.useTestDataNotifier,
               builder: (context, builderValue, child) {

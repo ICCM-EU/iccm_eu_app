@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/data/definitions/item_colors_dictionary.dart';
 import 'package:iccm_eu_app/data/model/room_data.dart';
@@ -31,7 +32,8 @@ class RoomsProvider with ChangeNotifier  {
   }
 
   void updateCache() {
-    if (kDebugMode && PreferencesProvider.useTestDataNotifier.value) {
+    if (EventsProvider.showTestDataOption() &&
+        PreferencesProvider.useTestDataNotifier.value) {
       _cacheClear();
       for (RoomData item in TestData.rooms) {
         _cacheAdd(item);
