@@ -160,7 +160,7 @@ class CountdownPageState extends State<CountdownPage> {
               ),
             ),
             Expanded(
-              flex: 1, // Adjust flex as needed
+              // flex: 1, // Adjust flex as needed
               child: SizedBox(
                 width: MediaQuery
                     .of(context)
