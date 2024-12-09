@@ -130,37 +130,40 @@ class CountdownPageState extends State<CountdownPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(
-              width: MediaQuery
-                  .of(context)
-                  .size
-                  .width * 0.9, // 90% width
-              height: MediaQuery
-                  .of(context)
-                  .size
-                  .height * 0.2, // 30% height
-              child: ListView.builder(
-                itemCount: _currentEvents.length,
-                itemBuilder: (context, index) {
-                  final event = _currentEvents[index];
-                  if (_selectedRoom != null &&
-                      event.room != _selectedRoom) {
-                    // Skip events not matching the filter
-                    return const SizedBox.shrink();
-                  }
-                  return ListTile(
-                    title: Text(event.title,
-                      style: Theme
-                          .of(context)
-                          .textTheme
-                          .titleLarge,
-                    ),
-                  );
-                },
+            Expanded(
+              flex: 1, // Adjust flex as needed
+              child: SizedBox(
+                width: MediaQuery
+                    .of(context)
+                    .size
+                    .width * 0.9, // 90% width
+                height: MediaQuery
+                    .of(context)
+                    .size
+                    .height * 0.2, // 30% height
+                child: ListView.builder(
+                  itemCount: _currentEvents.length,
+                  itemBuilder: (context, index) {
+                    final event = _currentEvents[index];
+                    if (_selectedRoom != null &&
+                        event.room != _selectedRoom) {
+                      // Skip events not matching the filter
+                      return const SizedBox.shrink();
+                    }
+                    return ListTile(
+                      title: Text(event.title,
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .titleLarge,
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
             Expanded(
-              // flex: 1, // Adjust flex as needed
+              flex: 1, // Adjust flex as needed
               child: SizedBox(
                 width: MediaQuery
                     .of(context)
@@ -190,16 +193,16 @@ class CountdownPageState extends State<CountdownPage> {
                         return Padding(
                           padding: const EdgeInsets.all(1.0),
                           child: FittedBox(
-                            fit: orientation == Orientation.portrait ? BoxFit
-                                .fitWidth : BoxFit
-                                .fitHeight,
+                            fit: BoxFit.contain,
+                            // fit: orientation == Orientation.portrait ?
+                            //     BoxFit.fitWidth :
+                            //     BoxFit.fitHeight,
                             child:
                             (_nextEventTime != null) ?
                             Text(
                               DateFunctions.formatDuration(_remainingDuration),
                               style: const TextStyle(
                                 color: Colors.white,
-                                fontSize: 18,
                               ),
                             )
                                 : Text(''),
@@ -210,41 +213,44 @@ class CountdownPageState extends State<CountdownPage> {
                 ),
               ),
             ),
-            SizedBox(
-              width: MediaQuery
-                  .of(context)
-                  .size
-                  .width * 0.9, // 90% width
-              height: MediaQuery
-                  .of(context)
-                  .size
-                  .height * 0.2, // 30% height
-              child: ListView.builder(
-                itemCount: _upcomingEvents.length,
-                itemBuilder: (context, index) {
-                  final event = _upcomingEvents[index];
-                  if (_selectedRoom != null &&
-                      event.room != _selectedRoom) {
-                    return const SizedBox
-                        .shrink(); // Skip events not matching the filter
-                  }
-                  return ListTile(
-                    title: Text(event.title,
-                      style: Theme
-                          .of(context)
-                          .textTheme
-                          .titleLarge,
-                    ),
-                    leading: Text(
-                      '${event.start.hour.toString().padLeft(2, '0')}:'
-                          '${event.start.minute.toString().padLeft(2, '0')}',
-                      style: Theme
-                          .of(context)
-                          .textTheme
-                          .titleLarge,
-                    ),
-                  );
-                },
+            Expanded(
+              flex: 1, // Adjust flex as needed
+              child: SizedBox(
+                width: MediaQuery
+                    .of(context)
+                    .size
+                    .width * 0.9, // 90% width
+                height: MediaQuery
+                    .of(context)
+                    .size
+                    .height * 0.2, // 30% height
+                child: ListView.builder(
+                  itemCount: _upcomingEvents.length,
+                  itemBuilder: (context, index) {
+                    final event = _upcomingEvents[index];
+                    if (_selectedRoom != null &&
+                        event.room != _selectedRoom) {
+                      return const SizedBox
+                          .shrink(); // Skip events not matching the filter
+                    }
+                    return ListTile(
+                      title: Text(event.title,
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .titleLarge,
+                      ),
+                      leading: Text(
+                        '${event.start.hour.toString().padLeft(2, '0')}:'
+                            '${event.start.minute.toString().padLeft(2, '0')}',
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .titleLarge,
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
           ],
