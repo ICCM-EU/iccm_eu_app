@@ -8,17 +8,23 @@ class SpeakerData extends ModelItem {
   final String name;
   @override
   final String details;
+  String? company;
+  String? weblink;
 
   SpeakerData({
     required this.imageUrl,
     required this.name,
     required this.details,
+    this.company,
+    this.weblink,
   });
 
   SpeakerData._({
     required this.imageUrl,
     required this.name,
     required this.details,
+    this.company,
+    this.weblink,
   });
 
   factory SpeakerData.fromItemData(Map<String, dynamic> itemData) {
@@ -26,6 +32,8 @@ class SpeakerData extends ModelItem {
       imageUrl: UrlFunctions.proxy(itemData['Photo']),
       name: itemData['Name'] ?? '',
       details: itemData['Bio'] ?? '',
+      company: itemData['Company'],
+      weblink: itemData['Weblink'],
     );
   }
 
@@ -34,6 +42,8 @@ class SpeakerData extends ModelItem {
       imageUrl: json['imageUrl'],
       name: json['name'] as String? ?? '',
       details: json['details'] as String? ?? '',
+      company: json['company'] as String? ?? '',
+      weblink: json['weblink'] as String? ?? '',
     );
   }
 
@@ -42,6 +52,8 @@ class SpeakerData extends ModelItem {
       'imageUrl': imageUrl,
       'name': name.toString(),
       'details': details.toString(),
+      'company': company ?? '',
+      'weblink': weblink ?? '',
     };
   }
 }

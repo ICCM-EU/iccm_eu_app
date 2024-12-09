@@ -129,14 +129,22 @@ class HomePageState extends State<HomePage> {
                         item.details,
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
-                      UrlButton(
-                        title: 'Now Page',
-                        url: item.nowPageUrl,
-                      ),
-                      UrlButton(
-                        title: 'Voting Page',
-                        url: item.votingPageUrl,
-                      ),
+                      if (item.nowPageUrl != null &&
+                          item.nowPageUrl!.startsWith('https://'))
+                        UrlButton(
+                          title: 'Now Page',
+                          url: item.nowPageUrl,
+                        )
+                      else
+                        SizedBox.shrink(),
+                      if (item.votingPageUrl != null &&
+                          item.votingPageUrl!.startsWith('https://'))
+                        UrlButton(
+                          title: 'Voting Page',
+                          url: item.votingPageUrl,
+                        )
+                      else
+                        SizedBox.shrink(),
                     ],
                   ),
                 );
