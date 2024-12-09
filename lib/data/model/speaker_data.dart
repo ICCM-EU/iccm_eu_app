@@ -52,8 +52,8 @@ class SpeakerData extends ModelItem {
       'imageUrl': imageUrl,
       'name': name.toString(),
       'details': details.toString(),
-      'company': company ?? '',
-      'weblink': weblink ?? '',
+      'company': company.toString(),
+      'weblink': weblink.toString(),
     };
   }
 }

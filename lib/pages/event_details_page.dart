@@ -1,9 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:iccm_eu_app/components/event_list_tile.dart';
 import 'package:iccm_eu_app/components/room_list_tile.dart';
 import 'package:iccm_eu_app/components/speaker_list_tile.dart';
 import 'package:iccm_eu_app/components/track_list_tile.dart';
+import 'package:iccm_eu_app/components/url_button.dart';
 import 'package:iccm_eu_app/controls/nav_bar.dart';
+import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/favorites_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/rooms_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/speakers_provider.dart';
@@ -17,6 +20,7 @@ import 'package:provider/provider.dart';
 
 class EventDetailsPage extends StatelessWidget {
   final EventData item;
+
   const EventDetailsPage({
     super.key,
     required this.item,
@@ -67,7 +71,7 @@ class EventDetailsPage extends StatelessWidget {
     }
 
     FavoritesProvider favProvider =
-        Provider.of<FavoritesProvider>(context, listen: true);
+    Provider.of<FavoritesProvider>(context, listen: true);
     bool isFavorite = favProvider.isInFavorites(item.name);
     String imageUrl = item.imageUrl ?? '';
 
@@ -157,11 +161,11 @@ class EventDetailsPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 if (speakerItems.isNotEmpty)
-                  RichText(
-                    text: TextSpan(
-                      text: 'Speaker',
-                    ),
-                    // style: const TextStyle(fontSize: 18),
+                  Text('Speaker',
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .headlineSmall,
                   )
                 else
                   const SizedBox.shrink(),
@@ -176,11 +180,11 @@ class EventDetailsPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 if (roomItems.isNotEmpty)
-                  RichText(
-                    text: TextSpan(
-                      text: 'Room',
-                    ),
-                    // style: const TextStyle(fontSize: 18),
+                  Text('Room',
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .headlineSmall,
                   )
                 else
                   const SizedBox.shrink(),
@@ -194,11 +198,11 @@ class EventDetailsPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 if (roomItems.isNotEmpty)
-                  RichText(
-                    text: TextSpan(
-                      text: 'Track',
-                    ),
-                    // style: const TextStyle(fontSize: 18),
+                  Text('Track',
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .headlineSmall,
                   )
                 else
                   const SizedBox.shrink(),
@@ -211,15 +215,51 @@ class EventDetailsPage extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 8),
-                item.facilitator != null ? RichText(
-                  text: TextSpan(
-                    text: 'Facilitator: ${item.facilitator}',
-                    style: TextStyle(
-                      fontSize: 8,
-                    ),
+                (item.facilitator != null && item.facilitator!.isNotEmpty) ?
+                Text('Facilitator: ${item.facilitator}',
+                  style: TextStyle(
+                    fontSize: 8,
                   ),
-                  // style: const TextStyle(fontSize: 18),
                 ) : const SizedBox.shrink(),
+                const SizedBox(height: 8),
+                if (item.surveyUrl != null &&
+                    item.surveyUrl!.startsWith('https://'))
+                  UrlButton(
+                    title: 'Survey URL',
+                    url: item.surveyUrl,
+                  )
+                else
+                  SizedBox.shrink(),
+                const SizedBox(height: 8),
+                Consumer<EventsProvider>( // Wrap ListView.builder with Consumer
+                  builder: (context, itemList, child) {
+                    List<EventData> parallelEvents = [];
+                    if (item.parallelSessions != null &&
+                        item.parallelSessions!.isNotEmpty) {
+                      parallelEvents = itemList.eventsByParallel(
+                        parallel: item.parallelSessions!,
+                      );
+                    }
+                    return (parallelEvents.isNotEmpty) ? Column(
+                      children: [
+                        Text('Parallel',
+                          style: Theme
+                              .of(context)
+                              .textTheme
+                              .headlineSmall,
+                        ),
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: parallelEvents.length,
+                          itemBuilder: (context, index) {
+                            return EventListTile(item: parallelEvents[index]);
+                          },
+                        ),
+                      ],
+                    ) : const SizedBox.shrink();
+                  },
+                ),
               ],
             ),
           ]

@@ -192,6 +192,19 @@ class EventsProvider with ChangeNotifier  {
         item.track?.compareTo(name) == 0).toList();
   }
 
+  List<EventData> eventsByParallel({
+    List<EventData>? items,
+    required String parallel,
+  }) {
+    items ??= _items;
+    if (items.isEmpty) {
+      return [];
+    }
+    return items.where(
+            (item) =>
+        item.parallelSessions?.compareTo(parallel) == 0).toList();
+  }
+
   List<EventData> eventsBySpeaker({
     List<EventData>? items,
     required String name,
