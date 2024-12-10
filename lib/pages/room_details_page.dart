@@ -1,6 +1,6 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/components/event_list_tile.dart';
+import 'package:iccm_eu_app/components/image_carousel.dart';
 import 'package:iccm_eu_app/controls/nav_bar.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/model/event_data.dart';
@@ -23,6 +23,14 @@ class RoomDetailsPage extends StatelessWidget {
     List<EventData> listItems = eventsProvider.eventsByRoom(
       name: item.name,
     );
+    List<String> imageUrls = [];
+    if (item.imageUrl.startsWith('https://')) {
+      imageUrls.add(item.imageUrl);
+    }
+    if (item.mapImageUrl != null &&
+        item.mapImageUrl!.startsWith('https://')) {
+      imageUrls.add(item.mapImageUrl ?? '');
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text("Room Details"),
@@ -36,18 +44,7 @@ class RoomDetailsPage extends StatelessWidget {
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (item.imageUrl.startsWith("http"))
-                  CachedNetworkImage(
-                    imageUrl: item.imageUrl,
-                    imageBuilder: (context, imageProvider) => CircleAvatar(
-                      backgroundImage: imageProvider,
-                      radius: 50,
-                    ),
-                    placeholder: (context, url) => const CircularProgressIndicator(),
-                    errorWidget: (context, url, error) => const Icon(Icons.error),
-                  )
-                else
-                  const SizedBox.shrink(),
+                ImageCarousel(imageUrls: imageUrls),
                 const SizedBox(height: 16),
                 Text(item.name,
                   style: Theme.of(context).textTheme.headlineSmall,

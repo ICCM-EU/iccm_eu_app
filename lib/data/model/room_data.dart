@@ -9,12 +9,14 @@ class RoomData extends ModelItem {
   final String name;
   @override
   final String details;
+  String? mapImageUrl;
   late ColorsData? colors;
 
   RoomData({
     required this.imageUrl,
     required this.name,
     required this.details,
+    this.mapImageUrl,
     this.colors,
   });
 
@@ -22,6 +24,7 @@ class RoomData extends ModelItem {
     required this.imageUrl,
     required this.name,
     required this.details,
+    this.mapImageUrl,
     this.colors,
   });
 
@@ -30,6 +33,7 @@ class RoomData extends ModelItem {
       imageUrl: UrlFunctions.proxy(itemData['Photo 1']),
       name: itemData['Name'] ?? '',
       details: itemData['Description'] ?? '',
+      mapImageUrl: UrlFunctions.proxy(itemData['Photo 2']),
       colors: null,
     );
   }
@@ -40,6 +44,7 @@ class RoomData extends ModelItem {
       imageUrl: json['imageUrl'],
       name: json['name'] as String? ?? '',
       details: json['details'] as String? ?? '',
+      mapImageUrl: json['details'] as String? ?? '',
     );
   }
 
@@ -48,6 +53,7 @@ class RoomData extends ModelItem {
       'imageUrl': imageUrl,
       'name': name.toString(),
       'details': details.toString(),
+      'mapImageUrl': mapImageUrl.toString()
     };
   }
 }
