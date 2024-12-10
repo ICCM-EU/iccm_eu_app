@@ -99,7 +99,11 @@ class TestData {
         int parallel;
         if (startTime.isAfter(now.subtract(Duration(hours: 1, minutes: 1))) &&
             startTime.isBefore(now.add(Duration(hours: 1, minutes: 1)))) {
+          // ----------------------------------------
+          // Modify the duration around now here
+          // duration = Duration(hours: 0, minutes: 6);
           duration = Duration(hours: 0, minutes: 30);
+          // ----------------------------------------
           parallel = 2;
         } else {
           duration = Duration(hours: 1, minutes: 0);
