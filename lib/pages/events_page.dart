@@ -52,11 +52,11 @@ class _EventsPageState extends State<EventsPage> {
               children: [
                 const Text('Events'),
                 Flexible( // Center the remaining space
-                  child: Text(''),
+                  child: SizedBox.shrink(),
                 ),
                 AppBarCountdown(),
                 Flexible(
-                  child: Text(''),
+                  child: SizedBox.shrink(),
                 )
               ],
             ),
