@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class UrlFunctions {
@@ -14,12 +13,12 @@ class UrlFunctions {
 
   static String proxy(String? url) {
     url ??= '';
-    if (kIsWeb &&
-        url.isNotEmpty &&
-        ! url.startsWith('https://firebasestorage.googleapis.com')
-    ) {
-      url = 'https://corsproxy.io/?${Uri.encodeFull(url)}';
-    }
+    // if (kIsWeb &&
+    //     url.isNotEmpty &&
+    //     ! url.startsWith('https://firebasestorage.googleapis.com')
+    // ) {
+    //   url = 'https://corsproxy.io/?${Uri.encodeFull(url)}';
+    // }
     return url;
   }
 }
