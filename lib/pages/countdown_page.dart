@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/rooms_provider.dart';
-import 'package:iccm_eu_app/data/model/colors_data.dart';
+import 'package:iccm_eu_app/utils/countdown_functions.dart';
 import 'package:iccm_eu_app/utils/date_functions.dart';
 
 import 'package:provider/provider.dart';
@@ -26,15 +26,6 @@ class CountdownPageState extends State<CountdownPage> {
   late List<EventData> _upcomingEvents = [];
   late DateTime? _nextEventTime = DateTime.now();
   Duration _remainingDuration = Duration.zero;
-
-  final List<ColorsData> _countdownColors = [
-    ColorsData(primary: Colors.red.shade900, secondary: Colors.white),
-    ColorsData(primary: Colors.red.shade600, secondary: Colors.white),
-    ColorsData(primary: Colors.deepOrange.shade300, secondary: Colors.white),
-    ColorsData(primary: Colors.yellow.shade700, secondary: Colors.white),
-    ColorsData(primary: Colors.green.shade900, secondary: Colors.white),
-    ColorsData(primary: Colors.grey.shade900, secondary: Colors.white),
-  ];
 
   @override
   void initState() {
@@ -90,10 +81,15 @@ class CountdownPageState extends State<CountdownPage> {
     _currentEvents = eventsProvider.currentEvents(room: _selectedRoom);
     _upcomingEvents = eventsProvider.nextEvents(room: _selectedRoom);
     _nextEventTime = eventsProvider.nextStartTime(room: _selectedRoom);
-    int colorIndex = _countdownColors.length - 1;
+    int colorIndex = CountdownFunctions.colors.length - 1;
     if (_nextEventTime != null) {
-      colorIndex =
-          min(_countdownColors.length - 1, _remainingDuration.inMinutes);
+      colorIndex = min(CountdownFunctions.colors.length - 1,
+          _remainingDuration.inMinutes);
+    }
+    List<String> roomNames = roomsProvider.items().map(
+            (item) => item.name).toList();
+    if (! roomNames.contains(_selectedRoom)) {
+      _selectedRoom = null;
     }
     return Scaffold(
       backgroundColor: Colors.black, // Set Scaffold background to black
@@ -198,7 +194,8 @@ class CountdownPageState extends State<CountdownPage> {
                       .width * 0.9,
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: _countdownColors[colorIndex].primary,
+                    color: CountdownFunctions.colors[colorIndex]
+                        .primary,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
                       color: Colors.white,
@@ -219,7 +216,8 @@ class CountdownPageState extends State<CountdownPage> {
                             Text(
                               DateFunctions.formatDuration(_remainingDuration),
                               style: TextStyle(
-                                color: _countdownColors[colorIndex].secondary,
+                                color: CountdownFunctions
+                                    .colors[colorIndex].secondary,
                               ),
                             )
                                 : Text(''),
