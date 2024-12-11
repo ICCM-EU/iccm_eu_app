@@ -88,9 +88,10 @@ class CountdownPageState extends State<CountdownPage> {
     }
     List<String> roomNames = roomsProvider.items().map(
             (item) => item.name).toList();
-    if (! roomNames.contains(_selectedRoom)) {
+    if (!roomNames.contains(_selectedRoom)) {
       _selectedRoom = null;
     }
+    const TextStyle whiteTextStyle = TextStyle(color: Colors.white);
     return Scaffold(
       backgroundColor: Colors.black, // Set Scaffold background to black
       appBar: AppBar(
@@ -167,7 +168,8 @@ class CountdownPageState extends State<CountdownPage> {
                         style: Theme
                             .of(context)
                             .textTheme
-                            .titleLarge,
+                            .titleLarge
+                            ?.merge(whiteTextStyle),
                       ),
                     );
                   },
@@ -254,7 +256,8 @@ class CountdownPageState extends State<CountdownPage> {
                         style: Theme
                             .of(context)
                             .textTheme
-                            .titleLarge,
+                            .titleLarge
+                            ?.merge(whiteTextStyle),
                       ),
                       leading: Text(
                         '${event.start.hour.toString().padLeft(2, '0')}:'
@@ -262,7 +265,8 @@ class CountdownPageState extends State<CountdownPage> {
                         style: Theme
                             .of(context)
                             .textTheme
-                            .titleLarge,
+                            .titleLarge
+                            ?.merge(whiteTextStyle),
                       ),
                     );
                   },
