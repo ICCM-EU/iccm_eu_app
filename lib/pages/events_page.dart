@@ -52,8 +52,9 @@ class _EventsPageState extends State<EventsPage> {
               children: [
                 const Text('Events'),
                 Flexible( // Center the remaining space
-                  child: AppBarCountdown(),
+                  child: Text(''),
                 ),
+                AppBarCountdown(),
                 Flexible(
                   child: Text(''),
                 )
