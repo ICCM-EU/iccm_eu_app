@@ -44,7 +44,7 @@ class RoomData extends ModelItem {
       imageUrl: json['imageUrl'],
       name: json['name'] as String? ?? '',
       details: json['details'] as String? ?? '',
-      mapImageUrl: json['details'] as String? ?? '',
+      mapImageUrl: json['mapImageUrl'] as String? ?? '',
     );
   }
 
