@@ -224,9 +224,15 @@ class EventDetailsPage extends StatelessWidget {
                 const SizedBox(height: 8),
                 if (item.surveyUrl != null &&
                     item.surveyUrl!.startsWith('https://'))
-                  UrlButton(
-                    title: 'Survey URL',
-                    url: item.surveyUrl,
+                  Column(
+                    children: [
+                      UrlButton(
+                        title: 'Survey URL',
+                        url: item.surveyUrl,
+                        withQrCode: true,
+                      ),
+
+                    ]
                   )
                 else
                   SizedBox.shrink(),
