@@ -5,6 +5,7 @@ import 'package:iccm_eu_app/pages/home_page.dart';
 import 'package:iccm_eu_app/pages/preferences_page.dart';
 import 'package:iccm_eu_app/pages/rooms_page.dart';
 import 'package:iccm_eu_app/pages/events_page.dart';
+import 'package:iccm_eu_app/pages/share_page.dart';
 import 'package:iccm_eu_app/pages/speakers_page.dart';
 import 'package:iccm_eu_app/pages/tracks_page.dart';
 import 'package:iccm_eu_app/pages/travel_page.dart';
@@ -18,7 +19,8 @@ enum PageList {
   rooms, // 4
   preferences, // 5
   travelInformation, // 6
-  about, // 8
+  about, // 7
+  share,// 8
 }
 
 class NavBar extends StatefulWidget {
@@ -35,6 +37,7 @@ class NavBar extends StatefulWidget {
     PreferencesPage(), // 5
     const TravelPage(), // 6
     const AboutPage(), // 7
+    const SharePage(url: 'https://github.com/ICCM-EU/iccm_eu_app'), // 8
   ];
 
   List<Widget> get widgetOptions => _widgetOptions;

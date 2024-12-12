@@ -6,6 +6,7 @@ import 'package:iccm_eu_app/controls/nav_bar.dart';
 import 'package:iccm_eu_app/data/appProviders/page_index_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/error_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
+import 'package:iccm_eu_app/pages/share_page.dart';
 import 'package:iccm_eu_app/theme/dark_theme.dart';
 import 'package:iccm_eu_app/theme/light_theme.dart';
 import "package:provider/provider.dart" show Consumer, Provider;
@@ -121,6 +122,25 @@ class _BasePageState extends State<BasePage> {
                           ),
                         ],
                       ),
+                      actions: [
+                        IconButton(
+                          icon: Icon(
+                            Icons.share,
+                            color: Colors.grey[700],
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const SharePage(
+                                  url: 'https://github.com/ICCM-EU/iccm_eu_app',
+                                ),
+                                fullscreenDialog: true, // Open fullscreen
+                              ),
+                            );
+                          },
+                        ),
+                      ],
                     ),
 
                     bottomNavigationBar: const NavBar(),
