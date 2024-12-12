@@ -6,7 +6,7 @@
     "background_color": "#61b531",
     "theme_color": "#61b531",
     "description": "ICCM Europe schedule, countdown, sessions, tracks and interactions app",
-    "orientation": "portrait-primary",
+    "orientation": "any",
     "prefer_related_applications": false,
     "icons": [
         {
