@@ -26,15 +26,22 @@ class FullScreenQrCode extends StatelessWidget {
           ),
         ],
       ),
-      body: Center(
-        child: SizedBox(
-          child: QrImageView(
-            data: url,
-            version: QrVersions.auto,
-            size: 300.0, // Adjust size for fullscreen
-            backgroundColor: Colors.white,
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(url),
+          SizedBox(height: 8),
+          Center(
+            child: SizedBox(
+              child: QrImageView(
+                data: url,
+                version: QrVersions.auto,
+                size: 300.0, // Adjust size for fullscreen
+                backgroundColor: Colors.white,
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

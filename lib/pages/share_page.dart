@@ -16,25 +16,33 @@ class SharePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Share QR Code'),
       ),
-      body: GestureDetector( // Wrap QrImage with GestureDetector
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => FullScreenQrCode(
-                  url: url,
-              ), // Pass the URL to FullScreenImage
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(url),
+          SizedBox(height: 8),
+          GestureDetector( // Wrap QrImage with GestureDetector
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      FullScreenQrCode(
+                        url: url,
+                      ), // Pass the URL to FullScreenImage
+                ),
+              );
+            },
+            child: Center( // Center the QrImage
+              child: QrImageView(
+                data: url,
+                version: QrVersions.auto,
+                size: 200.0,
+                backgroundColor: Colors.white,
+              ),
             ),
-          );
-        },
-        child: Center( // Center the QrImage
-          child: QrImageView(
-            data: url,
-            version: QrVersions.auto,
-            size: 200.0,
-            backgroundColor: Colors.white,
           ),
-        ),
+        ],
       ),
     );
   }
