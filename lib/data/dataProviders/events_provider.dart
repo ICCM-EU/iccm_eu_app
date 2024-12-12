@@ -193,6 +193,7 @@ class EventsProvider with ChangeNotifier  {
   }
 
   List<EventData> eventsByParallel({
+    required EventData current,
     List<EventData>? items,
     required String parallel,
   }) {
@@ -202,7 +203,9 @@ class EventsProvider with ChangeNotifier  {
     }
     return items.where(
             (item) =>
-        item.parallelSessions?.compareTo(parallel) == 0).toList();
+        item.parallelSessions?.compareTo(parallel) == 0 &&
+        current.name.compareTo(item.name) != 0
+    ).toList();
   }
 
   List<EventData> eventsBySpeaker({

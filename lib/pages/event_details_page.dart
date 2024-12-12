@@ -237,6 +237,7 @@ class EventDetailsPage extends StatelessWidget {
                     if (item.parallelSessions != null &&
                         item.parallelSessions!.isNotEmpty) {
                       parallelEvents = itemList.eventsByParallel(
+                        current: item,
                         parallel: item.parallelSessions!,
                       );
                     }
