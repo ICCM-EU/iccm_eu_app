@@ -94,7 +94,7 @@ class TestData {
     RoomData room;
     for (DateTime day in scheduleDays) {
       DateTime startTime = day.add(Duration(hours: 8));
-      while (startTime.hour < 22) {
+      while (startTime.hour < 23) {
         Duration duration;
         int parallel;
         if (startTime.isAfter(now.subtract(Duration(hours: 1, minutes: 1))) &&

@@ -17,7 +17,7 @@ ThemeData darkTheme = ThemeData(
     surface: Colors.grey.shade900,
     onSurface: Colors.grey.shade100,
     primary: Colors.grey.shade100,
-    secondary: Colors.grey.shade500,
+    secondary: Colors.grey.shade600,
     tertiary: Colors.grey.shade700,
     inversePrimary: Colors.black,
     inverseSurface: Colors.black,
