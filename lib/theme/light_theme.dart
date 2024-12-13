@@ -5,7 +5,7 @@ ThemeData lightTheme = ThemeData(
   brightness: Brightness.light,
 
   appBarTheme: AppBarTheme(
-    backgroundColor: Colors.green[900]!,
+    backgroundColor: Colors.green.shade900,
     foregroundColor: Colors.white,
     titleTextStyle: TextStyle(
       fontSize: 20,
@@ -14,21 +14,21 @@ ThemeData lightTheme = ThemeData(
   ),
 
   colorScheme: ColorScheme.light(
-    surface: Colors.grey[100]!,
-    onSurface: Colors.grey[900]!,
-    primary: Colors.grey[900]!,
-    secondary: Colors.grey[600]!,
-    tertiary: Colors.grey[300]!,
+    surface: Colors.grey.shade100,
+    onSurface: Colors.grey.shade900,
+    primary: Colors.grey.shade900,
+    secondary: Colors.grey.shade600,
+    tertiary: Colors.grey.shade300,
     inversePrimary: Colors.white,
-    inverseSurface: Colors.grey[900]!,
+    inverseSurface: Colors.grey.shade900,
   ),
 
   textTheme: TextTheme(
     bodyMedium: TextStyle(
-      color: Colors.grey[900]!,
+      color: Colors.grey.shade900,
     ),
     headlineMedium: TextStyle(
-      color: Colors.grey[900]!,
+      color: Colors.grey.shade900,
       fontSize: 24,
     ),
     headlineSmall: TextStyle(
@@ -38,7 +38,7 @@ ThemeData lightTheme = ThemeData(
       fontWeight: FontWeight.bold,
     ),
     displayMedium: TextStyle(
-      color: Colors.grey[900]!,
+      color: Colors.grey.shade900,
     ),
   ),
 );

@@ -80,8 +80,8 @@ class ImageCarouselState extends State<ImageCarousel> {
             dotsCount: widget.imageUrls.length,
             position: _currentIndex,
             decorator: DotsDecorator(
-              color: Colors.grey, // Inactive dot color
-              activeColor: Colors.blue, // Active dot color
+              color: Theme.of(context).colorScheme.secondary, // Inactive dot color
+              activeColor: Colors.green, // Active dot color
             ),
           ),
         ],

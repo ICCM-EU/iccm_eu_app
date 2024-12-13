@@ -51,7 +51,7 @@ class UrlButton extends StatelessWidget {
                       ? IconButton(
                     icon: Icon(
                       Icons.share,
-                      color: Colors.grey[700],
+                      color: Colors.grey.shade700,
                     ),
                     onPressed: () {
                       Navigator.push(

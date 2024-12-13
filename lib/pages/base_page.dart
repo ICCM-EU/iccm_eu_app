@@ -126,7 +126,7 @@ class _BasePageState extends State<BasePage> {
                         IconButton(
                           icon: Icon(
                             Icons.share,
-                            color: Colors.grey[700],
+                            color: Theme.of(context).colorScheme.tertiary,
                           ),
                           onPressed: () {
                             Navigator.push(

@@ -14,22 +14,21 @@ ThemeData darkTheme = ThemeData(
   ),
 
   colorScheme: ColorScheme.dark(
-    surface: Colors.grey[900]!,
-    onSurface: Colors.grey[100]!,
-    primary: Colors.grey[100]!,
-    secondary: Colors.grey[200]!,
-    tertiary: Colors.grey[300]!,
+    surface: Colors.grey.shade900,
+    onSurface: Colors.grey.shade100,
+    primary: Colors.grey.shade100,
+    secondary: Colors.grey.shade500,
+    tertiary: Colors.grey.shade700,
     inversePrimary: Colors.black,
     inverseSurface: Colors.black,
-
   ),
 
   textTheme: TextTheme(
     bodyMedium: TextStyle(
-      color: Colors.grey[300]!,
+      color: Colors.grey.shade300,
     ),
     headlineMedium: TextStyle(
-      color: Colors.grey[300]!,
+      color: Colors.grey.shade300,
       fontSize: 24,
     ),
     headlineSmall: TextStyle(
@@ -39,7 +38,7 @@ ThemeData darkTheme = ThemeData(
       fontWeight: FontWeight.bold,
     ),
     displayMedium: TextStyle(
-      color: Colors.grey[300]!,
+      color: Colors.grey.shade300,
     ),
   ),
 );

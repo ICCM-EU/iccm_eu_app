@@ -112,7 +112,7 @@ class CountdownPageState extends State<CountdownPage> {
                 child: Text(
                   'All Rooms',
                   style: TextStyle(
-                    color: Colors.grey[700], // Use the custom color
+                    color: Colors.grey.shade700, // Use the custom color
                   ),
                 ),
               ),
@@ -122,7 +122,7 @@ class CountdownPageState extends State<CountdownPage> {
                     child: Text(
                       room.name,
                       style: TextStyle(
-                        color: Colors.grey[700], // Use the custom color
+                        color: Colors.grey.shade700, // Use the custom color
                       ),
                     ),
                   )),
@@ -131,7 +131,7 @@ class CountdownPageState extends State<CountdownPage> {
           IconButton(
             icon: Icon(
               Icons.close,
-              color: Colors.grey[700],
+              color: Colors.grey.shade700,
             ),
             onPressed: () {
               Navigator.pop(context); // Close fullscreen page

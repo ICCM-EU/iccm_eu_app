@@ -18,7 +18,7 @@ class FullScreenQrCode extends StatelessWidget {
           IconButton(
             icon: Icon(
               Icons.close,
-              color: Colors.grey[700],
+              color: Colors.grey.shade700,
             ),
             onPressed: () {
               Navigator.pop(context); // Close fullscreen page
