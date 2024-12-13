@@ -21,9 +21,14 @@ class EventListTile extends StatelessWidget {
     Provider.of<FavoritesProvider>(context, listen: true);
     bool isFavorite = favProvider.isInFavorites(item.name);
     String imageUrl = item.imageUrl ?? '';
+    Color bgColor = Theme.of(context).colorScheme.surface;
+    if (item.start.isBefore(DateTime.now())) {
+      bgColor = Theme.of(context).colorScheme.tertiary;
+    }
     return ListTile(
+      tileColor: bgColor,
       leading: imageUrl.startsWith("http") ?
-      SizedBox(
+        SizedBox(
           width: 100.0, // Diameter of CircleAvatar
           height: 100.0,
           child: CachedNetworkImage(
