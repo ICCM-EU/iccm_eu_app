@@ -1,4 +1,4 @@
-import 'package:iccm_eu_app/data/dataProviders/error_provider.dart';
+import 'package:iccm_eu_app/data/appProviders/error_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/favorites_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';

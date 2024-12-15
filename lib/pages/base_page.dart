@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/controls/menu_drawer.dart';
 import 'package:iccm_eu_app/controls/nav_bar.dart';
 import 'package:iccm_eu_app/data/appProviders/page_index_provider.dart';
-import 'package:iccm_eu_app/data/dataProviders/error_provider.dart';
+import 'package:iccm_eu_app/data/appProviders/error_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/pages/share_page.dart';
 import 'package:iccm_eu_app/theme/dark_theme.dart';

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../controls/show_overlay_message.dart';
-import '../data/dataProviders/error_provider.dart';
+import '../data/appProviders/error_provider.dart';
 
 class ErrorOverlay extends StatelessWidget {
   const ErrorOverlay({super.key});

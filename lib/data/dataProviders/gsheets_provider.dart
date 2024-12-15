@@ -4,6 +4,7 @@ import 'dart:core';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:crypto/crypto.dart';
+import 'package:iccm_eu_app/data/appProviders/error_provider.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/home_provider.dart';
@@ -12,9 +13,8 @@ import 'package:iccm_eu_app/data/dataProviders/speakers_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/travel_details_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/travel_provider.dart';
+import 'package:iccm_eu_app/data/model/error_signal.dart';
 import 'package:iccm_eu_app/utils/debug.dart';
-import '../model/error_signal.dart';
-import 'error_provider.dart';
 
 class GsheetsProvider with ChangeNotifier {
   final String _sheetId =
