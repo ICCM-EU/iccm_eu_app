@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/components/event_list_tile.dart';
 import 'package:iccm_eu_app/components/url_button.dart';
 import 'package:iccm_eu_app/controls/nav_bar.dart';
+import 'package:iccm_eu_app/data/appProviders/next_event_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
-import 'package:iccm_eu_app/data/model/event_data.dart';
 import 'package:iccm_eu_app/data/model/speaker_data.dart';
 import 'package:provider/provider.dart';
 
@@ -17,13 +17,6 @@ class SpeakerDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    EventsProvider eventsProvider = Provider.of<EventsProvider>(
-      context,
-      listen: false,
-    );
-    List<EventData> listItems = eventsProvider.eventsBySpeaker(
-      name: item.name,
-    );
     return Scaffold(
       appBar: AppBar(
         title: const Text("Speaker Details"),
@@ -90,12 +83,28 @@ class SpeakerDetailsPage extends StatelessWidget {
                   )
                 else
                   SizedBox.shrink(),
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: listItems.length,
-                  itemBuilder: (context, index) {
-                    return EventListTile(item: listItems[index]);
+                Consumer<EventsProvider>(
+                  builder: (context, itemProvider, child) {
+                    final itemList = itemProvider.eventsBySpeaker(
+                        name: item.name,
+                    );
+                    if (itemList.isEmpty) {
+                      return SizedBox.shrink();
+                    } else {
+                      return ValueListenableBuilder<DateTime?>(
+                        valueListenable: NextEventNotifier.nextEventNotifier,
+                        builder: (context, nextEventTime, _) {
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: itemList.length,
+                            itemBuilder: (context, index) {
+                              return EventListTile(item: itemList[index]);
+                            },
+                          );
+                        },
+                      );
+                    }
                   },
                 ),
               ],

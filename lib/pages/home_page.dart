@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/components/event_list_tile.dart';
 import 'package:iccm_eu_app/components/url_button.dart';
+import 'package:iccm_eu_app/data/appProviders/next_event_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/home_provider.dart';
 import 'package:iccm_eu_app/data/model/event_data.dart';
@@ -60,11 +61,12 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final EventsProvider eventsProvider = Provider.of<EventsProvider>(context);
+    final EventsProvider eventsProvider =
+    Provider.of<EventsProvider>(context, listen: false);
     _nextEventTime = eventsProvider.nextStartTime();
     if (_remainingDuration <= Duration.zero) {
       _upcomingEvents = eventsProvider.filterPastEvents(withCurrent: false).
-          take(5).toList();
+      take(5).toList();
     }
 
     return Scaffold(
@@ -75,32 +77,37 @@ class HomePageState extends State<HomePage> {
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: MediaQuery.of(context).size.height * 0.3, // 30% of screen height
+            expandedHeight: MediaQuery
+                .of(context)
+                .size
+                .height * 0.3, // 30% of screen height
             flexibleSpace: FlexibleSpaceBar(
               collapseMode: CollapseMode.parallax,
               background: LayoutBuilder(
-                builder: (BuildContext context, BoxConstraints constraints) {
-                  return Consumer<HomeProvider>(
-                    builder: (context, itemProvider, child) {
-                      final itemList = itemProvider.items();
-                      if (itemList.isEmpty) {
-                        return const Center(
-                          child: Text('Loading dynamic content...'),
+                  builder: (BuildContext context, BoxConstraints constraints) {
+                    return Consumer<HomeProvider>(
+                      builder: (context, itemProvider, child) {
+                        final itemList = itemProvider.items();
+                        if (itemList.isEmpty) {
+                          return const Center(
+                            child: Text('Loading dynamic content...'),
+                          );
+                        }
+                        final item = itemList.first;
+                        return CachedNetworkImage(
+                          imageUrl: item.imageUrl,
+                          fit: BoxFit.cover,
+                          width: constraints.maxWidth,
+                          height: constraints.maxHeight,
+                          placeholder: (context,
+                              url) => const CircularProgressIndicator(),
+                          errorWidget: (context, url, error) =>
+                          const Icon(Icons.error),
+                          colorBlendMode: BlendMode.srcIn,
                         );
-                      }
-                      final item = itemList.first;
-                      return CachedNetworkImage(
-                        imageUrl: item.imageUrl,
-                        fit: BoxFit.cover,
-                        width: constraints.maxWidth,
-                        height: constraints.maxHeight,
-                        placeholder: (context, url) => const CircularProgressIndicator(),
-                        errorWidget: (context, url, error) => const Icon(Icons.error),
-                        colorBlendMode: BlendMode.srcIn,
-                      );
-                    },
-                  );
-                }
+                      },
+                    );
+                  }
               ),
             ),
           ),
@@ -110,7 +117,7 @@ class HomePageState extends State<HomePage> {
                 final itemList = itemProvider.items();
                 if (itemList.isEmpty) {
                   return const Center(
-                      child: Text('Loading dynamic content...'),
+                    child: Text('Loading dynamic content...'),
                   );
                 }
                 final item = itemList.first; // Use the first item
@@ -122,12 +129,18 @@ class HomePageState extends State<HomePage> {
                       const SizedBox(height: 16.0),
                       Text(
                         item.name,
-                        style: Theme.of(context).textTheme.titleLarge,
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .titleLarge,
                       ),
                       const SizedBox(height: 8.0),
                       Text(
                         item.details,
-                        style: Theme.of(context).textTheme.bodyMedium,
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .bodyMedium,
                       ),
                       if (item.nowPageUrl != null &&
                           item.nowPageUrl!.startsWith('https://'))
@@ -152,23 +165,27 @@ class HomePageState extends State<HomePage> {
             ),
           ),
           SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final isFirstItem = index == 0;
-                return Column( // Wrap the list item and Divider in a Column
-                  children: [
-                    if (isFirstItem) const Divider(),
-                    Consumer<EventsProvider>(
-                      builder: (context, itemList, child) {
-                        return EventListTile(
-                          item: _upcomingEvents[index],
-                        );
-                      },
-                    ),
-                  ],
-                );
-              },
-              childCount: _upcomingEvents.length,
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final isFirstItem = index == 0;
+              return ValueListenableBuilder<DateTime?>(
+                valueListenable: NextEventNotifier.nextEventNotifier,
+                builder: (context, nextEventTime, _) {
+                  return Column( // Wrap the list item and Divider in a Column
+                    children: [
+                      if (isFirstItem) const Divider(),
+                      Consumer<EventsProvider>(
+                        builder: (context, itemList, child) {
+                          return EventListTile(
+                            item: _upcomingEvents[index],
+                          );
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            childCount: _upcomingEvents.length,
             ),
           ),
         ],

@@ -6,6 +6,7 @@ import 'package:iccm_eu_app/components/speaker_list_tile.dart';
 import 'package:iccm_eu_app/components/track_list_tile.dart';
 import 'package:iccm_eu_app/components/url_button.dart';
 import 'package:iccm_eu_app/controls/nav_bar.dart';
+import 'package:iccm_eu_app/data/appProviders/next_event_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/favorites_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/rooms_provider.dart';
@@ -225,14 +226,14 @@ class EventDetailsPage extends StatelessWidget {
                 if (item.surveyUrl != null &&
                     item.surveyUrl!.startsWith('https://'))
                   Column(
-                    children: [
-                      UrlButton(
-                        title: 'Survey URL',
-                        url: item.surveyUrl,
-                        withQrCode: true,
-                      ),
+                      children: [
+                        UrlButton(
+                          title: 'Survey URL',
+                          url: item.surveyUrl,
+                          withQrCode: true,
+                        ),
 
-                    ]
+                      ]
                   )
                 else
                   SizedBox.shrink(),
@@ -255,12 +256,18 @@ class EventDetailsPage extends StatelessWidget {
                               .textTheme
                               .headlineSmall,
                         ),
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: parallelEvents.length,
-                          itemBuilder: (context, index) {
-                            return EventListTile(item: parallelEvents[index]);
+                        ValueListenableBuilder<DateTime?>(
+                          valueListenable: NextEventNotifier.nextEventNotifier,
+                          builder: (context, nextEventTime, _) {
+                            return ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: parallelEvents.length,
+                              itemBuilder: (context, index) {
+                                return EventListTile(
+                                    item: parallelEvents[index]);
+                              },
+                            );
                           },
                         ),
                       ],

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/components/event_list_tile.dart';
 import 'package:iccm_eu_app/components/image_carousel.dart';
 import 'package:iccm_eu_app/controls/nav_bar.dart';
+import 'package:iccm_eu_app/data/appProviders/next_event_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
-import 'package:iccm_eu_app/data/model/event_data.dart';
 import 'package:iccm_eu_app/data/model/room_data.dart';
 import 'package:provider/provider.dart';
 
@@ -16,13 +16,6 @@ class RoomDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    EventsProvider eventsProvider = Provider.of<EventsProvider>(
-      context,
-      listen: false,
-    );
-    List<EventData> listItems = eventsProvider.eventsByRoom(
-      name: item.name,
-    );
     List<String> imageUrls = [];
     if (item.imageUrl.startsWith('https://')) {
       imageUrls.add(item.imageUrl);
@@ -53,12 +46,28 @@ class RoomDetailsPage extends StatelessWidget {
                 Text(item.details,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: listItems.length,
-                  itemBuilder: (context, index) {
-                    return EventListTile(item: listItems[index]);
+                Consumer<EventsProvider>(
+                  builder: (context, itemProvider, child) {
+                    final itemList = itemProvider.eventsByRoom(
+                        name: item.name,
+                    );
+                    if (itemList.isEmpty) {
+                      return SizedBox.shrink();
+                    } else {
+                      return ValueListenableBuilder<DateTime?>(
+                        valueListenable: NextEventNotifier.nextEventNotifier,
+                        builder: (context, nextEventTime, _) {
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: itemList.length,
+                            itemBuilder: (context, index) {
+                              return EventListTile(item: itemList[index]);
+                            },
+                          );
+                        },
+                      );
+                    }
                   },
                 ),
               ],

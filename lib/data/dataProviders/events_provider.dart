@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:iccm_eu_app/data/appProviders/next_event_provider.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/data/model/event_data.dart';
@@ -26,6 +27,12 @@ class EventsProvider with ChangeNotifier  {
     _gsheetsProvider.addListener(updateCache);
     _loadCache();
     _populateItemsFromCache();
+  }
+
+  @override
+  void dispose() {
+    NextEventNotifier.stopTimer();
+    super.dispose();
   }
 
   void updateCache() {
@@ -77,6 +84,7 @@ class EventsProvider with ChangeNotifier  {
     _fillCacheItemIds();
     _saveCache();
     _populateItemsFromCache();
+    NextEventNotifier.startTimer(this);
     notifyListeners();
   }
 
