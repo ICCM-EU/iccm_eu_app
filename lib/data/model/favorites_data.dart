@@ -1,23 +1,34 @@
 class FavoritesData {
-  final String eventName;
+  final String name;
+  final String? details;
+  final DateTime start;
+  int? id;
 
   FavoritesData({
-    required this.eventName,
+    required this.name,
+    required this.start,
+    this.details = '',
   });
 
   FavoritesData._({
-    required this.eventName,
+    required this.name,
+    required this.start,
+    this.details = '',
   });
 
   factory FavoritesData.fromJson(Map<String, dynamic> json) {
     return FavoritesData._(
-      eventName: json['eventIdentification'],
+      name: json['name'] ?? '',
+      details: json['details'] ?? '',
+      start: DateTime.parse(json['start'] ?? ''),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'eventIdentification': eventName,
+      'name': name,
+      'details': details ?? '',
+      'start': start.toIso8601String(),
     };
   }
 }

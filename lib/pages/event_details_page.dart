@@ -73,8 +73,12 @@ class EventDetailsPage extends StatelessWidget {
 
     FavoritesProvider favProvider =
     Provider.of<FavoritesProvider>(context, listen: true);
-    bool isFavorite = favProvider.isInFavorites(item.name);
+    bool isFavorite = favProvider.isInFavorites(
+      name: item.name,
+      start: item.start,
+    );
     String imageUrl = item.imageUrl ?? '';
+    EventsProvider eventsProvider = Provider.of<EventsProvider>(context, listen: false);
 
     return Scaffold(
       appBar: AppBar(
@@ -146,9 +150,18 @@ class EventDetailsPage extends StatelessWidget {
                   color: Colors.red,
                   onPressed: () {
                     if (isFavorite) {
-                      favProvider.rmEvent(item.name);
+                      favProvider.rmEvent(
+                        name: item.name,
+                        start: item.start,
+                        currentEvents: eventsProvider.items(),
+                      );
                     } else {
-                      favProvider.addEvent(item.name);
+                      favProvider.addEvent(
+                        name: item.name,
+                        start: item.start,
+                        details: item.details,
+                        currentEvents: eventsProvider.items(),
+                      );
                     }
                     isFavorite = !isFavorite;
                   },

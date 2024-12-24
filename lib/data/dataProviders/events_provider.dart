@@ -5,14 +5,17 @@ import 'package:iccm_eu_app/data/appProviders/next_event_provider.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/data/model/event_data.dart';
+import 'package:iccm_eu_app/data/notifications/local_notification_service.dart';
 import 'package:iccm_eu_app/data/testData/test_data.dart';
 import 'package:iccm_eu_app/utils/debug.dart';
+import 'package:iccm_eu_app/utils/id_generator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EventsProvider with ChangeNotifier  {
   static String get worksheetTitle => "Sessions";
   String get _cacheTitle => "_eventDataCache";
   final GsheetsProvider _gsheetsProvider;
+  final List<int> itemIDs = [];
 
   final List<EventData> _cache = [];
 
@@ -79,19 +82,18 @@ class EventsProvider with ChangeNotifier  {
     _cache.clear();
   }
 
-  void _commit() {
+  void _commit() async {
     _cache.sort((a, b) => a.start.compareTo(b.start));
-    _fillCacheItemIds();
+    for (int i = 0; i < _cache.length; i++) {
+      if (_cache[i].id == null || _cache[i].id == 0) {
+        _cache[i].id = await IdGenerator.generateItemId();
+      }
+    }
     _saveCache();
     _populateItemsFromCache();
     NextEventNotifier.startTimer(this);
+    _registerNotifications();
     notifyListeners();
-  }
-
-  void _fillCacheItemIds() {
-    for (int i = 0; i < _cache.length; i++) {
-      _cache[i].id = i;
-    }
   }
 
   void _populateItemsFromCache() {
@@ -100,7 +102,6 @@ class EventsProvider with ChangeNotifier  {
       for (var item in _cache) {
         _items.add(item);
       }
-      // notifyListeners();
     }
   }
 
@@ -108,6 +109,25 @@ class EventsProvider with ChangeNotifier  {
     final prefs = await SharedPreferences.getInstance();
     final cacheJson = jsonEncode(_cache); // Convert _cache to JSON string
     await prefs.setString(_cacheTitle, cacheJson); // Save to SharedPreferences
+  }
+
+  void _registerNotifications() {
+    for (int id in itemIDs) {
+      LocalNotificationService.cancelNotification(id, null);
+    }
+    itemIDs.clear();
+
+    for (EventData item in _items.where(
+            (item) =>
+        (item.notifyAfterBreak ?? false)).toList()
+    ) {
+      itemIDs.add(item.id ?? 0);
+      LocalNotificationService.scheduleNotification(
+          title: 'Upcoming: ${item.name}',
+          body: item.details,
+          id: item.id,
+          scheduledDate: item.start.subtract(Duration(minutes: 3)));
+    }
   }
 
   EventData earliestEvent ({List<EventData>? items}) {

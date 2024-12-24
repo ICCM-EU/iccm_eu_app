@@ -19,7 +19,10 @@ class EventListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     FavoritesProvider favProvider =
     Provider.of<FavoritesProvider>(context, listen: true);
-    bool isFavorite = favProvider.isInFavorites(item.name);
+    bool isFavorite = favProvider.isInFavorites(
+      name: item.name,
+      start: item.start
+    );
     String imageUrl = item.imageUrl ?? '';
     Color bgColor = Theme
         .of(context)
