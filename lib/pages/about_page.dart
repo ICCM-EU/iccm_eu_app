@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:iccm_eu_app/components/url_button.dart';
+import 'package:iccm_eu_app/data/dataProviders/home_provider.dart';
+import 'package:provider/provider.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
@@ -39,6 +42,24 @@ class AboutPage extends StatelessWidget {
                   'conference.',
               style: Theme.of(context).textTheme.bodyMedium,
               textAlign: TextAlign.justify, // Center align text
+            ),
+            SizedBox(height: 32),
+            Consumer<HomeProvider>(
+              builder: (context, itemProvider, child) {
+                final itemList = itemProvider.items();
+                if (itemList.isEmpty) {
+                  return const Center(
+                    child: Text('Loading dynamic content...'),
+                  );
+                }
+                final item = itemList.first; // Use the first item
+                String shareUrl = item.appShareUrl ?? '';
+                return (shareUrl.startsWith('https://')) ?
+                UrlButton(
+                  title: 'Development URL',
+                  url: shareUrl,
+                ) : SizedBox.shrink();
+              },
             ),
             SizedBox(height: 32),
             Text(

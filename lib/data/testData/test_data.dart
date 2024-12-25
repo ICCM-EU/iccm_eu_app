@@ -118,10 +118,14 @@ class TestData {
           } else {
             speaker = null;
           }
+          String namePrefix = "Event";
+          if (startTime.second == 0) {
+            namePrefix = "Notify";
+          }
           items.add(EventData(
             start: startTime,
             end: endTime,
-            name: 'Event $eventCount',
+            name: '$namePrefix $eventCount',
             details: 'Details',
             track: track.name,
             speaker: speaker?.name,

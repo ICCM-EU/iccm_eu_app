@@ -10,6 +10,8 @@ class HomeData extends ModelItem {
   final String details;
   final String? nowPageUrl;
   final String? votingPageUrl;
+  final String? appShareUrl;
+  final String? devShareUrl;
 
   HomeData._({
     required this.imageUrl,
@@ -17,6 +19,8 @@ class HomeData extends ModelItem {
     required this.details,
     this.nowPageUrl,
     this.votingPageUrl,
+    this.appShareUrl,
+    this.devShareUrl,
   });
 
   factory HomeData.fromItemData(Map<String, dynamic> itemData) {
@@ -26,6 +30,8 @@ class HomeData extends ModelItem {
       details: itemData['Description'] ?? '',
       nowPageUrl: itemData['Now Page Link'] ?? '',
       votingPageUrl: itemData['Survey Link'] ?? '',
+      appShareUrl: itemData['App Share Link'] ?? '',
+      devShareUrl: itemData['App Dev Link'] ?? '',
     );
   }
 
@@ -34,8 +40,10 @@ class HomeData extends ModelItem {
       imageUrl: json['imageUrl'],
       name: json['name'] as String? ?? '',
       details: json['details'] as String? ?? '',
-      nowPageUrl: json['nowPageUrl'],
-      votingPageUrl: json['votingPageUrl'],
+      nowPageUrl: json['nowPageUrl'] ?? '',
+      votingPageUrl: json['votingPageUrl'] ?? '',
+      appShareUrl: json['appShareUrl'] ?? '',
+      devShareUrl: json['devShareUrl'] ?? '',
     );
   }
 
@@ -44,8 +52,10 @@ class HomeData extends ModelItem {
       'imageUrl': imageUrl,
       'name': name.toString(),
       'details': details.toString(),
-      'nowPageUrl': nowPageUrl,
-      'votingPageUrl': votingPageUrl,
+      'nowPageUrl': nowPageUrl.toString(),
+      'votingPageUrl': votingPageUrl.toString(),
+      'appShareUrl': appShareUrl.toString(),
+      'devShareUrl': devShareUrl.toString(),
     };
   }
 }
