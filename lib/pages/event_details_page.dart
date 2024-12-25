@@ -122,7 +122,7 @@ class EventDetailsPage extends StatelessWidget {
                         .textTheme
                         .titleMedium,
                     children: [
-                      if (item.notifyAfterBreak == true) TextSpan(
+                      if (item.forceNotify == true) TextSpan(
                         text: '📢 ',
                         style: Theme
                             .of(context)

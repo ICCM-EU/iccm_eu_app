@@ -15,7 +15,7 @@ class EventData extends FlutterWeekViewEvent {
   final String details;
   String? surveyUrl;
   String? parallelSessions;
-  bool? notifyAfterBreak = false;
+  bool? forceNotify = false;
   int? id = -1;
 
 
@@ -34,7 +34,7 @@ class EventData extends FlutterWeekViewEvent {
     this.facilitator,
     this.surveyUrl,
     this.parallelSessions,
-    this.notifyAfterBreak,
+    this.forceNotify,
     this.id,
 
     // optional inherited parameters
@@ -75,7 +75,7 @@ class EventData extends FlutterWeekViewEvent {
       facilitator: itemData['Facilitator'],
       surveyUrl: itemData['Survey URL'],
       parallelSessions: itemData['Parallel'],
-      notifyAfterBreak: itemData['Notify-after-Break'] == 'true',
+      forceNotify: itemData['Notify-after-Break'] == 'true',
       backgroundColor: Colors.red,
       padding: EdgeInsets.all(0),
     );
@@ -94,7 +94,7 @@ class EventData extends FlutterWeekViewEvent {
       facilitator: json['facilitator'],
       surveyUrl: json['surveyUrl'],
       parallelSessions: json['parallelSessions'],
-      notifyAfterBreak: bool.tryParse(json['notifyAfterBreak']),
+      forceNotify: bool.tryParse(json['forceNotify']),
       id: int.tryParse(json['id'] ?? '-1'),
     );
   }
@@ -112,7 +112,7 @@ class EventData extends FlutterWeekViewEvent {
       'facilitator': facilitator?.toString(),
       'surveyUrl': surveyUrl.toString(),
       'parallelSessions': parallelSessions.toString(),
-      'notifyAfterBreak': notifyAfterBreak.toString(),
+      'forceNotify': forceNotify.toString(),
       'id': id.toString(),
     };
   }

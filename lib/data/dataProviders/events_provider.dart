@@ -119,7 +119,7 @@ class EventsProvider with ChangeNotifier  {
 
     for (EventData item in _items.where(
             (item) =>
-        (item.notifyAfterBreak ?? false)).toList()
+        (item.forceNotify ?? false)).toList()
     ) {
       itemIDs.add(item.id ?? 0);
       LocalNotificationService.scheduleNotification(

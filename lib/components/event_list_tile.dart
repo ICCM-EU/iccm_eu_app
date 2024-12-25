@@ -99,7 +99,7 @@ class EventListTile extends StatelessWidget {
                 .of(context)
                 .style,
             children: [
-              if (item.notifyAfterBreak == true) TextSpan(
+              if (item.forceNotify == true) TextSpan(
                 text: '📢 ',
                 style: Theme
                     .of(context)

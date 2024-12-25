@@ -119,8 +119,10 @@ class TestData {
             speaker = null;
           }
           String namePrefix = "Event";
-          if (startTime.second == 0) {
+          bool forceNotify = false;
+          if (startTime.second % 30 == 0) {
             namePrefix = "Notify";
+            forceNotify = true;
           }
           items.add(EventData(
             start: startTime,
@@ -130,6 +132,7 @@ class TestData {
             track: track.name,
             speaker: speaker?.name,
             room: room.name,
+            forceNotify: forceNotify,
           ));
           eventCount ++;
         }
