@@ -10,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class FavoritesProvider with ChangeNotifier {
   String get _cacheTitle => "_favoritesDataCache";
-  final List<int> _registeredIDs = [];
+  final List<int> _notificationIDs = [];
 
   final List<FavoritesData> _cache = [];
 
@@ -81,18 +81,20 @@ class FavoritesProvider with ChangeNotifier {
 
   void _registerNotifications() {
     // Selectively cancel the favorites notifications from this class.
-    for (int id in _registeredIDs) {
+    for (int id in _notificationIDs) {
       Debug.msg('CANCEL ID $id');
       LocalNotificationService.cancelNotification(id, null);
     }
-    _registeredIDs.clear();
+    _notificationIDs.clear();
 
     DateTime now = DateTime.now();
     for (FavoritesData item in _items) {
       // Debug.msg('PROCESSING ${item.name}: ADD ${item.id ?? 0} TO _registeredIDs');
       if (item.start.isAfter(now)) {
-        _registeredIDs.add(item.id ?? 0);
-        DateTime notificationTime = _scheduleAhead(time: item.start);
+        _notificationIDs.add(item.id ?? 0);
+        DateTime notificationTime = LocalNotificationService.scheduleAhead(
+            time: item.start,
+        );
         Debug.msg('NOTIFY ${item.name} at ${item.start} ($notificationTime) with ID ${item.id ?? 0}');
         LocalNotificationService.scheduleNotification(
           title: 'Upcoming: ${item.name}',
@@ -104,14 +106,6 @@ class FavoritesProvider with ChangeNotifier {
         Debug.msg('SILENT ${item.name} at ${item.start}');
       }
     }
-  }
-
-  DateTime _scheduleAhead ({
-    required DateTime time,
-    Duration? before,
-  }) {
-    before ??= Duration(minutes: 3);
-    return time.subtract(before);
   }
 
   bool isInFavorites({

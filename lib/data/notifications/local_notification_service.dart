@@ -196,4 +196,13 @@ class LocalNotificationService {
 
   static Future<void> onDidReceiveBackgroundNotificationResponse(
       NotificationResponse notificationResponse) async {}
+
+
+  static DateTime scheduleAhead ({
+    required DateTime time,
+    Duration? before,
+  }) {
+    before ??= Duration(minutes: 3);
+    return time.subtract(before);
+  }
 }

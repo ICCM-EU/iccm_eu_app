@@ -15,7 +15,7 @@ class EventsProvider with ChangeNotifier  {
   static String get worksheetTitle => "Sessions";
   String get _cacheTitle => "_eventDataCache";
   final GsheetsProvider _gsheetsProvider;
-  final List<int> itemIDs = [];
+  final List<int> _notificationIDs = [];
 
   final List<EventData> _cache = [];
 
@@ -112,21 +112,28 @@ class EventsProvider with ChangeNotifier  {
   }
 
   void _registerNotifications() {
-    for (int id in itemIDs) {
+    for (int id in _notificationIDs) {
       LocalNotificationService.cancelNotification(id, null);
     }
-    itemIDs.clear();
+    _notificationIDs.clear();
 
+    DateTime now = DateTime.now();
     for (EventData item in _items.where(
             (item) =>
-        (item.forceNotify ?? false)).toList()
+        (item.forceNotify ?? false == true &&
+            item.start.isAfter(now))).toList()
     ) {
-      itemIDs.add(item.id ?? 0);
+      _notificationIDs.add(item.id ?? 0);
+      DateTime notificationTime = LocalNotificationService.scheduleAhead(
+        time: item.start,
+      );
+      Debug.msg('ANNOUNCE ${item.name} at ${item
+          .start} ($notificationTime) with ID ${item.id ?? 0}');
       LocalNotificationService.scheduleNotification(
           title: 'Upcoming: ${item.name}',
           body: item.details,
           id: item.id,
-          scheduledDate: item.start.subtract(Duration(minutes: 3)));
+          scheduledDate: notificationTime);
     }
   }
 
