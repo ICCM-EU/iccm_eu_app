@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/model/event_data.dart';
 import 'package:iccm_eu_app/data/model/favorites_data.dart';
+import 'package:iccm_eu_app/data/model/notification_channel_data.dart';
 import 'package:iccm_eu_app/data/notifications/local_notification_service.dart';
 import 'package:iccm_eu_app/utils/debug.dart';
 import 'package:iccm_eu_app/utils/id_generator.dart';
@@ -16,6 +17,12 @@ class FavoritesProvider with ChangeNotifier {
 
   final List<FavoritesData> _items = [];
 
+  final NotificationChannelData _channelData = NotificationChannelData(
+    name: 'Event Favorites',
+    id: 'event_favorites',
+    description: 'Favorites reminders',
+  );
+
   List<FavoritesData> items() {
     return _items;
   }
@@ -23,6 +30,9 @@ class FavoritesProvider with ChangeNotifier {
   FavoritesProvider() {
     _loadCache();
     _populateItemsFromCache();
+    LocalNotificationService.init(
+      channelData: _channelData,
+    );
   }
 
   Future<void> _loadCache() async {
@@ -88,23 +98,25 @@ class FavoritesProvider with ChangeNotifier {
     _notificationIDs.clear();
 
     DateTime now = DateTime.now();
-    for (FavoritesData item in _items) {
+    for (FavoritesData item in _items.where(
+            (event) =>
+        (LocalNotificationService.scheduleAhead(
+            time: event.start,
+        ).isAfter(now))).toList()
+    ) {
       // Debug.msg('PROCESSING ${item.name}: ADD ${item.id ?? 0} TO _registeredIDs');
-      if (item.start.isAfter(now)) {
-        _notificationIDs.add(item.id ?? 0);
-        DateTime notificationTime = LocalNotificationService.scheduleAhead(
-            time: item.start,
-        );
-        Debug.msg('NOTIFY ${item.name} at ${item.start} ($notificationTime) with ID ${item.id ?? 0}');
-        LocalNotificationService.scheduleNotification(
-          title: 'Upcoming: ${item.name}',
-          body: item.details ?? '',
-          id: item.id,
-          scheduledDate: notificationTime,
-        );
-      } else {
-        Debug.msg('SILENT ${item.name} at ${item.start}');
-      }
+      _notificationIDs.add(item.id ?? 0);
+      DateTime notificationTime = LocalNotificationService.scheduleAhead(
+          time: item.start,
+      );
+      Debug.msg('NOTIFY ${item.name} at ${item.start} ($notificationTime) with ID ${item.id ?? 0}');
+      LocalNotificationService.scheduleNotification(
+        title: 'Upcoming: ${item.name}',
+        body: item.details ?? '',
+        id: item.id,
+        scheduledDate: notificationTime,
+        channelData: _channelData,
+      );
     }
   }
 

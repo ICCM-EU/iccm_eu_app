@@ -120,7 +120,7 @@ class TestData {
           }
           String namePrefix = "Event";
           bool forceNotify = false;
-          if (startTime.second % 30 == 0) {
+          if (startTime.minute % 30 == 0) {
             namePrefix = "Notify";
             forceNotify = true;
           }

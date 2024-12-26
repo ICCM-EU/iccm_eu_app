@@ -9,13 +9,7 @@ class PreferencesProvider {
   static Future<ThemeMode> get isDarkTheme async {
     final prefs = await SharedPreferences.getInstance();
     bool? darkMode = prefs.getBool(_isDarkThemeKey);
-    if (darkMode == null) {
-      // var brightness = SchedulerBinding.instance.platformDispatcher
-      //     .platformBrightness;
-      // result = brightness == Brightness.dark;
-      return ThemeMode.system;
-    }
-    return darkMode ? ThemeMode.dark: ThemeMode.light;
+    return (darkMode ?? true) ? ThemeMode.dark: ThemeMode.light;
   }
 
   static Future<void> setDarkTheme(bool? value) async {

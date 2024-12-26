@@ -128,9 +128,7 @@ class _BasePageState extends State<BasePage> {
                           builder: (context, itemProvider, child) {
                             final itemList = itemProvider.items();
                             if (itemList.isEmpty) {
-                              return const Center(
-                                child: Text('Loading dynamic content...'),
-                              );
+                              return const SizedBox.shrink();
                             }
                             final item = itemList.first; // Use the first item
                             String shareUrl = item.appShareUrl ?? '';

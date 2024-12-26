@@ -5,6 +5,7 @@ import 'package:iccm_eu_app/data/appProviders/next_event_provider.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/data/model/event_data.dart';
+import 'package:iccm_eu_app/data/model/notification_channel_data.dart';
 import 'package:iccm_eu_app/data/notifications/local_notification_service.dart';
 import 'package:iccm_eu_app/data/testData/test_data.dart';
 import 'package:iccm_eu_app/utils/debug.dart';
@@ -19,6 +20,12 @@ class EventsProvider with ChangeNotifier  {
 
   final List<EventData> _cache = [];
 
+  final NotificationChannelData _channelData = NotificationChannelData(
+      name: 'Announcement Events',
+      id: 'event_announcements',
+      description: 'Announcements and reminders after breaks',
+  );
+
   final List<EventData> _items = [];
   List<EventData> items() {
     return _items;
@@ -30,6 +37,9 @@ class EventsProvider with ChangeNotifier  {
     _gsheetsProvider.addListener(updateCache);
     _loadCache();
     _populateItemsFromCache();
+    LocalNotificationService.init(
+      channelData: _channelData,
+    );
   }
 
   @override
@@ -118,10 +128,13 @@ class EventsProvider with ChangeNotifier  {
     _notificationIDs.clear();
 
     DateTime now = DateTime.now();
+    Debug.msg('REGISTER after $now');
     for (EventData item in _items.where(
-            (item) =>
-        (item.forceNotify ?? false == true &&
-            item.start.isAfter(now))).toList()
+            (event) =>
+        (((event.forceNotify ?? false) == true) &&
+            LocalNotificationService.scheduleAhead(
+                time: event.start,
+            ).isAfter(now))).toList()
     ) {
       _notificationIDs.add(item.id ?? 0);
       DateTime notificationTime = LocalNotificationService.scheduleAhead(
@@ -131,9 +144,11 @@ class EventsProvider with ChangeNotifier  {
           .start} ($notificationTime) with ID ${item.id ?? 0}');
       LocalNotificationService.scheduleNotification(
           title: 'Upcoming: ${item.name}',
-          body: item.details,
+          body: item.description,
           id: item.id,
-          scheduledDate: notificationTime);
+          scheduledDate: notificationTime,
+        channelData: _channelData,
+      );
     }
   }
 
