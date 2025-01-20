@@ -1,10 +1,5 @@
 import 'dart:async';
 
-import 'dart:html';
-import 'dart:js_util';
-
-import 'package:flutter/foundation.dart';
-
 class WebNotification {
   final DateTime timeout;
   final String title;
@@ -29,17 +24,6 @@ class WebNotification {
   }
 
   void _displayMessage() {
-    if (kIsWeb) {
-      callMethod(
-          window,
-          "showNotification",
-          [
-            title,
-            msg
-          ]);
-    //} else {
-    //  flutterLocalNotificationsPlugin.show(id,"Title","custom message",notification);
-    }
     _timer.cancel();
   }
 }
