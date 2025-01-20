@@ -20,20 +20,6 @@ class PreferencesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Center(
-      //     child: const Text('Preferences'),
-      //   ),
-      //   automaticallyImplyLeading: false,
-      //   backgroundColor: Theme
-      //       .of(context)
-      //       .appBarTheme
-      //       .backgroundColor,
-      //   foregroundColor: Theme
-      //       .of(context)
-      //       .appBarTheme
-      //       .foregroundColor,
-      // ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: <Widget>[

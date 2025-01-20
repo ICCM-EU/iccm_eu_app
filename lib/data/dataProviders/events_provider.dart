@@ -353,7 +353,7 @@ class EventsProvider with ChangeNotifier  {
   static bool showTestDataOption() {
     bool value = kDebugMode;
     // Overwrite during development
-    value = true;
+    //value = true;
     return value;
   }
 }
