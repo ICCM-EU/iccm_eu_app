@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:iccm_eu_app/data/model/notification_channel_data.dart';
+import 'package:iccm_eu_app/data/model/web_notification.dart';
 import 'package:iccm_eu_app/utils/debug.dart';
 import 'package:iccm_eu_app/utils/text_functions.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:permission_handler/permission_handler.dart';
-import 'package:universal_html/js.dart';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
@@ -15,7 +15,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 class LocalNotificationService {
   // create an instance of the flutter local notification plugin
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-  FlutterLocalNotificationsPlugin();
+    FlutterLocalNotificationsPlugin();
+  static final Map<int, WebNotification> _webNotifications = {};
 
   // initialize the notification service
   static Future<void> init({
@@ -81,14 +82,6 @@ class LocalNotificationService {
     required String body,
     required NotificationChannelData channelData,
   }) async {
-
-    if (kIsWeb) {
-      context.callMethod("showNotification", [
-        title,
-        body,
-      ]);
-      return;
-    }
     // define the notification details
     NotificationDetails platformChannelSpecifics = NotificationDetails(
       android: AndroidNotificationDetails(
@@ -122,6 +115,13 @@ class LocalNotificationService {
     required NotificationChannelData channelData,
     int? id,
   }) async {
+    if (kIsWeb) {
+      _webNotifications[id ?? 0] = WebNotification(
+          title: title,
+          msg: body,
+          timeout: scheduledDate,
+      );
+    }
     NotificationDetails platformChannelSpecifics = NotificationDetails(
       android: AndroidNotificationDetails(
         channelData.id,
@@ -230,6 +230,7 @@ class LocalNotificationService {
   }
 
   static Future cancelAllNotifications() async {
+    _webNotifications.clear();
     await flutterLocalNotificationsPlugin.cancelAll();
   }
 
@@ -237,6 +238,7 @@ class LocalNotificationService {
       int id,
       String? tag,
   ) async {
+    _webNotifications.remove(id);
     await flutterLocalNotificationsPlugin.cancel(
       id,
       tag: tag,
