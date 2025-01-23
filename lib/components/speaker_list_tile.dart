@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/model/speaker_data.dart';
 import 'package:iccm_eu_app/pages/speaker_details_page.dart';
+import 'package:iccm_eu_app/utils/text_functions.dart';
 
 class SpeakerListTile extends StatelessWidget {
   final SpeakerData item;
@@ -62,7 +63,7 @@ class SpeakerListTile extends StatelessWidget {
               .style,
           children: <TextSpan>[
             TextSpan(
-              text: item.details,
+              text: TextFunctions.cutTextToWords(text: item.details, length: 30),
               style: Theme
                   .of(context)
                   .textTheme
