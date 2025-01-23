@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -9,15 +10,19 @@ class ErrorOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final errorSignal = Provider.of<ErrorProvider>(context).errorSignal;
+    if (kDebugMode) {
+      final errorSignal = Provider
+          .of<ErrorProvider>(context)
+          .errorSignal;
 
-    if (errorSignal != null) {
-      // Show overlay message
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showOverlayMessage(context, errorSignal.message);
-      });
-      // Clear the signal after displaying the message
-      Provider.of<ErrorProvider>(context, listen: false).clearErrorSignal();
+      if (errorSignal != null) {
+        // Show overlay message
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showOverlayMessage(context, errorSignal.message);
+        });
+        // Clear the signal after displaying the message
+        Provider.of<ErrorProvider>(context, listen: false).clearErrorSignal();
+      }
     }
 
     return const SizedBox.shrink(); // Or a placeholder widget
