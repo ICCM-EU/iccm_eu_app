@@ -15,64 +15,8 @@ class SpeakerListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String imageUrl = item.imageUrl;
-    return ListTile(
-      leading: imageUrl.startsWith("http") ?
-      CircleAvatar(
-          radius: 50.0,
-          child: SizedBox(
-              width: 100.0, // Diameter of CircleAvatar
-              height: 100.0,
-              child: CachedNetworkImage(
-                imageUrl: imageUrl,
-                placeholder: (context, url) =>
-                    FittedBox(
-                      child: CircularProgressIndicator(),
-                    ),
-                errorWidget: (context, url, error) =>
-                    FittedBox(
-                      child: Icon(Icons.error),
-                    ),
-              )
-          )
-      ) :
-      const SizedBox(
-        height: 100,
-        width: 100,
-      ),
-      title: RichText(
-        text: TextSpan(
-          style: DefaultTextStyle
-              .of(context)
-              .style,
-          children: <TextSpan>[
-            TextSpan(
-              text: item.name,
-              style: Theme
-                  .of(context)
-                  .textTheme
-                  .titleMedium,
-            ),
-          ],
-        ),
-        softWrap: false,
-      ),
-      subtitle: RichText(
-        text: TextSpan(
-          style: DefaultTextStyle
-              .of(context)
-              .style,
-          children: <TextSpan>[
-            TextSpan(
-              text: TextFunctions.cutTextToWords(text: item.details, length: 30),
-              style: Theme
-                  .of(context)
-                  .textTheme
-                  .bodyMedium,
-            ),
-          ],
-        ),
-        softWrap: true,
-      ),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () {
         Navigator.push(
           context,
@@ -85,6 +29,66 @@ class SpeakerListTile extends StatelessWidget {
           ),
         );
       },
+      child: ListTile(
+        leading: imageUrl.startsWith("http") ?
+        CircleAvatar(
+            radius: 50.0,
+            child: SizedBox(
+                width: 100.0, // Diameter of CircleAvatar
+                height: 100.0,
+                child: CachedNetworkImage(
+                  imageUrl: imageUrl,
+                  placeholder: (context, url) =>
+                      FittedBox(
+                        child: CircularProgressIndicator(),
+                      ),
+                  errorWidget: (context, url, error) =>
+                      FittedBox(
+                        child: Icon(Icons.error),
+                      ),
+                )
+            )
+        ) :
+        const SizedBox(
+          height: 100,
+          width: 100,
+        ),
+        title: RichText(
+          text: TextSpan(
+            style: DefaultTextStyle
+                .of(context)
+                .style,
+            children: <TextSpan>[
+              TextSpan(
+                text: item.name,
+                style: Theme
+                    .of(context)
+                    .textTheme
+                    .titleMedium,
+              ),
+            ],
+          ),
+          softWrap: false,
+        ),
+        subtitle: RichText(
+          text: TextSpan(
+            style: DefaultTextStyle
+                .of(context)
+                .style,
+            children: <TextSpan>[
+              TextSpan(
+                text: TextFunctions.cutTextToWords(
+                    text: item.details, length: 30),
+                style: Theme
+                    .of(context)
+                    .textTheme
+                    .bodyMedium,
+              ),
+            ],
+          ),
+          softWrap: true,
+        ),
+      ),
     );
   }
 }
