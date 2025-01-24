@@ -30,24 +30,31 @@ class TracksPage extends StatelessWidget {
             .appBarTheme
             .foregroundColor,
       ),
-      body: Column(
-        children: [
-          Expanded( // Use Expanded to allow ListView.builder to take available space
-            child: Consumer<
-                TracksProvider>( // Wrap ListView.builder with Consumer
-              builder: (context, itemList, child) {
-                return ListView.builder(
-                  itemCount: itemList
-                      .items()
-                      .length,
-                  itemBuilder: (context, index) {
-                    return TrackListTile(item: itemList.items()[index]);
+      body: PrimaryScrollController(
+        controller: ScrollController(),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // Use Expanded to allow ListView.builder to take available space
+              Expanded(
+                child: Consumer<TracksProvider>(
+                  builder: (context, itemList, child) {
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: ClampingScrollPhysics(),
+                      itemCount: itemList
+                          .items()
+                          .length,
+                      itemBuilder: (context, index) {
+                        return TrackListTile(item: itemList.items()[index]);
+                      },
+                    );
                   },
-                );
-              },
-            ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

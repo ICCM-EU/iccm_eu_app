@@ -30,34 +30,32 @@ class RoomsPage extends StatelessWidget {
               .appBarTheme
               .foregroundColor
       ),
-      body: Column(
-        children: [
-          // ListView(
-          //     shrinkWrap: true,
-          //     // Important to prevent unbounded height issues
-          //     physics: const NeverScrollableScrollPhysics(),
-          //     // Disable scrolling for static list
-          //     padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          //     children: const <Widget>[
-          //       PageTitle(title: 'Rooms'),
-          //     ]
-          // ),
-          Expanded( // Use Expanded to allow ListView.builder to take available space
-            child: Consumer<
-                RoomsProvider>( // Wrap ListView.builder with Consumer
-              builder: (context, itemList, child) {
-                return ListView.builder(
-                  itemCount: itemList
-                      .items()
-                      .length,
-                  itemBuilder: (context, index) {
-                    return RoomListTile(item: itemList.items()[index]);
+      body: PrimaryScrollController(
+        controller: ScrollController(),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // Use Expanded to allow ListView.builder to take available space
+              Expanded(
+                child: Consumer<
+                    RoomsProvider>( // Wrap ListView.builder with Consumer
+                  builder: (context, itemList, child) {
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: ClampingScrollPhysics(),
+                      itemCount: itemList
+                          .items()
+                          .length,
+                      itemBuilder: (context, index) {
+                        return RoomListTile(item: itemList.items()[index]);
+                      },
+                    );
                   },
-                );
-              },
-            ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -253,46 +253,46 @@ class EventListState extends State<EventList> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // ListView(
-        //     shrinkWrap: true, // Important to prevent unbounded height issues
-        //     physics: const NeverScrollableScrollPhysics(), // Disable scrolling for static list
-        //     padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        //     children: const <Widget>[
-        //       PageTitle(title: 'Events'),
-        //     ]
-        // ),
-        Expanded( // Use Expanded to allow ListView.builder to take available space
-          child: ValueListenableBuilder<bool>(
-              valueListenable: PreferencesProvider.futureEventsNotifier,
-              builder: (context, builderValue, child) {
-                return Consumer<
-                    EventsProvider>( // Wrap ListView.builder with Consumer
-                  builder: (context, itemList, child) {
-                    List<EventData> items;
-                    if (builderValue) {
-                      items = itemList.filterPastEvents();
-                    } else {
-                      items = itemList.items();
-                    }
-                    return ValueListenableBuilder<DateTime?>(
-                      valueListenable: NextEventNotifier.nextEventNotifier,
-                      builder: (context, nextEventTime, _) {
-                        return ListView.builder(
-                          itemCount: items.length,
-                          itemBuilder: (context, index) {
-                            return EventListTile(item: items[index]);
+    return PrimaryScrollController(
+      controller: ScrollController(),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Use Expanded to allow ListView.builder to take available space
+            Expanded(
+              child: ValueListenableBuilder<bool>(
+                  valueListenable: PreferencesProvider.futureEventsNotifier,
+                  builder: (context, builderValue, child) {
+                    return Consumer<
+                        EventsProvider>(
+                      builder: (context, itemList, child) {
+                        List<EventData> items;
+                        if (builderValue) {
+                          items = itemList.filterPastEvents();
+                        } else {
+                          items = itemList.items();
+                        }
+                        return ValueListenableBuilder<DateTime?>(
+                          valueListenable: NextEventNotifier.nextEventNotifier,
+                          builder: (context, nextEventTime, _) {
+                            return ListView.builder(
+                              shrinkWrap: true,
+                              physics: ClampingScrollPhysics(),
+                              itemCount: items.length,
+                              itemBuilder: (context, index) {
+                                return EventListTile(item: items[index]);
+                              },
+                            );
                           },
                         );
                       },
                     );
-                  },
-                );
-              }
-          ),
+                  }
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
