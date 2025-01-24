@@ -29,6 +29,15 @@ class SpeakerListTile extends StatelessWidget {
           ),
         );
       },
+      onVerticalDragUpdate: (details) {
+        // Get the parent ListView's scroll controller
+        final ScrollController scrollController = PrimaryScrollController.of(context);
+        // Scroll the ListView based on the drag details
+        scrollController.jumpTo(scrollController.offset - details.primaryDelta!);
+      },
+      onVerticalDragEnd: (details) {
+        // Optional: Handle any scroll fling behavior here
+      },
       child: ListTile(
         leading: imageUrl.startsWith("http") ?
         CircleAvatar(
