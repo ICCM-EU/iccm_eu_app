@@ -63,7 +63,9 @@ class TrackListTile extends StatelessWidget {
               .style,
           children: <TextSpan>[
             TextSpan(
-              text: TextFunctions.cutTextToWords(text: item.details, length: 30),
+              text: TextFunctions.cutTextToWords(
+                  text: item.details,
+                  wordCount: 10),
               style: Theme
                   .of(context)
                   .textTheme

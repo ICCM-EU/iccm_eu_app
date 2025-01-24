@@ -142,11 +142,11 @@ class LocalNotificationService {
       id ?? 0,
       TextFunctions.cutTextToWords(
         text: title,
-        length: 80,
+        wordCount: 80,
       ),
       TextFunctions.cutTextToWords(
         text: body,
-        length: 80,
+        wordCount: 80,
       ),
       tz.TZDateTime.from(scheduledDate, tz.local),
       platformChannelSpecifics,

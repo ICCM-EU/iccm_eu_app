@@ -65,7 +65,7 @@ class TravelDetailsListTile extends StatelessWidget {
             TextSpan(
               text: TextFunctions.cutTextToWords(
                 text: item.details,
-                length: 20,
+                wordCount: 20,
               ),
               style: Theme
                   .of(context)

@@ -138,7 +138,7 @@ class EventListTile extends StatelessWidget {
               TextSpan(
                 text: TextFunctions.cutTextToWords(
                     text: item.details,
-                    length: 30),
+                    wordCount: 10),
                 style: Theme
                     .of(context)
                     .textTheme
