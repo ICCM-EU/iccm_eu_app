@@ -15,30 +15,7 @@ class SpeakerListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String imageUrl = item.imageUrl;
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                Theme(
-                  data: Theme.of(context),
-                  child: SpeakerDetailsPage(item: item),
-                ),
-          ),
-        );
-      },
-      onVerticalDragUpdate: (details) {
-        // Get the parent ListView's scroll controller
-        final ScrollController scrollController = PrimaryScrollController.of(context);
-        // Scroll the ListView based on the drag details
-        scrollController.jumpTo(scrollController.offset - details.primaryDelta!);
-      },
-      onVerticalDragEnd: (details) {
-        // Optional: Handle any scroll fling behavior here
-      },
-      child: ListTile(
+    return ListTile(
         leading: imageUrl.startsWith("http") ?
         CircleAvatar(
             radius: 50.0,
@@ -97,7 +74,18 @@ class SpeakerListTile extends StatelessWidget {
           ),
           softWrap: true,
         ),
-      ),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                Theme(
+                  data: Theme.of(context),
+                  child: SpeakerDetailsPage(item: item),
+                ),
+          ),
+        );
+      },
     );
   }
 }
