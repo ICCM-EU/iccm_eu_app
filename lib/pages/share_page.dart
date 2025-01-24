@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/components/full_screen_qr_code.dart';
+import 'package:iccm_eu_app/components/url_text.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class SharePage extends StatelessWidget {
@@ -19,7 +20,7 @@ class SharePage extends StatelessWidget {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(url),
+          UrlText(url: url),
           SizedBox(height: 8),
           GestureDetector( // Wrap QrImage with GestureDetector
             onTap: () {

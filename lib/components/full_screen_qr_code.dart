@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iccm_eu_app/components/url_text.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class FullScreenQrCode extends StatelessWidget {
@@ -29,7 +30,7 @@ class FullScreenQrCode extends StatelessWidget {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(url),
+          UrlText(url: url),
           SizedBox(height: 8),
           Center(
             child: SizedBox(
