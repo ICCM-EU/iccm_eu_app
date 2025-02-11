@@ -158,7 +158,14 @@ class HomePageState extends State<HomePage> {
                         )
                       else
                         SizedBox.shrink(),
-                    ],
+                      if (item.bofPageUrl != null &&
+                          item.bofPageUrl!.startsWith('https://'))
+                        UrlButton(
+                          title: 'BOF Page',
+                          url: item.bofPageUrl,
+                        )
+                      else
+                        SizedBox.shrink(),                    ],
                   ),
                 );
               },

@@ -10,6 +10,7 @@ class HomeData extends ModelItem {
   final String details;
   final String? nowPageUrl;
   final String? votingPageUrl;
+  final String? bofPageUrl;
   final String? appShareUrl;
   final String? devShareUrl;
 
@@ -19,6 +20,7 @@ class HomeData extends ModelItem {
     required this.details,
     this.nowPageUrl,
     this.votingPageUrl,
+    this.bofPageUrl,
     this.appShareUrl,
     this.devShareUrl,
   });
@@ -30,6 +32,7 @@ class HomeData extends ModelItem {
       details: itemData['Description'] ?? '',
       nowPageUrl: itemData['Now Page Link'] ?? '',
       votingPageUrl: itemData['Survey Link'] ?? '',
+      bofPageUrl: itemData['BOF Page Link'] ?? '',
       appShareUrl: itemData['App Share Link'] ?? '',
       devShareUrl: itemData['App Dev Link'] ?? '',
     );
@@ -42,6 +45,7 @@ class HomeData extends ModelItem {
       details: json['details'] as String? ?? '',
       nowPageUrl: json['nowPageUrl'] ?? '',
       votingPageUrl: json['votingPageUrl'] ?? '',
+      bofPageUrl: json['bofPageUrl'] ?? '',
       appShareUrl: json['appShareUrl'] ?? '',
       devShareUrl: json['devShareUrl'] ?? '',
     );
@@ -54,6 +58,7 @@ class HomeData extends ModelItem {
       'details': details.toString(),
       'nowPageUrl': nowPageUrl.toString(),
       'votingPageUrl': votingPageUrl.toString(),
+      'bofPageUrl': bofPageUrl.toString(),
       'appShareUrl': appShareUrl.toString(),
       'devShareUrl': devShareUrl.toString(),
     };
