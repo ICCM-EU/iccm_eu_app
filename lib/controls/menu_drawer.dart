@@ -56,11 +56,6 @@ class MenuDrawer extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.info),
               title: const Text("About"),
-              //onTap: () => AboutDialog(
-              //  applicationName: Text("ICCM Europe App"),
-              //  applicationVersion: Text("2025"),
-              //  applicationLegalese: Text("Made by participants."),
-              // ),
               onTap: () {
                 Scaffold.of(context).closeDrawer();
                 setPageIndex(PageList.about.index);

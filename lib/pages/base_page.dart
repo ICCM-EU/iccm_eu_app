@@ -1,12 +1,15 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/controls/menu_drawer.dart';
 import 'package:iccm_eu_app/controls/nav_bar.dart';
 import 'package:iccm_eu_app/data/appProviders/page_index_provider.dart';
 import 'package:iccm_eu_app/data/appProviders/error_provider.dart';
+import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/home_provider.dart';
+import 'package:iccm_eu_app/pages/countdown_page.dart';
 import 'package:iccm_eu_app/pages/share_page.dart';
 import 'package:iccm_eu_app/theme/dark_theme.dart';
 import 'package:iccm_eu_app/theme/light_theme.dart';
@@ -42,6 +45,7 @@ class _BasePageState extends State<BasePage> {
   @override
   void initState() {
     super.initState();
+    _getQueryParams();
     _fetchData(
       errorProvider: Provider.of<ErrorProvider>(context, listen: false),
       force: true,
@@ -58,6 +62,28 @@ class _BasePageState extends State<BasePage> {
   void dispose() {
     _timer.cancel(); // Cancel the timer when the widget is disposed
     super.dispose();
+  }
+
+  void _getQueryParams() {
+    if (kIsWeb) {
+      final uri = Uri.base;
+      final queryParams = uri.queryParameters;
+      if (queryParams.containsKey('page') && queryParams['page'] != null) {
+        if (queryParams['page']! == 'events') {
+          _setPageIndex(PageList.events.index);
+          PreferencesProvider.setIsDayView(false);
+          PreferencesProvider.setFutureEvents(true);
+        } else if (queryParams['page']! == 'countdown') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const CountdownPage(),
+              fullscreenDialog: true, // Open fullscreen
+            ),
+          );
+        }
+      }
+    }
   }
 
   void _setPageIndex(int index) {
