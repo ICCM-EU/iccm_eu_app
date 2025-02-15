@@ -70,9 +70,11 @@ class _BasePageState extends State<BasePage> {
       final queryParams = uri.queryParameters;
       if (queryParams.containsKey('page') && queryParams['page'] != null) {
         if (queryParams['page']! == 'events') {
-          _setPageIndex(PageList.events.index);
-          PreferencesProvider.setIsDayView(false);
-          PreferencesProvider.setFutureEvents(true);
+          setState(() {
+            _setPageIndex(PageList.events.index);
+            PreferencesProvider.setIsDayView(false);
+            PreferencesProvider.setFutureEvents(true);
+          });
         } else if (queryParams['page']! == 'countdown') {
           Navigator.push(
             context,
