@@ -87730,7 +87730,7 @@ k.push(A.aV("Copyright \xa9 2024-"+B.e.k(A.iB(new A.aA(p,0,!1)))+" ICCM Europe",
 k.push(A.c0(i,8,i))
 k.push(A.aV("Authors: Hans-J\xfcrgen Tappe",i,i,i,A.I(a).p2.y,i,i))
 k.push(A.c0(i,32,i))
-k.push(new A.JH(A.dP(B.H3,i,i,i),"ICCM Europe Licenses","2025-eu.0",A.dP(B.H_,i,i,i),"Licensed under GPLv3",A.a([],j),i))
+k.push(new A.JH(A.dP(B.H3,i,i,i),"ICCM Europe Licenses","2025-eu.0",A.dP(B.H_,i,i,i),"Licensed under MIT license",A.a([],j),i))
 return new A.bu(new A.aw(16,16,16,16),A.cf(k,B.bB,B.Y,B.L),i)},
 $S:231}
 A.p1.prototype={
