@@ -81,7 +81,7 @@ class AboutPage extends StatelessWidget {
                     applicationIcon: Icon(Icons.flutter_dash),
                     applicationName: 'ICCM Europe Licenses',
                     applicationVersion: '2025-eu.0',
-                    applicationLegalese: 'Licensed under GPLv3',
+                    applicationLegalese: 'Licensed under MIT license',
                     aboutBoxChildren: [
                       // Add additional custom information here
                     ],
