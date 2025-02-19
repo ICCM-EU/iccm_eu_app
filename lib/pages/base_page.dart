@@ -45,7 +45,11 @@ class _BasePageState extends State<BasePage> {
   @override
   void initState() {
     super.initState();
-    _getQueryParams();
+    // Delay the index update after the widget is initialized,
+    // so the Consumer can listen to the changes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _getQueryParams();
+    });
     _fetchData(
       errorProvider: Provider.of<ErrorProvider>(context, listen: false),
       force: true,
@@ -70,11 +74,9 @@ class _BasePageState extends State<BasePage> {
       final queryParams = uri.queryParameters;
       if (queryParams.containsKey('page') && queryParams['page'] != null) {
         if (queryParams['page']! == 'events') {
-          setState(() {
-            _setPageIndex(PageList.events.index);
-            PreferencesProvider.setIsDayView(false);
-            PreferencesProvider.setFutureEvents(true);
-          });
+          _setPageIndex(PageList.events.index);
+          PreferencesProvider.setIsDayView(false);
+          PreferencesProvider.setFutureEvents(true);
         } else if (queryParams['page']! == 'countdown') {
           Navigator.push(
             context,
