@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_week_view/flutter_week_view.dart';
 import 'package:iccm_eu_app/components/app_bar_countdown.dart';
 import 'package:iccm_eu_app/components/event_list_tile.dart';
+import 'package:iccm_eu_app/data/appProviders/fullscreen_provider.dart';
 import 'package:iccm_eu_app/data/appProviders/next_event_provider.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
@@ -84,6 +85,23 @@ class _EventsPageState extends State<EventsPage> {
                   PreferencesProvider.setFutureEvents(futureEvents);
                 },
                 tooltip: 'Filter only future events',
+              ),
+              Consumer<FullscreenProvider>(
+                builder: (context, fullscreenProvider, child) {
+                  return IconButton(
+                    icon: Icon(
+                        fullscreenProvider.isFullscreen ?
+                        Icons.expand_less :
+                        Icons.expand_more),
+                    color: Theme
+                        .of(context)
+                        .colorScheme
+                        .onSurface,
+                    onPressed: () {
+                      fullscreenProvider.toggleFullscreen();
+                    },
+                  );
+                },
               ),
               IconButton(
                 icon: Icon(_isDayView ? Icons.list : Icons.calendar_today),

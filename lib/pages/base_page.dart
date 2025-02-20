@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/controls/menu_drawer.dart';
 import 'package:iccm_eu_app/controls/nav_bar.dart';
+import 'package:iccm_eu_app/data/appProviders/fullscreen_provider.dart';
 import 'package:iccm_eu_app/data/appProviders/page_index_provider.dart';
 import 'package:iccm_eu_app/data/appProviders/error_provider.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
@@ -111,10 +112,10 @@ class _BasePageState extends State<BasePage> {
             errorProvider: Provider.of<ErrorProvider>(context, listen: false),
             force: true,
           ),
-        child: Consumer<PageIndexProvider>(
-          builder: (context, appState, child) {
+        child: Consumer<FullscreenProvider>(
+          builder: (context, fullscreenProvider, child) {
             return Consumer<PageIndexProvider>(
-              builder: (context, appState, child) {
+              builder: (context, pageIndex, child) {
                 return MaterialApp(
                   debugShowCheckedModeBanner: false,
                   theme: lightTheme,
@@ -126,7 +127,9 @@ class _BasePageState extends State<BasePage> {
                         .of(context)
                         .appBarTheme
                         .backgroundColor,
-                    appBar: AppBar(
+                    appBar: fullscreenProvider.isFullscreen &&
+                        pageIndex.selectedIndex == PageList.events.index ?
+                        null : AppBar(
                       automaticallyImplyLeading: false,
                       backgroundColor: Theme
                           .of(context)
@@ -188,34 +191,15 @@ class _BasePageState extends State<BasePage> {
                       ],
                     ),
 
-                    bottomNavigationBar: const NavBar(),
+                    bottomNavigationBar: fullscreenProvider.isFullscreen &&
+                        pageIndex.selectedIndex == PageList.events.index ?
+                      null : const NavBar(),
 
                     body: IndexedStack( // Use IndexedStack here
                       index: Provider.of<PageIndexProvider>(
                           context,
                           listen: true).selectedIndex,
                       children: navBar.widgetOptions, //.asMap().entries.map((entry) {
-                      //   final index = entry.key;
-                      //   final widget = entry.value;
-                      //
-                      //   // Wrap with GestureDetector if index is 0 or 1
-                      //   if (index == 0 || index == 1) {
-                      //     return GestureDetector(
-                      //       onHorizontalDragEnd: (DragEndDetails details) {
-                      //         if (details.primaryVelocity! > 0) {
-                      //           Provider.of<PageIndexProvider>(context, listen: false).
-                      //             decrementSelectedIndex();
-                      //         } else if (details.primaryVelocity! < 0) {
-                      //           Provider.of<PageIndexProvider>(context, listen: false).
-                      //             incrementSelectedIndex();
-                      //         }
-                      //       },
-                      //       child: widget,
-                      //     );
-                      //   } else {
-                      //     return widget;
-                      //   }
-                      // }).toList(),
                     ),
                   ),
                 );

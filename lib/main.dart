@@ -1,4 +1,5 @@
 import 'package:iccm_eu_app/data/appProviders/error_provider.dart';
+import 'package:iccm_eu_app/data/appProviders/fullscreen_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/favorites_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
@@ -34,6 +35,10 @@ void main() {
         ),
         ChangeNotifierProvider(
           create: (context) => GsheetsProvider(
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => FullscreenProvider(
           ),
         ),
         ChangeNotifierProxyProvider<GsheetsProvider, TracksProvider>(
