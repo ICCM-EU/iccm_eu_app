@@ -78,6 +78,7 @@ class _BasePageState extends State<BasePage> {
           _setPageIndex(PageList.events.index);
           PreferencesProvider.setIsDayView(false);
           PreferencesProvider.setFutureEvents(true);
+          Provider.of<FullscreenProvider>(context).setIsFullscreen(true);
         } else if (queryParams['page']! == 'countdown') {
           Navigator.push(
             context,

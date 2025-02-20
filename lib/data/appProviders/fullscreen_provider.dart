@@ -9,4 +9,9 @@ class FullscreenProvider with ChangeNotifier {
     _isFullscreen = !_isFullscreen;
     notifyListeners();
   }
+
+  void setIsFullscreen(bool value) {
+    _isFullscreen = value;
+    notifyListeners();
+  }
 }

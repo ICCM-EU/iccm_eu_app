@@ -91,8 +91,8 @@ class _EventsPageState extends State<EventsPage> {
                   return IconButton(
                     icon: Icon(
                         fullscreenProvider.isFullscreen ?
-                        Icons.expand_less :
-                        Icons.expand_more),
+                        Icons.close_fullscreen :
+                        Icons.open_in_full),
                     color: Theme
                         .of(context)
                         .colorScheme
