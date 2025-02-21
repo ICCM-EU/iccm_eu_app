@@ -16,11 +16,25 @@ import "package:provider/provider.dart" show ChangeNotifierProvider, ChangeNotif
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/appProviders/theme_provider.dart';
 import 'package:iccm_eu_app/pages/base_page.dart';
+import 'package:window_manager/window_manager.dart';
 
 import 'components/error_overlay.dart';
+import 'dart:ui' as ui;
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  WindowOptions windowOptions = WindowOptions(
+    center: true,
+    backgroundColor: Colors.transparent,
+    skipTaskbar: false,
+    titleBarStyle: TitleBarStyle.hidden,
+  );
+  windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.show();
+    await windowManager.focus();
+  });
+
+  await windowManager.ensureInitialized();
   runApp(
     MultiProvider(
       providers: [
@@ -100,31 +114,58 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'ICCM Europe App',
-        theme: lightTheme,
-        darkTheme: darkTheme,
-        themeMode: Provider.of<ThemeProvider>(context).themeMode,
-        home: Scaffold(
-          body: Stack(
-            children: [
-              Navigator( // Use a Navigator for page transitions
-                onGenerateRoute: (settings) {
-                  // Define routes for different pages
-                  if (settings.name == '/') {
-                    return MaterialPageRoute(
-                        builder: (context) => const BasePage());
-                  // } else if (settings.name == '/speakerDetails') {
-                  //   final args = settings.arguments as SpeakerData;
-                  //   return MaterialPageRoute(
-                  //       builder: (context) => SpeakerDetailsPage(item: args));
-                  }
-                  return null; // Handle unknown routes
-                },
+      title: 'ICCM Europe App',
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      themeMode: Provider
+          .of<ThemeProvider>(context)
+          .themeMode,
+      home: Scaffold(
+        body: Column(
+          children: [
+            // Custom Title Bar
+            DragToMoveArea(
+              child: Container(
+                height: 32,
+                color: Colors.black, // Customize the color
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    WindowCaptionButton.minimize(
+                      brightness: Brightness.light,
+                    ),
+                    WindowCaptionButton.maximize(
+                      brightness: Brightness.light,
+                    ),
+                    WindowCaptionButton.close(
+                      brightness: Brightness.light,
+                    ),
+                  ],
+                ),
               ),
-              const ErrorOverlay(),
-            ],
-          ),
-        )
+            ),
+            Stack(
+              children: [
+                Navigator( // Use a Navigator for page transitions
+                  onGenerateRoute: (settings) {
+                    // Define routes for different pages
+                    if (settings.name == '/') {
+                      return MaterialPageRoute(
+                          builder: (context) => const BasePage());
+                      // } else if (settings.name == '/speakerDetails') {
+                      //   final args = settings.arguments as SpeakerData;
+                      //   return MaterialPageRoute(
+                      //       builder: (context) => SpeakerDetailsPage(item: args));
+                    }
+                    return null; // Handle unknown routes
+                  },
+                ),
+                const ErrorOverlay(),
+              ],
+            ),
+          ],
+        ),
+      )
     );
   }
 }
