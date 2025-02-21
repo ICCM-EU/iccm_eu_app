@@ -3,7 +3,7 @@ name: Flutter Build
 on:  ["push", "pull_request"]
 
 jobs:
-  build-and-release-android:
+  android:
     runs-on: ubuntu-latest
     if: false # Deactivate until we want to publish - to save GH actions hours
 
@@ -87,7 +87,7 @@ jobs:
           path: build/app/outputs/flutter-apk/app-release.apk
 
 
-  build-and-release-ios:
+  ios:
     runs-on: macos-latest # to be able to get ios build
     if: false # Deactivate until we find a maintainer
 
@@ -171,7 +171,7 @@ jobs:
           name: iccm_eu_app-ios-app
           path: build/ios/archive/
 
-  build-and-release-windows:
+  windows:
     runs-on: windows-latest
 
     steps:
@@ -230,7 +230,7 @@ jobs:
       #  with:
       #    files: build/windows/runner/Release/MacRecoveryX-${{github.ref_name}}-windows.zip
 
-  build-and-release-macos:
+  macos:
     runs-on: macos-latest
     if: false # Deactivate until we find a maintainer
 
@@ -287,7 +287,7 @@ jobs:
       #  with:
       #    files: build/macos/Build/Products/Release/MacRecoveryX-${{github.ref_name}}-macos.zip
 
-  build-and-release-linux-and-web:
+  linux-and-web:
     runs-on: ubuntu-latest
 
     steps:
