@@ -128,8 +128,7 @@ class _BasePageState extends State<BasePage> {
                         .of(context)
                         .appBarTheme
                         .backgroundColor,
-                    appBar: expandContentProvider.isExpanded &&
-                        pageIndex.selectedIndex == PageList.events.index ?
+                    appBar: expandContentProvider.isExpanded ?
                         null : AppBar(
                       automaticallyImplyLeading: false,
                       backgroundColor: Theme
@@ -192,8 +191,7 @@ class _BasePageState extends State<BasePage> {
                       ],
                     ),
 
-                    bottomNavigationBar: expandContentProvider.isExpanded &&
-                        pageIndex.selectedIndex == PageList.events.index ?
+                    bottomNavigationBar: expandContentProvider.isExpanded ?
                       null : const NavBar(),
 
                     body: IndexedStack( // Use IndexedStack here

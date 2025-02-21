@@ -19,22 +19,25 @@ import 'package:iccm_eu_app/pages/base_page.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'components/error_overlay.dart';
+import 'dart:io' show Platform;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  WindowOptions windowOptions = WindowOptions(
-    center: true,
-    backgroundColor: Colors.transparent,
-    skipTaskbar: false,
-    titleBarStyle: TitleBarStyle.hidden,
-  );
-  windowManager.waitUntilReadyToShow(windowOptions, () async {
-    windowManager.setFullScreen(true);
-    await windowManager.show();
-    await windowManager.focus();
-  });
+  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    WindowOptions windowOptions = WindowOptions(
+      center: true,
+      backgroundColor: Colors.transparent,
+      skipTaskbar: false,
+      titleBarStyle: TitleBarStyle.hidden,
+    );
+    windowManager.waitUntilReadyToShow(windowOptions, () async {
+      windowManager.setFullScreen(true);
+      await windowManager.show();
+      await windowManager.focus();
+    });
+    await windowManager.ensureInitialized();
+  }
 
-  await windowManager.ensureInitialized();
   runApp(
     MultiProvider(
       providers: [
@@ -125,8 +128,9 @@ class MyApp extends StatelessWidget {
           children: [
             Consumer<ExpandContentProvider>(
               builder: (context, expandContentProvider, child) {
-                // Custom Title Bar
-                return expandContentProvider.isExpanded ?
+                bool customTitleBar = expandContentProvider.isExpanded &&
+                  Platform.isWindows || Platform.isLinux || Platform.isMacOS;
+                return customTitleBar ?
                 SizedBox.shrink() :
                 DragToMoveArea(
                   child: Container(
