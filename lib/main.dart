@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:iccm_eu_app/data/appProviders/error_provider.dart';
 import 'package:iccm_eu_app/data/appProviders/expand_content_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
@@ -13,32 +12,30 @@ import 'package:iccm_eu_app/data/dataProviders/travel_details_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/travel_provider.dart';
 import 'package:iccm_eu_app/theme/dark_theme.dart';
 import 'package:iccm_eu_app/theme/light_theme.dart';
-import "package:provider/provider.dart" show ChangeNotifierProvider, ChangeNotifierProxyProvider, Consumer, MultiProvider, Provider;
+import "package:provider/provider.dart" show ChangeNotifierProvider, ChangeNotifierProxyProvider, MultiProvider, Provider;
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/appProviders/theme_provider.dart';
 import 'package:iccm_eu_app/pages/base_page.dart';
-import 'package:window_manager/window_manager.dart';
 
 import 'components/error_overlay.dart';
-import 'dart:io' show Platform;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  if (!kIsWeb &&
-      (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
-    WindowOptions windowOptions = WindowOptions(
-      center: true,
-      backgroundColor: Colors.transparent,
-      skipTaskbar: false,
-      titleBarStyle: TitleBarStyle.hidden,
-    );
-    windowManager.waitUntilReadyToShow(windowOptions, () async {
-      windowManager.setFullScreen(true);
-      await windowManager.show();
-      await windowManager.focus();
-    });
-    await windowManager.ensureInitialized();
-  }
+  // if (!kIsWeb &&
+  //     (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+  //   WindowOptions windowOptions = WindowOptions(
+  //     center: true,
+  //     backgroundColor: Colors.transparent,
+  //     skipTaskbar: false,
+  //     titleBarStyle: TitleBarStyle.hidden,
+  //   );
+  //   windowManager.waitUntilReadyToShow(windowOptions, () async {
+  //     windowManager.setFullScreen(true);
+  //     await windowManager.show();
+  //     await windowManager.focus();
+  //   });
+  //   await windowManager.ensureInitialized();
+  // }
 
   runApp(
     MultiProvider(
@@ -128,35 +125,35 @@ class MyApp extends StatelessWidget {
       home: Scaffold(
         body: Column(
           children: [
-            Consumer<ExpandContentProvider>(
-              builder: (context, expandContentProvider, child) {
-                bool customTitleBar = expandContentProvider.isExpanded &&
-                    ! kIsWeb &&
-                    (Platform.isWindows || Platform.isLinux || Platform.isMacOS);
-                return customTitleBar ?
-                SizedBox.shrink() :
-                DragToMoveArea(
-                  child: Container(
-                    height: 32,
-                    color: Colors.black, // Customize the color
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        WindowCaptionButton.minimize(
-                          brightness: Brightness.light,
-                        ),
-                        WindowCaptionButton.maximize(
-                          brightness: Brightness.light,
-                        ),
-                        WindowCaptionButton.close(
-                          brightness: Brightness.light,
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
+            // Consumer<ExpandContentProvider>(
+            //   builder: (context, expandContentProvider, child) {
+            //     bool customTitleBar = expandContentProvider.isExpanded &&
+            //         ! kIsWeb &&
+            //         (Platform.isWindows || Platform.isLinux || Platform.isMacOS);
+            //     return customTitleBar ?
+            //     SizedBox.shrink() :
+            //     DragToMoveArea(
+            //       child: Container(
+            //         height: 32,
+            //         color: Colors.black, // Customize the color
+            //         child: Row(
+            //           mainAxisAlignment: MainAxisAlignment.end,
+            //           children: [
+            //             WindowCaptionButton.minimize(
+            //               brightness: Brightness.light,
+            //             ),
+            //             WindowCaptionButton.maximize(
+            //               brightness: Brightness.light,
+            //             ),
+            //             WindowCaptionButton.close(
+            //               brightness: Brightness.light,
+            //             ),
+            //           ],
+            //         ),
+            //       ),
+            //     );
+            //   },
+            // ),
             Stack(
               children: [
                 Navigator( // Use a Navigator for page transitions
