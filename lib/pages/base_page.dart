@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/controls/menu_drawer.dart';
 import 'package:iccm_eu_app/controls/nav_bar.dart';
-import 'package:iccm_eu_app/data/appProviders/fullscreen_provider.dart';
+import 'package:iccm_eu_app/data/appProviders/expand_content_provider.dart';
 import 'package:iccm_eu_app/data/appProviders/page_index_provider.dart';
 import 'package:iccm_eu_app/data/appProviders/error_provider.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
@@ -78,7 +78,7 @@ class _BasePageState extends State<BasePage> {
           _setPageIndex(PageList.events.index);
           PreferencesProvider.setIsDayView(false);
           PreferencesProvider.setFutureEvents(true);
-          Provider.of<FullscreenProvider>(context).setIsFullscreen(true);
+          Provider.of<ExpandContentProvider>(context).setIsExpanded(true);
         } else if (queryParams['page']! == 'countdown') {
           Navigator.push(
             context,
@@ -113,8 +113,8 @@ class _BasePageState extends State<BasePage> {
             errorProvider: Provider.of<ErrorProvider>(context, listen: false),
             force: true,
           ),
-        child: Consumer<FullscreenProvider>(
-          builder: (context, fullscreenProvider, child) {
+        child: Consumer<ExpandContentProvider>(
+          builder: (context, expandContentProvider, child) {
             return Consumer<PageIndexProvider>(
               builder: (context, pageIndex, child) {
                 return MaterialApp(
@@ -128,7 +128,7 @@ class _BasePageState extends State<BasePage> {
                         .of(context)
                         .appBarTheme
                         .backgroundColor,
-                    appBar: fullscreenProvider.isFullscreen &&
+                    appBar: expandContentProvider.isExpanded &&
                         pageIndex.selectedIndex == PageList.events.index ?
                         null : AppBar(
                       automaticallyImplyLeading: false,
@@ -192,7 +192,7 @@ class _BasePageState extends State<BasePage> {
                       ],
                     ),
 
-                    bottomNavigationBar: fullscreenProvider.isFullscreen &&
+                    bottomNavigationBar: expandContentProvider.isExpanded &&
                         pageIndex.selectedIndex == PageList.events.index ?
                       null : const NavBar(),
 

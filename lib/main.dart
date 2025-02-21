@@ -1,5 +1,5 @@
 import 'package:iccm_eu_app/data/appProviders/error_provider.dart';
-import 'package:iccm_eu_app/data/appProviders/fullscreen_provider.dart';
+import 'package:iccm_eu_app/data/appProviders/expand_content_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/favorites_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
@@ -12,14 +12,13 @@ import 'package:iccm_eu_app/data/dataProviders/travel_details_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/travel_provider.dart';
 import 'package:iccm_eu_app/theme/dark_theme.dart';
 import 'package:iccm_eu_app/theme/light_theme.dart';
-import "package:provider/provider.dart" show ChangeNotifierProvider, ChangeNotifierProxyProvider, MultiProvider, Provider;
+import "package:provider/provider.dart" show ChangeNotifierProvider, ChangeNotifierProxyProvider, Consumer, MultiProvider, Provider;
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/appProviders/theme_provider.dart';
 import 'package:iccm_eu_app/pages/base_page.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'components/error_overlay.dart';
-import 'dart:ui' as ui;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,6 +29,7 @@ void main() async {
     titleBarStyle: TitleBarStyle.hidden,
   );
   windowManager.waitUntilReadyToShow(windowOptions, () async {
+    windowManager.setFullScreen(true);
     await windowManager.show();
     await windowManager.focus();
   });
@@ -52,7 +52,7 @@ void main() async {
           ),
         ),
         ChangeNotifierProvider(
-          create: (context) => FullscreenProvider(
+          create: (context) => ExpandContentProvider(
           ),
         ),
         ChangeNotifierProxyProvider<GsheetsProvider, TracksProvider>(
@@ -123,26 +123,32 @@ class MyApp extends StatelessWidget {
       home: Scaffold(
         body: Column(
           children: [
-            // Custom Title Bar
-            DragToMoveArea(
-              child: Container(
-                height: 32,
-                color: Colors.black, // Customize the color
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    WindowCaptionButton.minimize(
-                      brightness: Brightness.light,
+            Consumer<ExpandContentProvider>(
+              builder: (context, expandContentProvider, child) {
+                // Custom Title Bar
+                return expandContentProvider.isExpanded ?
+                SizedBox.shrink() :
+                DragToMoveArea(
+                  child: Container(
+                    height: 32,
+                    color: Colors.black, // Customize the color
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        WindowCaptionButton.minimize(
+                          brightness: Brightness.light,
+                        ),
+                        WindowCaptionButton.maximize(
+                          brightness: Brightness.light,
+                        ),
+                        WindowCaptionButton.close(
+                          brightness: Brightness.light,
+                        ),
+                      ],
                     ),
-                    WindowCaptionButton.maximize(
-                      brightness: Brightness.light,
-                    ),
-                    WindowCaptionButton.close(
-                      brightness: Brightness.light,
-                    ),
-                  ],
-                ),
-              ),
+                  ),
+                );
+              },
             ),
             Stack(
               children: [
@@ -152,10 +158,6 @@ class MyApp extends StatelessWidget {
                     if (settings.name == '/') {
                       return MaterialPageRoute(
                           builder: (context) => const BasePage());
-                      // } else if (settings.name == '/speakerDetails') {
-                      //   final args = settings.arguments as SpeakerData;
-                      //   return MaterialPageRoute(
-                      //       builder: (context) => SpeakerDetailsPage(item: args));
                     }
                     return null; // Handle unknown routes
                   },

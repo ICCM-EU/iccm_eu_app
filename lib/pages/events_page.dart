@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_week_view/flutter_week_view.dart';
 import 'package:iccm_eu_app/components/app_bar_countdown.dart';
 import 'package:iccm_eu_app/components/event_list_tile.dart';
-import 'package:iccm_eu_app/data/appProviders/fullscreen_provider.dart';
+import 'package:iccm_eu_app/data/appProviders/expand_content_provider.dart';
 import 'package:iccm_eu_app/data/appProviders/next_event_provider.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
@@ -86,11 +86,11 @@ class _EventsPageState extends State<EventsPage> {
                 },
                 tooltip: 'Filter only future events',
               ),
-              Consumer<FullscreenProvider>(
+              Consumer<ExpandContentProvider>(
                 builder: (context, fullscreenProvider, child) {
                   return IconButton(
                     icon: Icon(
-                        fullscreenProvider.isFullscreen ?
+                        fullscreenProvider.isExpanded ?
                         Icons.close_fullscreen :
                         Icons.open_in_full),
                     color: Theme
@@ -98,7 +98,7 @@ class _EventsPageState extends State<EventsPage> {
                         .colorScheme
                         .onSurface,
                     onPressed: () {
-                      fullscreenProvider.toggleFullscreen();
+                      fullscreenProvider.toggleExpanded();
                     },
                   );
                 },
