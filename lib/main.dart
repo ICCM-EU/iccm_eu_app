@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:iccm_eu_app/data/appProviders/error_provider.dart';
 import 'package:iccm_eu_app/data/appProviders/expand_content_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
@@ -23,7 +24,8 @@ import 'dart:io' show Platform;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+  if (!kIsWeb &&
+      (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
     WindowOptions windowOptions = WindowOptions(
       center: true,
       backgroundColor: Colors.transparent,
@@ -129,7 +131,8 @@ class MyApp extends StatelessWidget {
             Consumer<ExpandContentProvider>(
               builder: (context, expandContentProvider, child) {
                 bool customTitleBar = expandContentProvider.isExpanded &&
-                  Platform.isWindows || Platform.isLinux || Platform.isMacOS;
+                    ! kIsWeb &&
+                    (Platform.isWindows || Platform.isLinux || Platform.isMacOS);
                 return customTitleBar ?
                 SizedBox.shrink() :
                 DragToMoveArea(
