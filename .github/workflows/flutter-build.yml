@@ -5,6 +5,7 @@ on:  ["push", "pull_request"]
 jobs:
   build-and-release-android:
     runs-on: ubuntu-latest
+    if: false # Deactivate until we want to publish - to save GH actions hours
 
     steps:
       - name: Checkout
@@ -286,7 +287,7 @@ jobs:
       #  with:
       #    files: build/macos/Build/Products/Release/MacRecoveryX-${{github.ref_name}}-macos.zip
 
-  build-and-release-linux:
+  build-and-release-linux-and-web:
     runs-on: ubuntu-latest
 
     steps:
