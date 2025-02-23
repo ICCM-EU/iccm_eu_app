@@ -123,8 +123,9 @@ class MyApp extends StatelessWidget {
           .of<ThemeProvider>(context)
           .themeMode,
       home: Scaffold(
-        body: Column(
-          children: [
+        body:
+        // Column(
+        //   children: [
             // Consumer<ExpandContentProvider>(
             //   builder: (context, expandContentProvider, child) {
             //     bool customTitleBar = expandContentProvider.isExpanded &&
@@ -169,8 +170,8 @@ class MyApp extends StatelessWidget {
                 const ErrorOverlay(),
               ],
             ),
-          ],
-        ),
+        //   ],
+        // ),
       )
     );
   }
