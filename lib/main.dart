@@ -12,30 +12,35 @@ import 'package:iccm_eu_app/data/dataProviders/travel_details_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/travel_provider.dart';
 import 'package:iccm_eu_app/theme/dark_theme.dart';
 import 'package:iccm_eu_app/theme/light_theme.dart';
-import "package:provider/provider.dart" show ChangeNotifierProvider, ChangeNotifierProxyProvider, MultiProvider, Provider;
+import "package:provider/provider.dart" show ChangeNotifierProvider, ChangeNotifierProxyProvider, Consumer, MultiProvider, Provider;
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/appProviders/theme_provider.dart';
 import 'package:iccm_eu_app/pages/base_page.dart';
+import 'package:iccm_eu_app/platform/platform.dart';
+import 'package:iccm_eu_app/platform/multiplatform.dart';
+import 'package:window_manager/window_manager.dart';
 
 import 'components/error_overlay.dart';
 
 void main() async {
+  Platform platform = getPlatform();
   WidgetsFlutterBinding.ensureInitialized();
-  // if (!kIsWeb &&
-  //     (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
-  //   WindowOptions windowOptions = WindowOptions(
-  //     center: true,
-  //     backgroundColor: Colors.transparent,
-  //     skipTaskbar: false,
-  //     titleBarStyle: TitleBarStyle.hidden,
-  //   );
-  //   windowManager.waitUntilReadyToShow(windowOptions, () async {
-  //     windowManager.setFullScreen(true);
-  //     await windowManager.show();
-  //     await windowManager.focus();
-  //   });
-  //   await windowManager.ensureInitialized();
-  // }
+  if (platform == Platform.windows ||
+      platform == Platform.linux ||
+      platform == Platform.macos) {
+    WindowOptions windowOptions = WindowOptions(
+      center: true,
+      backgroundColor: Colors.transparent,
+      skipTaskbar: false,
+      titleBarStyle: TitleBarStyle.hidden,
+    );
+    windowManager.waitUntilReadyToShow(windowOptions, () async {
+      windowManager.setFullScreen(true);
+      await windowManager.show();
+      await windowManager.focus();
+    });
+    await windowManager.ensureInitialized();
+  }
 
   runApp(
     MultiProvider(
@@ -115,6 +120,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    Platform platform = getPlatform();
     return MaterialApp(
       title: 'ICCM Europe App',
       theme: lightTheme,
@@ -124,54 +130,49 @@ class MyApp extends StatelessWidget {
           .themeMode,
       home: Scaffold(
         body:
-        // Column(
-        //   children: [
-            // Consumer<ExpandContentProvider>(
-            //   builder: (context, expandContentProvider, child) {
-            //     bool customTitleBar = expandContentProvider.isExpanded &&
-            //         ! kIsWeb &&
-            //         (Platform.isWindows || Platform.isLinux || Platform.isMacOS);
-            //     return customTitleBar ?
-            //     SizedBox.shrink() :
-            //     DragToMoveArea(
-            //       child: Container(
-            //         height: 32,
-            //         color: Colors.black, // Customize the color
-            //         child: Row(
-            //           mainAxisAlignment: MainAxisAlignment.end,
-            //           children: [
-            //             WindowCaptionButton.minimize(
-            //               brightness: Brightness.light,
-            //             ),
-            //             WindowCaptionButton.maximize(
-            //               brightness: Brightness.light,
-            //             ),
-            //             WindowCaptionButton.close(
-            //               brightness: Brightness.light,
-            //             ),
-            //           ],
-            //         ),
-            //       ),
-            //     );
-            //   },
-            // ),
-            Stack(
-              children: [
-                Navigator( // Use a Navigator for page transitions
-                  onGenerateRoute: (settings) {
-                    // Define routes for different pages
-                    if (settings.name == '/') {
-                      return MaterialPageRoute(
-                          builder: (context) => const BasePage());
-                    }
-                    return null; // Handle unknown routes
-                  },
-                ),
-                const ErrorOverlay(),
-              ],
+        Stack(
+          children: [
+            if (platform == Platform.windows ||
+                platform == Platform.linux ||
+                platform == Platform.macos) Consumer<ExpandContentProvider>(
+              builder: (context, expandContentProvider, child) {
+                return expandContentProvider.isExpanded ?
+                SizedBox.shrink() :
+                DragToMoveArea(
+                  child: Container(
+                    height: 32,
+                    color: Colors.black, // Customize the color
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        WindowCaptionButton.minimize(
+                          brightness: Brightness.light,
+                        ),
+                        WindowCaptionButton.maximize(
+                          brightness: Brightness.light,
+                        ),
+                        WindowCaptionButton.close(
+                          brightness: Brightness.light,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
-        //   ],
-        // ),
+            Navigator( // Use a Navigator for page transitions
+              onGenerateRoute: (settings) {
+                // Define routes for different pages
+                if (settings.name == '/') {
+                  return MaterialPageRoute(
+                      builder: (context) => const BasePage());
+                }
+                return null; // Handle unknown routes
+              },
+            ),
+            const ErrorOverlay(),
+          ],
+        ),
       )
     );
   }
