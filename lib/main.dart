@@ -35,7 +35,7 @@ void main() async {
       titleBarStyle: TitleBarStyle.hidden,
     );
     windowManager.waitUntilReadyToShow(windowOptions, () async {
-      windowManager.setFullScreen(true);
+      windowManager.setFullScreen(false);
       await windowManager.show();
       await windowManager.focus();
     });
@@ -146,12 +146,27 @@ class MyApp extends StatelessWidget {
                           children: [
                             WindowCaptionButton.minimize(
                               brightness: Brightness.light,
+                              onPressed: () {
+                                windowManager.minimize();
+                              },
                             ),
                             WindowCaptionButton.maximize(
                               brightness: Brightness.light,
+                              onPressed: () {
+                                windowManager.isMaximized().then((value) {
+                                  if (value) {
+                                    windowManager.unmaximize();
+                                  } else {
+                                    windowManager.maximize();
+                                  }
+                                });
+                              },
                             ),
                             WindowCaptionButton.close(
                               brightness: Brightness.light,
+                              onPressed: () {
+                                windowManager.close();
+                              },
                             ),
                           ],
                         ),
