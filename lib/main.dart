@@ -122,58 +122,63 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     Platform platform = getPlatform();
     return MaterialApp(
-      title: 'ICCM Europe App',
-      theme: lightTheme,
-      darkTheme: darkTheme,
-      themeMode: Provider
-          .of<ThemeProvider>(context)
-          .themeMode,
-      home: Scaffold(
-        body:
-        Stack(
-          children: [
-            if (platform == Platform.windows ||
-                platform == Platform.linux ||
-                platform == Platform.macos) Consumer<ExpandContentProvider>(
-              builder: (context, expandContentProvider, child) {
-                return expandContentProvider.isExpanded ?
-                SizedBox.shrink() :
-                DragToMoveArea(
-                  child: Container(
-                    height: 32,
-                    color: Colors.black, // Customize the color
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        WindowCaptionButton.minimize(
-                          brightness: Brightness.light,
+        title: 'ICCM Europe App',
+        theme: lightTheme,
+        darkTheme: darkTheme,
+        themeMode: Provider
+            .of<ThemeProvider>(context)
+            .themeMode,
+        home: Scaffold(
+            body: Column(
+              children: [
+                if (platform == Platform.windows ||
+                    platform == Platform.linux ||
+                    platform == Platform.macos) Consumer<ExpandContentProvider>(
+                  builder: (context, expandContentProvider, child) {
+                    return expandContentProvider.isExpanded ?
+                    SizedBox.shrink() :
+                    DragToMoveArea(
+                      child: Container(
+                        height: 32,
+                        color: Colors.black, // Customize the color
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            WindowCaptionButton.minimize(
+                              brightness: Brightness.light,
+                            ),
+                            WindowCaptionButton.maximize(
+                              brightness: Brightness.light,
+                            ),
+                            WindowCaptionButton.close(
+                              brightness: Brightness.light,
+                            ),
+                          ],
                         ),
-                        WindowCaptionButton.maximize(
-                          brightness: Brightness.light,
-                        ),
-                        WindowCaptionButton.close(
-                          brightness: Brightness.light,
-                        ),
-                      ],
-                    ),
+                      ),
+                    );
+                  },
+                ),
+                Expanded(
+                  child: Stack(
+                    children: [
+                      Navigator( // Use a Navigator for page transitions
+                        onGenerateRoute: (settings) {
+                          // Define routes for different pages
+                          if (settings.name == '/') {
+                            return MaterialPageRoute(
+                                builder: (context) => const BasePage());
+                          }
+                          return null; // Handle unknown routes
+                        },
+                      ),
+                      const ErrorOverlay(),
+                    ],
                   ),
-                );
-              },
-            ),
-            Navigator( // Use a Navigator for page transitions
-              onGenerateRoute: (settings) {
-                // Define routes for different pages
-                if (settings.name == '/') {
-                  return MaterialPageRoute(
-                      builder: (context) => const BasePage());
-                }
-                return null; // Handle unknown routes
-              },
-            ),
-            const ErrorOverlay(),
-          ],
-        ),
-      )
+                ),
+              ],
+            )
+        )
     );
   }
 }
