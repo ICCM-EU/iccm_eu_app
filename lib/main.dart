@@ -144,29 +144,38 @@ class MyApp extends StatelessWidget {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            WindowCaptionButton.minimize(
-                              brightness: Brightness.light,
-                              onPressed: () {
-                                windowManager.minimize();
-                              },
+                            SizedBox(
+                              width: 48, // Define the width
+                              child: WindowCaptionButton.minimize(
+                                brightness: Brightness.light,
+                                onPressed: () {
+                                  windowManager.minimize();
+                                },
+                              ),
                             ),
-                            WindowCaptionButton.maximize(
-                              brightness: Brightness.light,
-                              onPressed: () {
-                                windowManager.isMaximized().then((value) {
-                                  if (value) {
-                                    windowManager.unmaximize();
-                                  } else {
-                                    windowManager.maximize();
-                                  }
-                                });
-                              },
+                            SizedBox(
+                              width: 48, // Define the width
+                              child: WindowCaptionButton.maximize(
+                                brightness: Brightness.light,
+                                onPressed: () {
+                                  windowManager.isMaximized().then((value) {
+                                    if (value) {
+                                      windowManager.unmaximize();
+                                    } else {
+                                      windowManager.maximize();
+                                    }
+                                  });
+                                },
+                              ),
                             ),
-                            WindowCaptionButton.close(
-                              brightness: Brightness.light,
-                              onPressed: () {
-                                windowManager.close();
-                              },
+                            SizedBox(
+                              width: 48, // Define the width
+                              child: WindowCaptionButton.close(
+                                brightness: Brightness.light,
+                                onPressed: () {
+                                  windowManager.close();
+                                },
+                              ),
                             ),
                           ],
                         ),
