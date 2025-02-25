@@ -140,44 +140,10 @@ class MyApp extends StatelessWidget {
                     DragToMoveArea(
                       child: Container(
                         height: 32,
-                        color: Colors.black, // Customize the color
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            SizedBox(
-                              width: 48, // Define the width
-                              child: WindowCaptionButton.minimize(
-                                brightness: Brightness.light,
-                                onPressed: () {
-                                  windowManager.minimize();
-                                },
-                              ),
-                            ),
-                            SizedBox(
-                              width: 48, // Define the width
-                              child: WindowCaptionButton.maximize(
-                                brightness: Brightness.light,
-                                onPressed: () {
-                                  windowManager.isMaximized().then((value) {
-                                    if (value) {
-                                      windowManager.unmaximize();
-                                    } else {
-                                      windowManager.maximize();
-                                    }
-                                  });
-                                },
-                              ),
-                            ),
-                            SizedBox(
-                              width: 48, // Define the width
-                              child: WindowCaptionButton.close(
-                                brightness: Brightness.light,
-                                onPressed: () {
-                                  windowManager.close();
-                                },
-                              ),
-                            ),
-                          ],
+                        color: Colors.grey.shade900, // Customize the color
+                        child: WindowCaption(
+                          brightness: Brightness.light,
+                          backgroundColor: Colors.blue,
                         ),
                       ),
                     );
