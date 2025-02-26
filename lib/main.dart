@@ -145,7 +145,7 @@ class MyApp extends StatelessWidget {
                             .appBarTheme
                             .backgroundColor,
                         child: WindowCaption(
-                          brightness: Brightness.light,
+                          brightness: Brightness.dark,
                           backgroundColor: Theme
                               .of(context)
                               .appBarTheme
