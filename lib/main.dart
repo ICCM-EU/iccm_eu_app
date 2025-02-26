@@ -140,10 +140,16 @@ class MyApp extends StatelessWidget {
                     DragToMoveArea(
                       child: Container(
                         height: 32,
-                        color: Colors.grey.shade900, // Customize the color
+                        color: Theme
+                            .of(context)
+                            .appBarTheme
+                            .backgroundColor,
                         child: WindowCaption(
                           brightness: Brightness.light,
-                          backgroundColor: Colors.grey.shade700,
+                          backgroundColor: Theme
+                              .of(context)
+                              .appBarTheme
+                              .backgroundColor,
                         ),
                       ),
                     );
