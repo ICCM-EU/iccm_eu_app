@@ -143,7 +143,7 @@ class MyApp extends StatelessWidget {
                         color: Colors.grey.shade900, // Customize the color
                         child: WindowCaption(
                           brightness: Brightness.light,
-                          backgroundColor: Colors.blue,
+                          backgroundColor: Colors.grey.shade700,
                         ),
                       ),
                     );
