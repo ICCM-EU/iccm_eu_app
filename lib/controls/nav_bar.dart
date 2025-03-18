@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/appProviders/page_index_provider.dart';
 import 'package:iccm_eu_app/pages/about_page.dart';
+import 'package:iccm_eu_app/pages/communication_page.dart';
 import 'package:iccm_eu_app/pages/home_page.dart';
 import 'package:iccm_eu_app/pages/preferences_page.dart';
 import 'package:iccm_eu_app/pages/rooms_page.dart';
@@ -19,8 +20,9 @@ enum PageList {
   rooms, // 4
   preferences, // 5
   travelInformation, // 6
-  about, // 7
-  share,// 8
+  communication, // 7
+  about, // 8
+  share,// 9
 }
 
 class NavBar extends StatefulWidget {
@@ -36,8 +38,9 @@ class NavBar extends StatefulWidget {
     RoomsPage(), // 4
     PreferencesPage(), // 5
     const TravelPage(), // 6
-    const AboutPage(), // 7
-    const SharePage(url: 'https://github.com/ICCM-EU/iccm_eu_app'), // 8
+    const CommunicationPage(), // 7
+    const AboutPage(), // 8
+    const SharePage(url: 'https://github.com/ICCM-EU/iccm_eu_app'), // 9
   ];
 
   List<Widget> get widgetOptions => _widgetOptions;

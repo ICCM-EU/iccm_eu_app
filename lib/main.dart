@@ -1,5 +1,6 @@
 import 'package:iccm_eu_app/data/appProviders/error_provider.dart';
 import 'package:iccm_eu_app/data/appProviders/expand_content_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/communication_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/favorites_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
@@ -88,6 +89,12 @@ void main() async {
         ),
         ChangeNotifierProxyProvider<GsheetsProvider, HomeProvider>(
           create: (context) => HomeProvider(
+            gsheetsProvider: Provider.of<GsheetsProvider>(context, listen: false),
+          ),
+          update: (context, gsheetsProvider, thisProvider) => thisProvider!..updateCache(),
+        ),
+        ChangeNotifierProxyProvider<GsheetsProvider, CommunicationProvider>(
+          create: (context) => CommunicationProvider(
             gsheetsProvider: Provider.of<GsheetsProvider>(context, listen: false),
           ),
           update: (context, gsheetsProvider, thisProvider) => thisProvider!..updateCache(),
