@@ -54,12 +54,22 @@ class MenuDrawer extends StatelessWidget {
             ),
             const Divider(),
             ListTile(
+              leading: const Icon(Icons.mail),
+              title: const Text("Communication"),
+              onTap: () {
+                Scaffold.of(context).closeDrawer();
+                setPageIndex(PageList.communication.index);
+              },
+            ),
+            const Divider(),
+            ListTile(
               leading: const Icon(Icons.info),
               title: const Text("About"),
               onTap: () {
                 Scaffold.of(context).closeDrawer();
                 setPageIndex(PageList.about.index);
-              },            ),
+              },
+            ),
           ],
         )
     );
