@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:crypto/crypto.dart';
 import 'package:iccm_eu_app/data/appProviders/error_provider.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/communication_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/home_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/rooms_provider.dart';
@@ -180,6 +181,7 @@ class GsheetsProvider with ChangeNotifier {
       workSheetTitles.add(SpeakersProvider.worksheetTitle);
       workSheetTitles.add(TracksProvider.worksheetTitle);
       workSheetTitles.add(HomeProvider.worksheetTitle);
+      workSheetTitles.add(CommunicationProvider.worksheetTitle);
       workSheetTitles.add(TravelProvider.worksheetTitle);
       workSheetTitles.add(TravelDetailsProvider.worksheetTitle);
 
@@ -241,6 +243,14 @@ class GsheetsProvider with ChangeNotifier {
 
   List<Map<String, String>>? getHomeData() {
     String worksheetTitle = HomeProvider.worksheetTitle;
+    if (_rawData.containsKey(worksheetTitle)) {
+      return _rawData[worksheetTitle];
+    }
+    return null;
+  }
+
+  List<Map<String, String>>? getCommunicationData() {
+    String worksheetTitle = CommunicationProvider.worksheetTitle;
     if (_rawData.containsKey(worksheetTitle)) {
       return _rawData[worksheetTitle];
     }

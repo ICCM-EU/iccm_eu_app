@@ -30,7 +30,7 @@ class CommunicationProvider with ChangeNotifier {
 
   void updateCache() {
     // Process raw data from GsheetsProvider and update _tracks
-    var data = _gsheetsProvider.getHomeData();
+    var data = _gsheetsProvider.getCommunicationData();
     if (data != null && data.isNotEmpty) {
       _cacheClear();
       for (final itemData in data) {
@@ -49,10 +49,10 @@ class CommunicationProvider with ChangeNotifier {
       jsonList.map((json) => CommunicationData.fromJson(json)).toList().forEach((item) {
         _cacheAdd(item);
       });
-      Debug.msg('Cache loaded: Home');
+      Debug.msg('Cache loaded: Communication');
       _commit();
     } else {
-      Debug.msg('Cache OMITTED: Home');
+      Debug.msg('Cache OMITTED: Communication');
     }
   }
 

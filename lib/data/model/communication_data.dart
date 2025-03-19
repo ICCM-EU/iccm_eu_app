@@ -23,8 +23,8 @@ class CommunicationData {
 
   Map<String, dynamic> toJson() {
     return {
-      'url': url,
       'title': title.toString(),
+      'url': url.toString(),
     };
   }
 }
