@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:iccm_eu_app/components/url_button.dart';
+import 'package:iccm_eu_app/components/link_list_tile.dart';
 import 'package:iccm_eu_app/data/dataProviders/communication_provider.dart';
 import 'package:iccm_eu_app/data/model/communication_data.dart';
 import 'package:provider/provider.dart';
@@ -34,24 +34,7 @@ class CommunicationPage extends StatelessWidget {
                   !item.url.startsWith('https://')) {
                 return SizedBox.shrink();
               }
-              return Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: UrlButton(
-                      title: item.title,
-                      url: item.url,
-                    ),
-                  ),
-                  Text(
-                    item.url,
-                    style: Theme
-                        .of(context)
-                        .textTheme
-                        .bodySmall,
-                  ),
-                ],
-              );
+              return LinkListTile(item: item);
             },
           );
         },
