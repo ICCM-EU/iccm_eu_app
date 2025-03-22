@@ -13,6 +13,15 @@ class LinkListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      leading: RichText(
+        text: TextSpan(
+          text: item.leading,
+          style: Theme
+              .of(context)
+              .textTheme
+              .titleLarge,
+        ),
+      ),
       title: RichText(
         text: TextSpan(
           style: DefaultTextStyle

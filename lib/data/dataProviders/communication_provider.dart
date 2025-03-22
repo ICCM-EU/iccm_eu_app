@@ -65,7 +65,8 @@ class CommunicationProvider with ChangeNotifier {
   }
 
   void _commit() {
-    _cache.sort((a, b) => a.title.compareTo(b.title));
+    // Do not sort the items.
+    //_cache.sort((a, b) => a.title.compareTo(b.title));
     _saveCache();
     _populateItemsFromCache();
     notifyListeners();
