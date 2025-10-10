@@ -4,10 +4,12 @@ import 'package:iccm_eu_app/utils/url_functions.dart';
 
 class LinkListTile extends StatelessWidget {
   final CommunicationData item;
+  final bool inApp;
 
   const LinkListTile({
     super.key,
     required this.item,
+    required this.inApp,
   });
 
   @override
@@ -57,7 +59,7 @@ class LinkListTile extends StatelessWidget {
         softWrap: true,
       ),
       onTap: () {
-        UrlFunctions.launch(item.url);
+        UrlFunctions.launch(item.url, inApp);
       },
     );
   }

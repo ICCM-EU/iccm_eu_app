@@ -147,6 +147,7 @@ class HomePageState extends State<HomePage> {
                         UrlButton(
                           title: 'Now Page',
                           url: item.nowPageUrl,
+                          inApp: false,
                         )
                       else
                         SizedBox.shrink(),
@@ -155,6 +156,7 @@ class HomePageState extends State<HomePage> {
                         UrlButton(
                           title: 'Voting Page',
                           url: item.votingPageUrl,
+                          inApp: true,
                         )
                       else
                         SizedBox.shrink(),
@@ -163,6 +165,7 @@ class HomePageState extends State<HomePage> {
                         UrlButton(
                           title: 'BOF Page',
                           url: item.bofPageUrl,
+                          inApp: false,
                         )
                       else
                         SizedBox.shrink(),                    ],

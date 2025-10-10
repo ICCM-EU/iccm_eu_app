@@ -89,10 +89,12 @@ class TravelPage extends StatelessWidget {
                       UrlButton(
                         title: 'Website',
                         url: item.locationUrl,
+                        inApp: false,
                       ),
                       UrlButton(
                         title: 'Google Maps Link',
                         url: item.mapsUrl,
+                        inApp: false,
                       ),
                     ],
                   ),

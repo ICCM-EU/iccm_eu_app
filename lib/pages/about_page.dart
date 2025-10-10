@@ -47,6 +47,7 @@ class AboutPage extends StatelessWidget {
                   (devUrl.startsWith('https://')) ? UrlButton(
                     title: 'Development URL',
                     url: devUrl,
+                    inApp: false,
                   ) : SizedBox.shrink(),
                   SizedBox(height: 32),
                   const Divider(),
@@ -58,10 +59,12 @@ class AboutPage extends StatelessWidget {
                     (appUrl.startsWith('https://')) ? UrlButton(
                       title: 'Events List - Direct URL',
                       url: '$appUrl?page=events',
+                      inApp: false,
                     ) : SizedBox.shrink(),
                     (appUrl.startsWith('https://')) ? UrlButton(
                       title: 'Countdown - Direct URL',
                       url: '$appUrl?page=countdown',
+                      inApp: false,
                     ) : SizedBox.shrink(),
                     SizedBox(height: 32) ,
                     const Divider(),

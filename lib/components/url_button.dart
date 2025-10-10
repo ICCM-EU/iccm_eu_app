@@ -6,11 +6,13 @@ class UrlButton extends StatelessWidget {
   final String? url;
   final String title;
   final bool? withQrCode;
+  final bool inApp;
 
   const UrlButton({
     super.key,
     required this.url,
     required this.title,
+    required this.inApp,
     this.withQrCode = false,
   });
 
@@ -38,7 +40,7 @@ class UrlButton extends StatelessWidget {
                           strokeAlign: BorderSide.strokeAlignInside,
                         ),
                       ),
-                      onPressed: () => UrlFunctions.launch(url!),
+                      onPressed: () => UrlFunctions.launch(url!, inApp),
                       child: Text(
                         title,
                         style: const TextStyle(fontSize: 20.0),

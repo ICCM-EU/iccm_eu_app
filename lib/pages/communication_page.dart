@@ -34,7 +34,10 @@ class CommunicationPage extends StatelessWidget {
                   !item.url.startsWith('https://')) {
                 return SizedBox.shrink();
               }
-              return LinkListTile(item: item);
+              return LinkListTile(
+                item: item,
+                inApp: false,
+              );
             },
           );
         },

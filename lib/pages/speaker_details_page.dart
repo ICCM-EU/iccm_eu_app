@@ -80,6 +80,7 @@ class SpeakerDetailsPage extends StatelessWidget {
                   UrlButton(
                     title: 'Web Link',
                     url: item.weblink,
+                    inApp: false,
                   )
                 else
                   SizedBox.shrink(),

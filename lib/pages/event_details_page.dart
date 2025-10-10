@@ -243,6 +243,7 @@ class EventDetailsPage extends StatelessWidget {
                         UrlButton(
                           title: 'Survey URL',
                           url: item.surveyUrl,
+                          inApp: true,
                           withQrCode: true,
                         ),
 
