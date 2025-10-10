@@ -17,7 +17,7 @@ class ImageCarousel extends StatefulWidget {
 }
 
 class ImageCarouselState extends State<ImageCarousel> {
-  int _currentIndex = 0;
+  double _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +32,7 @@ class ImageCarouselState extends State<ImageCarousel> {
               viewportFraction: 1.0, // Display one image at a time
               onPageChanged: (index, reason) {
                 setState(() {
-                  _currentIndex = index;
+                  _currentIndex = index * 1.0;
                 });
               },
             ),

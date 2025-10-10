@@ -177,8 +177,8 @@ class DayViewCalendarState extends State<DayViewCalendar> {
                 valueListenable: PreferencesProvider.calendarColorByRoomNotifier,
                 builder: (context, builderValue, child) {
                   return WeekView(
-                    minimumTime: HourMinute(hour: 7, minute: 0),
-                    maximumTime: HourMinute(hour: 23, minute: 0),
+                    minimumTime: TimeOfDay(hour: 7, minute: 0),
+                    maximumTime: TimeOfDay(hour: 23, minute: 0),
                     initialTime: initialTime,
                     dates: dates,
                     userZoomable: false,

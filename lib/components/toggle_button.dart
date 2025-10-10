@@ -22,7 +22,7 @@ class ToggleButtonListTile extends StatelessWidget {
         ),
       value: value,
       onChanged: onChanged,
-      activeColor: Theme.of(context).colorScheme.inversePrimary,
+      activeThumbColor: Theme.of(context).colorScheme.inversePrimary,
       activeTrackColor: Theme.of(context).colorScheme.secondary,
       inactiveThumbColor: Theme.of(context).colorScheme.onSurface,
       inactiveTrackColor:Theme.of(context).colorScheme.secondary,

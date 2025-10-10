@@ -18,6 +18,10 @@ class EventData extends FlutterWeekViewEvent {
   bool? forceNotify = false;
   int? id = -1;
 
+  Color? backgroundColor;
+  TextStyle? textStyle;
+  EdgeInsets? padding;
+  final Function()? onTap;
 
   EventData({
     // mandatory parameters
@@ -37,19 +41,13 @@ class EventData extends FlutterWeekViewEvent {
     this.forceNotify,
     this.id,
 
-    // optional inherited parameters
-    // FIXME: Set these based on local parameters
-    super.backgroundColor,
-    super.decoration,
-    super.textStyle,
-    super.padding,
-    super.margin,
+    // optional parameters, previously inherited
+    this.backgroundColor,
+    this.textStyle,
+    this.padding,
 
     // Set these with the context available
-    super.onTap,
-    super.onLongPress,
-
-    super.eventTextBuilder,
+    this.onTap,
   }) : super(
     title: name.toString(),
     description: details.toString(),

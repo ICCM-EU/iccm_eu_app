@@ -24,7 +24,7 @@ class LocalNotificationService {
   }) async {
     // Initialize the timezones
     tz_data.initializeTimeZones();
-    final String timeZoneName = await FlutterTimezone.getLocalTimezone();
+    final String timeZoneName = FlutterTimezone.getLocalTimezone().toString();
     tz.setLocalLocation(tz.getLocation(timeZoneName));
 
     // initialize the android settings
@@ -150,7 +150,7 @@ class LocalNotificationService {
       ),
       tz.TZDateTime.from(scheduledDate, tz.local),
       platformChannelSpecifics,
-      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+      // uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
     );

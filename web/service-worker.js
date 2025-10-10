@@ -1,15 +1,3 @@
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () {
-      navigator.serviceWorker.register('/service-worker.js')
-        .then(function (registration) {
-          console.log('Service worker registered:', registration);
-        })
-        .catch(function (error) {
-          console.log('Service worker registration failed:', error);
-        });
-    });
-}
-
 self.addEventListener('install', function (event) {
   event.waitUntil(
     caches.open('iccm-eu-cache').then(function (cache) {
@@ -23,8 +11,8 @@ self.addEventListener('install', function (event) {
         '/icons/Icon-512.png',
         '/icons/Icon-maskable-192.png',
         '/icons/Icon-maskable-512.png',
-        '/js/local_notification.js',
-        '/js/service-worker.js',
+        '/local_notification.js',
+        '/service-worker.js',
       ]);
     })
   );
