@@ -40,7 +40,5 @@ ThemeData lightTheme = ThemeData(
     displayMedium: TextStyle(
       color: Colors.grey.shade900,
     ),
-  ).apply( // Use apply() to add properties to all text styles
-    fontFamilyFallback: ['NotoColorEmoji'],
   ),
 );
