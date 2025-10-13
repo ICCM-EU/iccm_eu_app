@@ -40,5 +40,7 @@ ThemeData darkTheme = ThemeData(
     displayMedium: TextStyle(
       color: Colors.grey.shade300,
     ),
+  ).apply( // Use apply() to add properties to all text styles
+    fontFamilyFallback: ['NotoColorEmoji'],
   ),
 );
