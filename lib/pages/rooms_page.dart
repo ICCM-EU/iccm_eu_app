@@ -17,8 +17,8 @@ class RoomsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: Center(
-            child: const Text('Rooms'),
+          title: const Center(
+            child: Text('Rooms'),
           ),
           automaticallyImplyLeading: false,
           backgroundColor: Theme
@@ -30,32 +30,17 @@ class RoomsPage extends StatelessWidget {
               .appBarTheme
               .foregroundColor
       ),
-      body: PrimaryScrollController(
-        controller: ScrollController(),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // Use Expanded to allow ListView.builder to take available space
-              Expanded(
-                child: Consumer<
-                    RoomsProvider>( // Wrap ListView.builder with Consumer
-                  builder: (context, itemList, child) {
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      physics: ClampingScrollPhysics(),
-                      itemCount: itemList
-                          .items()
-                          .length,
-                      itemBuilder: (context, index) {
-                        return RoomListTile(item: itemList.items()[index]);
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
+      body: Consumer<RoomsProvider>(
+        builder: (context, itemList, child) {
+          return ListView.builder(
+            itemCount: itemList
+                .items()
+                .length,
+            itemBuilder: (context, index) {
+              return RoomListTile(item: itemList.items()[index]);
+            },
+          );
+        },
       ),
     );
   }

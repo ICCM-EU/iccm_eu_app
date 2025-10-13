@@ -17,8 +17,8 @@ class SpeakersPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(
-          child: const Text('Speakers'),
+        title: const Center(
+          child: Text('Speakers'),
         ),
         automaticallyImplyLeading: false,
         backgroundColor: Theme
@@ -30,31 +30,17 @@ class SpeakersPage extends StatelessWidget {
             .appBarTheme
             .foregroundColor,
       ),
-      body: PrimaryScrollController(
-        controller: ScrollController(),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // Use Expanded to allow ListView.builder to take available space
-              Expanded(
-                child: Consumer<SpeakersProvider>(
-                  builder: (context, itemList, child) {
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      physics: ClampingScrollPhysics(),
-                      itemCount: itemList
-                          .items()
-                          .length,
-                      itemBuilder: (context, index) {
-                        return SpeakerListTile(item: itemList.items()[index]);
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
+      body: Consumer<SpeakersProvider>(
+        builder: (context, itemList, child) {
+          return ListView.builder(
+            itemCount: itemList
+                .items()
+                .length,
+            itemBuilder: (context, index) {
+              return SpeakerListTile(item: itemList.items()[index]);
+            },
+          );
+        },
       ),
     );
   }
