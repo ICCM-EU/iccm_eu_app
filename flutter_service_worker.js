@@ -36,7 +36,7 @@ const RESOURCES = {"flutter.js": "888483df48293866f9f41d3d9274a779",
 "canvaskit/skwasm.js.symbols": "0088242d10d7e7d6d2649d1fe1bda7c1",
 "favicon.png": "62341f2e9a631d936d2b5e72c1a781f2",
 "service-worker.js": "e5cbdc16814199154f7dc75bf61bf5c4",
-"flutter_bootstrap.js": "7429494aef2fefb4a6a09e83cecb1f34",
+"flutter_bootstrap.js": "855356e877ab510c0a2c3fe55109a448",
 "local_notification.js": "617901693410bdbc947b30e34696dcd3",
 "version.json": "fcec51eda73a8bfbe312b1bc69cc17be",
 "main.dart.js": "1a128ffe9b032d2627c59632cb0dd314"};
