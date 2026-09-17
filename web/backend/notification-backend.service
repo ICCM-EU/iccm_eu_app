@@ -1,0 +1,29 @@
+[Unit]
+Description=Node.js Backend for Conference PWA (FCM Bridge)
+After=network.target
+
+[Service]
+# The user and group under which the app runs
+User=ihr_linux_benutzer
+Group=ihr_linux_benutzer
+
+# The directory where your package.json and .env are located
+WorkingDirectory=/path/to/your/project
+
+# The command that starts the backend (looks for the installed Node.js)
+ExecStart=/usr/bin/node server.js
+
+# Automatic restart if the app crashes due to an error
+Restart=always
+RestartSec=10
+
+# Define environment variables directly in the service (if no .env file is used)
+Environment=NODE_ENV=production PORT=3000 ADMIN_SECRET=Lokales_Geheimnis_2026
+
+# Resource security: Limits the log size in RAM
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=notification-backend
+
+[Install]
+WantedBy=multi-user.target
