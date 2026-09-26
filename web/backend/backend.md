@@ -833,3 +833,89 @@ sudo systemctl start conference-backend.service
 * Fault Tolerance: Thanks to the combination of Apache/Nginx and systemd, the entire infrastructure reboots completely autonomously after a local power failure.
 
 You can now use this blueprint as a guide in Android Studio. Would you like Gemini to generate the full content for firebase-messaging-sw.js next so that the service worker is ready for action in the browser?
+
+-------------------------------
+
+Here is the detailed guide on how to set up a Google Developer / Firebase project, generate the Service Account (for your Node.js backend), and securely store all credentials in your development environment.
+------------------------------
+## Part 1: Create a Project in the Firebase Console
+Since you are using Firebase Cloud Messaging (FCM), the easiest way is to create the project directly in the [Firebase Console](https://console.firebase.google.com/) (this automatically creates the corresponding Google Cloud project in the background).
+
+1. Go to the [Firebase Console](https://console.firebase.google.com/) and sign in with your Google account.
+2. Click on **Add project** and give it a name (e.g., `conference-app-2026`).
+3. Enable or disable Google Analytics (it is not strictly necessary for this pure push system) and click **Create project**.
+
+## 1.1 Add a Web App (for the Flutter PWA Frontend)
+
+1. Click the **Add app** and select the **Web symbol (</>)** in the dashboard to register a web app.
+2. Provide an app nickname (e.g., `Flutter PWA`). Leave the checkbox for "Firebase Hosting" unchecked since you are hosting on GitHub Pages.
+3. Click **Register app**. You will now see the `firebaseConfig` object. Copy these values into your `firebase-messaging-sw.js` (as prepared in the previous step) and into your Flutter initialization.
+
+## 1.2 Generate a Web Push (VAPID) Key
+
+1. Click the **gear icon** next to "Project Overview" at the top left ➔ **Project settings**.
+2. Switch to the **Cloud Messaging** tab.
+3. Scroll down to the **Web configuration** section under **Web Push certificates**.
+4. Click **Generate key pair**.
+5. Copy the generated long key. This is your **Public VAPID Key**, which your Flutter PWA needs to generate web tokens.
+
+------------------------------
+## Part 2: Create a Service Account for the Node.js Backend
+The Service Account is the "master key" that grants your local Node.js backend permission to send messages to Google FCM on behalf of your project.
+
+1. Remain in the **Project settings** of the Firebase Console.
+2. Switch to the **Service accounts** tab.
+3. Select the **Node.js** option and click the blue **Generate new private key** button at the bottom.
+4. Confirm the warning. A `.json` file will be automatically downloaded to your computer.
+5. **Important:** Rename this file to `serviceAccountKey.json` for easier handling in the code.
+
+------------------------------
+## Part 3: Secure Storage of Credentials (Structure & Best Practices)
+Since your frontend is public (GitHub Pages) and your backend is private (local server), the files must be kept strictly separate.
+## 1. In the Flutter Frontend Project (Android Studio)
+Only non-critical, public identifiers are stored here.
+
+* **FCM Configuration:** The parameters from the web app registration (`apiKey`, `messagingSenderId`, etc.) stay directly in the source code of `firebase-messaging-sw.js` and in your Flutter initialization. They are visible to anyone in the browser – this is normal and secure for PWAs, as these keys cannot be used to send messages, only to register as a recipient.
+* **VAPID Key:** Store the VAPID key as a constant in your Dart code (e.g., `static const String vapidKey = "BLA_BLA_..."`) to pass it when calling `messaging.getToken()`.
+
+## 2. In the Node.js Backend Project (Local Server)
+The highly sensitive administrator keys are stored here. They must **never** be uploaded to a public GitHub repository.
+
+* **The `.gitignore` file:** Create a file named `.gitignore` in the root directory of your Node.js project and add the following entries:
+
+node_modules/
+.env
+serviceAccountKey.json
+
+* **The Private Key (`serviceAccountKey.json`):** Copy the downloaded JSON file directly into the root directory of your Node.js project (next to your `server.js`). Thanks to the entry in `.gitignore`, it will never be accidentally committed.
+* **Environment Variables (`.env`):** Create a file named `.env` in the root directory of the backend to manage passwords and ports locally:
+
+PORT=3000
+ADMIN_SECRET="MySuperSecureConferencePassword2026"
+NODE_ENV=production
+
+
+------------------------------
+## 🚀 Development Workflow in Android Studio
+When working on the project in Android Studio, the following folder structure is recommended to keep frontend and backend cleanly separated and provide Gemini with precise context:
+
+```
+my-conference-project/
+│
+├── conference_pwa/               <── Flutter project (Public Repo)
+│   ├── lib/
+│   │   └── main.dart            <── Uses the public VAPID Key
+│   └── web/
+│       └── firebase-messaging-sw.js <── Contains public firebaseConfig
+│
+└── conference_backend/           <── Node.js project (Private Repo)
+    ├── .env                     <── Contains the ADMIN_SECRET (Local)
+    ├── .gitignore               <── Protects secrets from Git
+    ├── serviceAccountKey.json   <── Google Service Account Key (Local)
+    └── server.js                <── Loads the key & .env
+```
+
+Would you like me to create a shell script for your local server that automatically downloads this Node.js backend from your private repository, installs the dependencies, and links it to the systemd service?
+
+
+
