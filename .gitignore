@@ -46,3 +46,4 @@ app.*.map.json
 /web/flutter_bootstrap.js
 /web/backend/serviceAccountKey.json
 /web/backend/.env
+/web/backend/node_modules/
