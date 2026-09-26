@@ -18,9 +18,13 @@ class EventData extends FlutterWeekViewEvent {
   bool? forceNotify = false;
   int? id = -1;
 
+  @override
   Color? backgroundColor;
+  @override
   TextStyle? textStyle;
+  @override
   EdgeInsets? padding;
+  @override
   final Function()? onTap;
 
   EventData({
