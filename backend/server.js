@@ -1,3 +1,5 @@
+// Install dependencies: express firebase-admin cors dotenv
+// npm install
 const express = require('express');
 const admin = require('firebase-admin');
 const cors = require('cors'); // Important for PWA access
