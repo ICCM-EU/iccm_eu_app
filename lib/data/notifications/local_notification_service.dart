@@ -45,7 +45,7 @@ class LocalNotificationService {
 
     // initialize the plugin
     await flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
+      settings: initializationSettings,
       // onDidReceiveBackgroundNotificationResponse:
       // onDidReceiveBackgroundNotificationResponse,
       // onDidReceiveNotificationResponse:
@@ -84,7 +84,7 @@ class LocalNotificationService {
     required NotificationChannelData channelData,
   }) async {
     // define the notification details
-    NotificationDetails platformChannelSpecifics = NotificationDetails(
+    NotificationDetails notificationDetails = NotificationDetails(
       android: AndroidNotificationDetails(
         channelData.id,
         channelData.name,
@@ -102,10 +102,10 @@ class LocalNotificationService {
 
     //show the notification
     await flutterLocalNotificationsPlugin.show(
-      id,
-      title,
-      body,
-      platformChannelSpecifics,
+      id: id,
+      title: title,
+      body: body,
+      notificationDetails: notificationDetails,
     );
   }
 
@@ -123,7 +123,7 @@ class LocalNotificationService {
           timeout: scheduledDate,
       );
     }
-    NotificationDetails platformChannelSpecifics = NotificationDetails(
+    NotificationDetails notificationDetails = NotificationDetails(
       android: AndroidNotificationDetails(
         channelData.id,
         channelData.name,
@@ -140,17 +140,17 @@ class LocalNotificationService {
 
     // Debug.msg('ACTUAL SCHEDULE TIME: ${tz.TZDateTime.from(scheduledDate, tz.local)}');
     await flutterLocalNotificationsPlugin.zonedSchedule(
-      id ?? 0,
-      TextFunctions.cutTextToWords(
+      id: id ?? 0,
+      title: TextFunctions.cutTextToWords(
         text: title,
         wordCount: 80,
       ),
-      TextFunctions.cutTextToWords(
+      body: TextFunctions.cutTextToWords(
         text: body,
         wordCount: 80,
       ),
-      tz.TZDateTime.from(scheduledDate, tz.local),
-      platformChannelSpecifics,
+      scheduledDate: tz.TZDateTime.from(scheduledDate, tz.local),
+      notificationDetails: notificationDetails,
       // uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
@@ -174,7 +174,7 @@ class LocalNotificationService {
       htmlFormatContentTitle: true,
     );
 
-    NotificationDetails platformChannelSpecifics = NotificationDetails(
+    NotificationDetails notificationDetails = NotificationDetails(
       android: AndroidNotificationDetails(
         channelData.id,
         channelData.name,
@@ -192,10 +192,10 @@ class LocalNotificationService {
     );
 
     await flutterLocalNotificationsPlugin.show(
-      id,
-      title,
-      body,
-      platformChannelSpecifics,
+      id: id,
+      title: title,
+      body: body,
+      notificationDetails: notificationDetails,
     );
   }
 
@@ -206,7 +206,7 @@ class LocalNotificationService {
     required String payload,
     required NotificationChannelData channelData,
   }) async {
-    NotificationDetails platformChannelSpecifics = NotificationDetails(
+    NotificationDetails notificationDetails = NotificationDetails(
       android: AndroidNotificationDetails(
         channelData.id,
         channelData.name,
@@ -222,10 +222,10 @@ class LocalNotificationService {
     );
 
     await flutterLocalNotificationsPlugin.show(
-      id,
-      title,
-      body,
-      platformChannelSpecifics,
+      id: id,
+      title: title,
+      body: body,
+      notificationDetails: notificationDetails,
       payload: payload,
     );
   }
@@ -241,7 +241,7 @@ class LocalNotificationService {
   ) async {
     _webNotifications.remove(id);
     await flutterLocalNotificationsPlugin.cancel(
-      id,
+      id: id,
       tag: tag,
     );
   }
