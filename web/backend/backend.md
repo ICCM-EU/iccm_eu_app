@@ -816,13 +816,13 @@ sudo certbot certonly --manual --preferred-challenges dns -d api.your-conference
 ### Step 4: Automation with systemd Service
 To ensure the Node.js app runs permanently in the background and survives server reboots, configure it as a Linux system service:
 
-1. Create the Service File: /etc/systemd/system/conference-backend.service
+1. Create the Service File: /etc/systemd/system/notification-backend.service
 2. Configuration: Provide the paths to node and your server.js, specify the system user, and pass the admin password as an environment variable (Environment=ADMIN_SECRET=...).
 3. Enable & Start:
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable conference-backend.service
-sudo systemctl start conference-backend.service
+sudo systemctl enable notification-backend.service
+sudo systemctl start notification-backend.service
 ```
 
 ------------------------------

@@ -1,3 +1,10 @@
+# 1. Create the Service File: /etc/systemd/system/notification-backend.service
+# 2. Configuration: Provide the paths to node and your server.js, specify the system user, and pass the admin password as an environment variable (Environment=ADMIN_SECRET=...).
+# 3. Enable & Start:
+# sudo systemctl daemon-reload
+# sudo systemctl enable notification-backend.service
+# sudo systemctl start notification-backend.service
+
 [Unit]
 Description=Node.js Backend for Conference PWA (FCM Bridge)
 After=network.target
