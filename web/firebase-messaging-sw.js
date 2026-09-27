@@ -2,17 +2,30 @@
 importScripts("https://www.gstatic.com/firebasejs/9.10.0/firebase-app-compat.js");
 importScripts("https://www.gstatic.com/firebasejs/9.10.0/firebase-messaging-compat.js");
 
-// 2. Initialize Firebase
+// 2. Initialize Firebase from https://console.firebase.google.com/ / new web app
 // NOTE: This configuration data is publicly visible and non-critical.
 // Use exactly the same values as in your normal frontend app.
-firebase.initializeApp({
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_://firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_://appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
-});
+//firebase.initializeApp({
+  // apiKey: "YOUR_API_KEY",
+  // authDomain: "YOUR_PROJECT_://firebaseapp.com",
+  // projectId: "YOUR_PROJECT_ID",
+  // storageBucket: "YOUR_PROJECT_://appspot.com",
+  // messagingSenderId: "YOUR_SENDER_ID",
+  // appId: "YOUR_APP_ID"
+//});
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDv63cLTJEOcGFz1sxvQj3BF_4KCbg4p-E",
+  authDomain: "iccmeu-app.firebaseapp.com",
+  projectId: "iccmeu-app",
+  storageBucket: "iccmeu-app.firebasestorage.app",
+  messagingSenderId: "458814741758",
+  appId: "1:458814741758:web:b883d625127fde92cdd9af"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
 
 // 3. Retrieve Messaging instance
 const messaging = firebase.messaging();
@@ -29,7 +42,7 @@ messaging.onBackgroundMessage((payload) => {
     // Icon displayed in the notification (must be in the web/ folder)
     icon: '/icons/Icon-192.png',
     // Ensures the notification vibrates (if supported by the device)
-    vibrate: [200, 100, 200],
+    vibrate: [200, 100, 100, 100, 100, 100, 200],
     // Additional metadata, e.g., for click actions
     data: {
       click_action: payload.data?.click_action || '/'
