@@ -17,6 +17,8 @@ import 'package:iccm_eu_app/data/dataProviders/travel_provider.dart';
 import 'package:iccm_eu_app/data/model/error_signal.dart';
 import 'package:iccm_eu_app/utils/debug.dart';
 
+import '../../utils/url_functions.dart';
+
 class GsheetsProvider with ChangeNotifier {
   final String _sheetId =
       '1dFLWrcbI1AltIvVCEjBx9I3I3d0ToGN2FmzcFuAYsZE';
@@ -62,8 +64,9 @@ class GsheetsProvider with ChangeNotifier {
 
   Future<Map<String, dynamic>> _triggerWebAPP({required Map body}) async {
     Map<String, dynamic> dataDict = {};
+    String rawUrl = "https://script.google.com/macros/s/$_deploymentID/exec";
     Uri url =
-      Uri.parse("https://script.google.com/macros/s/$_deploymentID/exec");
+      Uri.parse(kIsWeb ? UrlFunctions.proxy(rawUrl) : rawUrl);
     try {
       // Debug.msg("_triggerWebAPP post: $url");
       // Debug.msg("_triggerWebAPP body: $body");
@@ -80,8 +83,10 @@ class GsheetsProvider with ChangeNotifier {
           String redirectedUrl = response.headers['location'] ?? "";
           if (redirectedUrl.isNotEmpty) {
             // Debug.msg("_triggerWebAPP redirect: $redirectedUrl");
-            Uri url = Uri.parse(redirectedUrl);
-            await http.get(url).then((response) {
+            url =
+              Uri.parse(kIsWeb ? UrlFunctions.proxy(redirectedUrl) : redirectedUrl);
+            await http.post(url).then((response) {
+              // Debug.msg("_triggerWebAPP status: ${response.statusCode.toString()}");
               if ([200, 201].contains(response.statusCode)) {
                 dataDict = jsonDecode(response.body);
               }
