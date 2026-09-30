@@ -68,34 +68,31 @@ class GsheetsProvider with ChangeNotifier {
     Uri url =
       Uri.parse(kIsWeb ? UrlFunctions.proxy(rawUrl) : rawUrl);
     try {
-      // Debug.msg("_triggerWebAPP post: $url");
-      // Debug.msg("_triggerWebAPP body: $body");
-      await http.post(
-          url,
-          body: body,
-      ).then((response) async {
-        // Debug.msg("_triggerWebAPP status: ${response.statusCode.toString()}");
-        if ([200, 201].contains(response.statusCode)) {
-          // Debug.msg("_triggerWebAPP body: ${response.body}");
-          dataDict = jsonDecode(response.body);
-        }
-        if (response.statusCode == 302) {
-          String redirectedUrl = response.headers['location'] ?? "";
-          if (redirectedUrl.isNotEmpty) {
-            // Debug.msg("_triggerWebAPP redirect: $redirectedUrl");
-            url =
-              Uri.parse(kIsWeb ? UrlFunctions.proxy(redirectedUrl) : redirectedUrl);
-            await http.post(url).then((response) {
-              // Debug.msg("_triggerWebAPP status: ${response.statusCode.toString()}");
-              if ([200, 201].contains(response.statusCode)) {
-                dataDict = jsonDecode(response.body);
-              }
-            });
+      Map<String, String> bodyMap =
+        body.map((key, value) => MapEntry(key.toString(), value.toString()));
+
+      var client = http.Client();
+      var request = http.Request('POST', url)
+        ..followRedirects = false
+        ..bodyFields = bodyMap;
+
+      var response = await client.send(request);
+
+      if ([301, 302, 303, 307, 308].contains(response.statusCode)) {
+        String? redirectedUrl = response.headers['location'];
+        if (redirectedUrl != null && redirectedUrl.isNotEmpty) {
+          Uri redirectUri =
+            Uri.parse(kIsWeb ? UrlFunctions.proxy(redirectedUrl) : redirectedUrl);
+          var getResponse = await http.get(redirectUri);
+          if ([200, 201].contains(getResponse.statusCode)) {
+            dataDict = jsonDecode(getResponse.body);
           }
-        // } else {
-        //   Debug.msg("_triggerWebAPP statusCode: ${response.statusCode.toString()}");
         }
-      });
+      } else if ([200, 201].contains(response.statusCode)) {
+        var responseBody = await response.stream.bytesToString();
+        dataDict = jsonDecode(responseBody);
+      }
+      client.close();
     } catch (e) {
       Debug.msg("_triggerWebAPP FAILED: $e");
     }
@@ -126,7 +123,7 @@ class GsheetsProvider with ChangeNotifier {
       try {
         Map<String, dynamic> response =
           await _getSheetsData(worksheetName: worksheetTitle);
-        if (response["status"] as String != 'SUCCESS') {
+        if ((response["status"] as String?) != 'SUCCESS') {
           throw Exception('Worksheet "$worksheetTitle" not loaded.');
         }
         // Debug.msg("Got data: $response");
