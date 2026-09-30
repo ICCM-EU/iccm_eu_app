@@ -4,6 +4,8 @@
 # sudo systemctl daemon-reload
 # sudo systemctl enable notification-backend.service
 # sudo systemctl start notification-backend.service
+# 4. Watch the server outputs
+# sudo journalctl -u notification-backend.service -f
 
 [Unit]
 Description=Node.js Backend for Conference PWA (FCM Bridge)
@@ -11,8 +13,8 @@ After=network.target
 
 [Service]
 # The user and group under which the app runs
-User=ihr_linux_benutzer
-Group=ihr_linux_benutzer
+User=your_user_id
+Group=your_user_group
 
 # The directory where your package.json and .env are located
 WorkingDirectory=/path/to/your/project

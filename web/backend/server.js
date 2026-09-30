@@ -13,11 +13,10 @@ app.use(cors()); // Allows the Flutter PWA access from other IPs
 const port = process.env.PORT || 3000;
 
 // Setup debug messages in the console
-const debug = true;
-debug(message) => {
-    if (debug)
-        console.log(message);
-}
+const isDebug = true || process.env.NODE_ENV !== 'production';
+const debug = isDebug
+  ? console.log.bind(console)
+  : () => {};
 
 // Setup inhibition for test scenarios
 const testMode = true;
