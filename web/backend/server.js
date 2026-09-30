@@ -9,25 +9,27 @@ const app = express();
 app.use(express.json());
 app.use(cors()); // Allows the Flutter PWA access from other IPs
 
+const { initializeApp, cert } = require('firebase-admin/app');
+
 // Setup port
 const port = process.env.PORT || 3000;
 
+// Setup inhibition for test scenarios
+const testMode = true;
+
 // Setup debug messages in the console
-const isDebug = true || process.env.NODE_ENV !== 'production';
+const isDebug = true || testMode || process.env.NODE_ENV !== 'production';
 const debug = isDebug
   ? console.log.bind(console)
   : () => {};
-
-// Setup inhibition for test scenarios
-const testMode = true;
 
 const defaultTopic = 'announcements';
 
 // Initialize Firebase locally with the private service account key
 // Do not push this one to GitHub.
 const serviceAccount = require('./serviceAccountKey.json');
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+initializeApp({
+  credential: cert(serviceAccount)
 });
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET || "";
