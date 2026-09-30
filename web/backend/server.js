@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(cors()); // Allows the Flutter PWA access from other IPs
 
 // Setup port
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 // Setup debug messages in the console
 const debug = true;
