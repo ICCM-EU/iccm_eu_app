@@ -22,59 +22,72 @@ class LocalNotificationService {
   static Future<void> init({
     required NotificationChannelData channelData,
   }) async {
-    // Initialize the timezones
-    tz_data.initializeTimeZones();
-    TimezoneInfo timezone = await FlutterTimezone.getLocalTimezone();
-    final String timeZoneName = timezone.identifier;
-    tz.setLocalLocation(tz.getLocation(timeZoneName));
-
-    // initialize the android settings
-    const AndroidInitializationSettings initializationSettingsAndroid =
-    AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    // initialize the ios settings
-    const DarwinInitializationSettings initializationSettingsIos =
-    DarwinInitializationSettings();
-
-    // combine the android and ios settings
-    const InitializationSettings initializationSettings =
-    InitializationSettings(
-      android: initializationSettingsAndroid,
-      iOS: initializationSettingsIos,
-    );
-
-    // initialize the plugin
-    await flutterLocalNotificationsPlugin.initialize(
-      settings: initializationSettings,
-      // onDidReceiveBackgroundNotificationResponse:
-      // onDidReceiveBackgroundNotificationResponse,
-      // onDidReceiveNotificationResponse:
-      // onDidReceiveBackgroundNotificationResponse,
-    );
-
-    // request permission to show notifications on Android
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>()
-        ?.requestNotificationsPermission();
-    final status = await Permission.notification.status;
-    if (status != PermissionStatus.granted) {
-      Debug.msg('WARN: Notification permission not granted');
-    } else {
-      Debug.msg('OK: Notification permission granted');
+    try {
+      // Initialize the timezones
+      tz_data.initializeTimeZones();
+      TimezoneInfo timezone = await FlutterTimezone.getLocalTimezone();
+      final String timeZoneName = timezone.identifier;
+      try {
+        tz.setLocalLocation(tz.getLocation(timeZoneName));
+      } catch (e) {
+        Debug.msg('Fallback timezone to UTC: $e');
+        tz.setLocalLocation(tz.getLocation('UTC'));
+      }
+    } catch (e) {
+      Debug.msg('Timezone initialization skipped/failed: $e');
     }
 
-    AndroidNotificationChannel channel = AndroidNotificationChannel(
-      channelData.id,
-      channelData.name,
-      description: channelData.description,
-      importance: Importance.high,
-    );
+    try {
+      // initialize the android settings
+      const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
+      // initialize the ios settings
+      const DarwinInitializationSettings initializationSettingsIos =
+      DarwinInitializationSettings();
+
+      // combine the android and ios settings
+      const InitializationSettings initializationSettings =
+      InitializationSettings(
+        android: initializationSettingsAndroid,
+        iOS: initializationSettingsIos,
+      );
+
+      // initialize the plugin
+      await flutterLocalNotificationsPlugin.initialize(
+        settings: initializationSettings,
+        // onDidReceiveBackgroundNotificationResponse:
+        // onDidReceiveBackgroundNotificationResponse,
+        // onDidReceiveNotificationResponse:
+        // onDidReceiveBackgroundNotificationResponse,
+      );
+
+      // request permission to show notifications on Android
+      await flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+          ?.requestNotificationsPermission();
+      final status = await Permission.notification.status;
+      if (status != PermissionStatus.granted) {
+        Debug.msg('WARN: Notification permission not granted');
+      } else {
+        Debug.msg('OK: Notification permission granted');
+      }
+
+      AndroidNotificationChannel channel = AndroidNotificationChannel(
+        channelData.id,
+        channelData.name,
+        description: channelData.description,
+        importance: Importance.high,
+      );
+
+      await flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+          ?.createNotificationChannel(channel);
+    } catch (e) {
+      Debug.msg('LocalNotificationService plugin setup skipped/failed: $e');
+    }
   }
 
   static Future<void> showInstantNotification({
