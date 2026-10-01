@@ -52,7 +52,7 @@ class FcmNotificationsService {
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'token': token,
-            'topic': defaultTopic,
+            'topic': topic,
           }),
         );
         if (res.statusCode == 200) {
@@ -75,7 +75,7 @@ class FcmNotificationsService {
   static Future<bool> unsubscribeFromTopic(String topic) async {
     if (token != null) {
       if (topic == defaultTopic) {
-        debugPrint('Error unsubscribing from topic $topic: Cannot unsubscribe from default topic.');
+        debugPrint('Error rejected unsubscription from default topic $topic.');
         return false;
       }
       try {
@@ -85,7 +85,7 @@ class FcmNotificationsService {
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'token': token,
-            'topic': defaultTopic,
+            'topic': topic,
           }),
         );
         debugPrint('Unsubscribe response from server: ${res.statusCode}');

@@ -126,9 +126,13 @@ class PreferencesProvider {
   static Future<void> loadNotificationTopics() async {
     String value = "";
     final prefs = await SharedPreferences.getInstance();
-    value = prefs.getString(_notificationTopics) ?? FcmNotificationsService.defaultTopic;
-    value = TextFunctions.normalizeListKey(value, listSep);
+    value = prefs.getString(_notificationTopics) ??
+        FcmNotificationsService.defaultTopic;
     notificationTopicsNotifier.value = value.split(listSep);
+    if (!notificationTopicsNotifier.value.contains(FcmNotificationsService.defaultTopic)) {
+      notificationTopicsNotifier.value.add(FcmNotificationsService.defaultTopic);
+    }
+    notificationTopicsNotifier.value.sort();
   }
 
   static Future<void> addNotificationTopic(String value) async {
