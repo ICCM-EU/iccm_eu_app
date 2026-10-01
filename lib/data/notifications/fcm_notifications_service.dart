@@ -4,6 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
+import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
 
 class FcmNotificationsService {
@@ -33,6 +34,12 @@ class FcmNotificationsService {
         if (token != null) {
           // 3. Subscribe to the saved topics through the Backend-Endpoint
           try {
+            await PreferencesProvider.loadNotificationTopics();
+            for (String topic in PreferencesProvider.notificationTopicsNotifier.value) {
+              if (topic.isNotEmpty) {
+                await subscribeToTopic(topic);
+              }
+            }
           } catch (e) {
             debugPrint('Error sending token to server during registration: $e');
           }
