@@ -20,25 +20,27 @@ class LocalNotificationService {
   static final Map<int, WebNotification> _webNotifications = {};
   static final Map<int, Timer> _scheduledTimers = {};
 
-  static bool _isInitialized = false;
+  static bool _isNativePluginInitialized = false;
   static bool _initAttempted = false;
   static Future<void>? _initFuture;
 
-  static bool get isInitialized => _isInitialized;
+  static final ValueNotifier<WebNotification?> onInAppNotification = ValueNotifier(null);
+
+  static bool get isInitialized => _isNativePluginInitialized;
 
   // initialize the notification service
   static Future<void> init({
     NotificationChannelData? channelData,
   }) async {
-    if (_isInitialized) {
-      if (channelData != null) {
+    if (_initAttempted) {
+      if (channelData != null && _isNativePluginInitialized) {
         await _createChannel(channelData);
       }
       return;
     }
     if (_initFuture != null) {
       await _initFuture;
-      if (channelData != null) {
+      if (channelData != null && _isNativePluginInitialized) {
         await _createChannel(channelData);
       }
       return;
@@ -92,28 +94,29 @@ class LocalNotificationService {
       );
 
       // initialize the plugin
-      bool? initialized = await flutterLocalNotificationsPlugin.initialize(
-        settings: initializationSettings,
-        // onDidReceiveBackgroundNotificationResponse:
-        // onDidReceiveBackgroundNotificationResponse,
-        // onDidReceiveNotificationResponse:
-        // onDidReceiveBackgroundNotificationResponse,
-      );
+      bool? initialized;
+      try {
+        initialized = await flutterLocalNotificationsPlugin.initialize(
+          settings: initializationSettings,
+        );
+      } catch (e) {
+        Debug.msg('flutterLocalNotificationsPlugin.initialize exception: $e');
+      }
 
-      _isInitialized = initialized ?? true;
-      Debug.msg('LocalNotificationService plugin initialized: $_isInitialized (result: $initialized)');
+      _isNativePluginInitialized = initialized ?? false;
+      Debug.msg('LocalNotificationService native plugin initialized: $_isNativePluginInitialized (result: $initialized)');
 
-      if (channelData != null) {
+      if (channelData != null && _isNativePluginInitialized) {
         await _createChannel(channelData);
       }
     } catch (e) {
-      Debug.msg('LocalNotificationService plugin setup skipped/failed: $e');
-      _isInitialized = false;
+      Debug.msg('LocalNotificationService plugin setup failed: $e');
+      _isNativePluginInitialized = false;
     }
   }
 
   static Future<void> _createChannel(NotificationChannelData channelData) async {
-    if (!_isInitialized) return;
+    if (!_isNativePluginInitialized) return;
     try {
       if (defaultTargetPlatform == TargetPlatform.android) {
         await flutterLocalNotificationsPlugin
@@ -147,9 +150,17 @@ class LocalNotificationService {
   static Future<void> _ensureInitialized() async {
     if (!_initAttempted && _initFuture == null) {
       await init();
-    } else if (!_isInitialized && _initFuture != null) {
+    } else if (_initFuture != null) {
       await _initFuture;
     }
+  }
+
+  static void _showInAppNotification({required String title, required String body}) {
+    onInAppNotification.value = WebNotification(
+      title: title,
+      msg: body,
+      timeout: DateTime.now().add(const Duration(seconds: 5)),
+    );
   }
 
   static Future<void> showInstantNotification({
@@ -159,38 +170,46 @@ class LocalNotificationService {
     required NotificationChannelData channelData,
   }) async {
     await _ensureInitialized();
-    if (!_isInitialized) {
-      Debug.msg('LocalNotificationService not initialized, showing debug log for instant notification: $title - $body');
-      return;
+
+    Debug.msg('SHOW NOTIFICATION [$id]: $title - $body');
+
+    bool shownNatively = false;
+
+    if (_isNativePluginInitialized) {
+      try {
+        // define the notification details
+        NotificationDetails notificationDetails = NotificationDetails(
+          android: AndroidNotificationDetails(
+            channelData.id,
+            channelData.name,
+            channelDescription: channelData.description,
+            importance: Importance.max,
+            priority: Priority.high,
+            ticker: 'ticker',
+          ),
+          iOS: const DarwinNotificationDetails(
+            presentAlert: true,
+            presentBadge: true,
+            presentSound: true,
+          ),
+        );
+
+        // show the notification
+        await flutterLocalNotificationsPlugin.show(
+          id: id,
+          title: title,
+          body: body,
+          notificationDetails: notificationDetails,
+        );
+        shownNatively = true;
+      } catch (e) {
+        Debug.msg('Native notification failed ($e), falling back for: $title - $body');
+      }
     }
 
-    try {
-      // define the notification details
-      NotificationDetails notificationDetails = NotificationDetails(
-        android: AndroidNotificationDetails(
-          channelData.id,
-          channelData.name,
-          channelDescription: channelData.description,
-          importance: Importance.max,
-          priority: Priority.high,
-          ticker: 'ticker',
-        ),
-        iOS: const DarwinNotificationDetails(
-          presentAlert: true,
-          presentBadge: true,
-          presentSound: true,
-        ),
-      );
-
-      //show the notification
-      await flutterLocalNotificationsPlugin.show(
-        id: id,
-        title: title,
-        body: body,
-        notificationDetails: notificationDetails,
-      );
-    } catch (e) {
-      Debug.msg('Failed to show instant notification: $e');
+    if (!shownNatively) {
+      Debug.msg('DISPLAY NOTIFICATION (In-App Overlay): $title - $body');
+      _showInAppNotification(title: title, body: body);
     }
   }
 
@@ -222,7 +241,7 @@ class LocalNotificationService {
       defaultTargetPlatform == TargetPlatform.macOS
     );
 
-    if (kIsWeb || isDesktop) {
+    if (kIsWeb || isDesktop || !_isNativePluginInitialized) {
       final Duration delay = scheduledDate.difference(DateTime.now());
       if (!delay.isNegative) {
         Debug.msg('Scheduling in-memory timer for "$title" in ${delay.inSeconds} seconds (ID: $notificationId)');
@@ -243,10 +262,6 @@ class LocalNotificationService {
 
     // Mobile platforms (Android & iOS) use native zonedSchedule
     await _ensureInitialized();
-    if (!_isInitialized) {
-      Debug.msg('LocalNotificationService plugin not initialized, skipping zonedSchedule for $title');
-      return;
-    }
 
     try {
       NotificationDetails notificationDetails = NotificationDetails(
@@ -264,7 +279,6 @@ class LocalNotificationService {
         ),
       );
 
-      // Debug.msg('ACTUAL SCHEDULE TIME: ${tz.TZDateTime.from(scheduledDate, tz.local)}');
       await flutterLocalNotificationsPlugin.zonedSchedule(
         id: notificationId,
         title: TextFunctions.cutTextToWords(
@@ -281,7 +295,7 @@ class LocalNotificationService {
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       );
     } catch (e) {
-      Debug.msg('Failed to schedule notification: $e');
+      Debug.msg('Failed to schedule native notification ($e) for: $title');
     }
   }
 
@@ -293,48 +307,49 @@ class LocalNotificationService {
     required NotificationChannelData channelData,
   }) async {
     await _ensureInitialized();
-    if (!_isInitialized) {
-      Debug.msg('LocalNotificationService not initialized, skipping showBigPictureNotification');
-      return;
+
+    if (_isNativePluginInitialized) {
+      try {
+        final BigPictureStyleInformation bigPictureStyleInformation =
+        BigPictureStyleInformation(
+          DrawableResourceAndroidBitmap(imageUrl),
+          largeIcon: DrawableResourceAndroidBitmap(imageUrl),
+          contentTitle: title,
+          summaryText: body,
+          htmlFormatContent: true,
+          htmlFormatContentTitle: true,
+        );
+
+        NotificationDetails notificationDetails = NotificationDetails(
+          android: AndroidNotificationDetails(
+            channelData.id,
+            channelData.name,
+            channelDescription: channelData.description,
+            importance: Importance.max,
+            priority: Priority.high,
+            styleInformation: bigPictureStyleInformation,
+          ),
+          iOS: DarwinNotificationDetails(
+            presentAlert: true,
+            presentBadge: true,
+            presentSound: true,
+            attachments: [DarwinNotificationAttachment(imageUrl)],
+          ),
+        );
+
+        await flutterLocalNotificationsPlugin.show(
+          id: id,
+          title: title,
+          body: body,
+          notificationDetails: notificationDetails,
+        );
+        return;
+      } catch (e) {
+        Debug.msg('Failed to show big picture notification: $e');
+      }
     }
 
-    try {
-      final BigPictureStyleInformation bigPictureStyleInformation =
-      BigPictureStyleInformation(
-        DrawableResourceAndroidBitmap(imageUrl),
-        largeIcon: DrawableResourceAndroidBitmap(imageUrl),
-        contentTitle: title,
-        summaryText: body,
-        htmlFormatContent: true,
-        htmlFormatContentTitle: true,
-      );
-
-      NotificationDetails notificationDetails = NotificationDetails(
-        android: AndroidNotificationDetails(
-          channelData.id,
-          channelData.name,
-          channelDescription: channelData.description,
-          importance: Importance.max,
-          priority: Priority.high,
-          styleInformation: bigPictureStyleInformation,
-        ),
-        iOS: DarwinNotificationDetails(
-          presentAlert: true,
-          presentBadge: true,
-          presentSound: true,
-          attachments: [DarwinNotificationAttachment(imageUrl)],
-        ),
-      );
-
-      await flutterLocalNotificationsPlugin.show(
-        id: id,
-        title: title,
-        body: body,
-        notificationDetails: notificationDetails,
-      );
-    } catch (e) {
-      Debug.msg('Failed to show big picture notification: $e');
-    }
+    _showInAppNotification(title: title, body: body);
   }
 
   static Future<void> showInstantNotificationWithPayload({
@@ -345,37 +360,38 @@ class LocalNotificationService {
     required NotificationChannelData channelData,
   }) async {
     await _ensureInitialized();
-    if (!_isInitialized) {
-      Debug.msg('LocalNotificationService not initialized, skipping showInstantNotificationWithPayload');
-      return;
+
+    if (_isNativePluginInitialized) {
+      try {
+        NotificationDetails notificationDetails = NotificationDetails(
+          android: AndroidNotificationDetails(
+            channelData.id,
+            channelData.name,
+            channelDescription: channelData.description,
+            importance: Importance.max,
+            priority: Priority.high,
+          ),
+          iOS: const DarwinNotificationDetails(
+            presentAlert: true,
+            presentBadge: true,
+            presentSound: true,
+          ),
+        );
+
+        await flutterLocalNotificationsPlugin.show(
+          id: id,
+          title: title,
+          body: body,
+          notificationDetails: notificationDetails,
+          payload: payload,
+        );
+        return;
+      } catch (e) {
+        Debug.msg('Failed to show instant notification with payload: $e');
+      }
     }
 
-    try {
-      NotificationDetails notificationDetails = NotificationDetails(
-        android: AndroidNotificationDetails(
-          channelData.id,
-          channelData.name,
-          channelDescription: channelData.description,
-          importance: Importance.max,
-          priority: Priority.high,
-        ),
-        iOS: const DarwinNotificationDetails(
-          presentAlert: true,
-          presentBadge: true,
-          presentSound: true,
-        ),
-      );
-
-      await flutterLocalNotificationsPlugin.show(
-        id: id,
-        title: title,
-        body: body,
-        notificationDetails: notificationDetails,
-        payload: payload,
-      );
-    } catch (e) {
-      Debug.msg('Failed to show instant notification with payload: $e');
-    }
+    _showInAppNotification(title: title, body: body);
   }
 
   static Future cancelAllNotifications() async {
@@ -386,12 +402,13 @@ class LocalNotificationService {
     _scheduledTimers.clear();
 
     await _ensureInitialized();
-    if (!_isInitialized) return;
 
-    try {
-      await flutterLocalNotificationsPlugin.cancelAll();
-    } catch (e) {
-      Debug.msg('Failed to cancel all notifications: $e');
+    if (_isNativePluginInitialized) {
+      try {
+        await flutterLocalNotificationsPlugin.cancelAll();
+      } catch (e) {
+        Debug.msg('Failed to cancel all notifications: $e');
+      }
     }
   }
 
@@ -404,21 +421,18 @@ class LocalNotificationService {
     _scheduledTimers.remove(id);
 
     await _ensureInitialized();
-    if (!_isInitialized) return;
 
-    try {
-      await flutterLocalNotificationsPlugin.cancel(
-        id: id,
-        tag: tag,
-      );
-    } catch (e) {
-      Debug.msg('Failed to cancel notification: $e');
+    if (_isNativePluginInitialized) {
+      try {
+        await flutterLocalNotificationsPlugin.cancel(
+          id: id,
+          tag: tag,
+        );
+      } catch (e) {
+        Debug.msg('Failed to cancel notification: $e');
+      }
     }
   }
-
-  // static Future<void> onDidReceiveBackgroundNotificationResponse(
-  //     NotificationResponse notificationResponse) async {
-  // }
 
   static DateTime scheduleAhead ({
     required DateTime time,
