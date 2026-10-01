@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/data/model/communication_data.dart';
 import 'package:iccm_eu_app/utils/debug.dart';
@@ -85,5 +85,12 @@ class CommunicationProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final cacheJson = jsonEncode(_cache); // Convert _cache to JSON string
     await prefs.setString(_cacheTitle, cacheJson); // Save to SharedPreferences
+  }
+
+  static bool showTestTopicOption() {
+    bool value = kDebugMode;
+    // Overwrite during development
+    //value = true;
+    return value;
   }
 }

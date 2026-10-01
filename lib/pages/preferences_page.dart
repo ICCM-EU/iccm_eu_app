@@ -3,6 +3,7 @@ import 'package:iccm_eu_app/components/toggle_button.dart';
 import 'package:iccm_eu_app/components/toggle_is_dark_mode.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/appProviders/error_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/communication_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:provider/provider.dart';
@@ -15,6 +16,7 @@ class PreferencesPage extends StatelessWidget {
   Future<void> _loadPreferences() async {
     PreferencesProvider.loadCalendarColorByRoom();
     PreferencesProvider.loadUseTestData();
+    PreferencesProvider.loadSubscribeTestTopic();
   }
 
   @override
@@ -92,6 +94,31 @@ class PreferencesPage extends StatelessWidget {
             )
           else
             const SizedBox.shrink(),
+          if (CommunicationProvider.showTestTopicOption())
+            const Divider()
+          else
+            const SizedBox.shrink(),
+          if (CommunicationProvider.showTestTopicOption())
+            ValueListenableBuilder<bool>(
+              valueListenable: PreferencesProvider.useTestDataNotifier,
+              builder: (context, builderValue, child) {
+                return ToggleButtonListTile(
+                  value: builderValue,
+                  onChanged: (bool newValue) {
+                    PreferencesProvider.setSubscribeTestTopic(newValue);
+                    Provider.of<GsheetsProvider>(context, listen: false).fetchData(
+                      errorProvider: Provider.of<ErrorProvider>(context, listen: false),
+                      force: true,
+                    );
+                  },
+                  title: 'Subscribe to Test Topic',
+                  toggleTitle: 'Test Notification Topic',
+                );
+              },
+            )
+          else
+            const SizedBox.shrink(),
+
           // const Divider(),
           // const Text('Profile',
           //   style: TextStyle(

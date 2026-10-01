@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart' show SharedPreferences;
 
+import '../dataProviders/communication_provider.dart';
+
 class PreferencesProvider {
   // ---------------------------------------------------------
   static const String _isDarkThemeKey = 'isDarkTheme';
@@ -85,6 +87,30 @@ class PreferencesProvider {
       useTestDataNotifier.value = false;
     }
   }
+
+  // ---------------------------------------------------------
+  static const String _subscribeTestTopicKey = 'subscribeTestTopic';
+  static final ValueNotifier<bool> subscribeTestTopicNotifier = ValueNotifier(false);
+
+  static Future<void> loadSubscribeTestTopic() async {
+    bool value = false;
+    if (CommunicationProvider.showTestTopicOption()) {
+      final prefs = await SharedPreferences.getInstance();
+      value = prefs.getBool(_subscribeTestTopicKey) ?? false; // Default
+    }
+    subscribeTestTopicNotifier.value = value;
+  }
+
+  static Future<void> setSubscribeTestTopic(bool value) async {
+    if (CommunicationProvider.showTestTopicOption()) {
+      subscribeTestTopicNotifier.value = value;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_subscribeTestTopicKey, value);
+    } else {
+      subscribeTestTopicNotifier.value = false;
+    }
+  }
+
   // ---------------------------------------------------------
   static const String _isDayViewKey = 'isDayView';
 

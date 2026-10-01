@@ -13,33 +13,9 @@ import 'package:local_notifier/local_notifier.dart';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+import 'in_app_notification_item.dart';
+
 // based on https://medium.com/@saminchandeepa/a-comprehensive-guide-to-implement-notifications-in-flutter-32155df65c40
-
-class InAppNotificationItem {
-  final String id;
-  final String title;
-  final String body;
-  final Color? backgroundColor;
-  final DateTime createdAt;
-  Timer? _timer;
-
-  InAppNotificationItem({
-    required this.id,
-    required this.title,
-    required this.body,
-    this.backgroundColor,
-    DateTime? createdAt,
-  }) : createdAt = createdAt ?? DateTime.now();
-
-  void startTimer(VoidCallback onTimeout) {
-    _timer?.cancel();
-    _timer = Timer(const Duration(seconds: 15), onTimeout);
-  }
-
-  void dispose() {
-    _timer?.cancel();
-  }
-}
 
 class LocalNotificationService {
   // create an instance of the flutter local notification plugin
