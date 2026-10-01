@@ -112,6 +112,40 @@ class PreferencesProvider {
   }
 
   // ---------------------------------------------------------
+  static const String _notificationsNickname = 'notificationsNickname';
+  static final ValueNotifier<String> notificationsNicknameNotifier = ValueNotifier("");
+
+  static Future<void> loadNotificationsNickname() async {
+    String value = "";
+    final prefs = await SharedPreferences.getInstance();
+    value = prefs.getString(_notificationsNickname) ?? "";
+    notificationsNicknameNotifier.value = value;
+  }
+
+  static Future<void> setNotificationsNickname(String value) async {
+    notificationsNicknameNotifier.value = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_notificationsNickname, value);
+  }
+
+  // ---------------------------------------------------------
+  static const String _fcmAdminPwd = 'fcmAdminPwd';
+  static final ValueNotifier<String> fcmAdminPwdNotifier = ValueNotifier("");
+
+  static Future<void> loadFcmAdminPwd() async {
+    String value = "";
+    final prefs = await SharedPreferences.getInstance();
+    value = prefs.getString(_fcmAdminPwd) ?? "";
+    fcmAdminPwdNotifier.value = value;
+  }
+
+  static Future<void> setFcmAdminPwd(String value) async {
+    fcmAdminPwdNotifier.value = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_fcmAdminPwd, value);
+  }
+
+  // ---------------------------------------------------------
   static const String _isDayViewKey = 'isDayView';
 
   static Future<bool> get isDayView async {

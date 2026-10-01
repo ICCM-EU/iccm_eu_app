@@ -16,31 +16,42 @@ class CommunicationPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Communication'),
       ),
-      body: Consumer<CommunicationProvider>(
-        builder: (context, itemProvider, child) {
-          final itemList = itemProvider.items();
-          if (itemList.isEmpty) {
-            return const Center(
-              child: Text('Loading dynamic content...'),
-            );
-          }
-          return ListView.builder(
-            shrinkWrap: true,
-            physics: ClampingScrollPhysics(),
-            itemCount: itemList.length,
-            itemBuilder: (context, index) {
-              CommunicationData item = itemList[index];
-              if (item.title.isEmpty ||
-                  !item.url.startsWith('https://')) {
-                return SizedBox.shrink();
+      body: ListView(
+        padding: const EdgeInsets.all(16.0),
+        children: <Widget>[
+          Text('Websites and Mailing Lists',
+            style: Theme
+                .of(context)
+                .textTheme
+                .titleLarge,
+          ),
+          Consumer<CommunicationProvider>(
+            builder: (context, itemProvider, child) {
+              final itemList = itemProvider.items();
+              if (itemList.isEmpty) {
+                return const Center(
+                  child: Text('Loading dynamic content...'),
+                );
               }
-              return LinkListTile(
-                item: item,
-                inApp: false,
+              return ListView.builder(
+                shrinkWrap: true,
+                physics: ClampingScrollPhysics(),
+                itemCount: itemList.length,
+                itemBuilder: (context, index) {
+                  CommunicationData item = itemList[index];
+                  if (item.title.isEmpty ||
+                      !item.url.startsWith('https://')) {
+                    return SizedBox.shrink();
+                  }
+                  return LinkListTile(
+                    item: item,
+                    inApp: false,
+                  );
+                },
               );
             },
-          );
-        },
+          ),
+        ]
       ),
     );
   }

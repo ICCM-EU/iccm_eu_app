@@ -94,13 +94,16 @@ class PreferencesPage extends StatelessWidget {
             )
           else
             const SizedBox.shrink(),
-          if (CommunicationProvider.showTestTopicOption())
-            const Divider()
-          else
-            const SizedBox.shrink(),
+          const Divider(),
+          Text('Notification Subscriptions',
+            style: Theme
+                .of(context)
+                .textTheme
+                .titleLarge,
+          ),
           if (CommunicationProvider.showTestTopicOption())
             ValueListenableBuilder<bool>(
-              valueListenable: PreferencesProvider.useTestDataNotifier,
+              valueListenable: PreferencesProvider.subscribeTestTopicNotifier,
               builder: (context, builderValue, child) {
                 return ToggleButtonListTile(
                   value: builderValue,
@@ -111,21 +114,13 @@ class PreferencesPage extends StatelessWidget {
                       force: true,
                     );
                   },
-                  title: 'Subscribe to Test Topic',
-                  toggleTitle: 'Test Notification Topic',
+                  title: 'Test',
+                  toggleTitle: 'Test',
                 );
               },
             )
           else
             const SizedBox.shrink(),
-
-          // const Divider(),
-          // const Text('Profile',
-          //   style: TextStyle(
-          //     fontSize: 18,
-          //     fontWeight: FontWeight.bold,
-          //   ),
-          // ),
         ],
       ),
     );
