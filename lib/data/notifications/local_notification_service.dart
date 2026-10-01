@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:iccm_eu_app/data/model/notification_channel_data.dart';
 import 'package:iccm_eu_app/data/model/web_notification.dart';
@@ -14,6 +15,32 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 // based on https://medium.com/@saminchandeepa/a-comprehensive-guide-to-implement-notifications-in-flutter-32155df65c40
 
+class InAppNotificationItem {
+  final String id;
+  final String title;
+  final String body;
+  final Color? backgroundColor;
+  final DateTime createdAt;
+  Timer? _timer;
+
+  InAppNotificationItem({
+    required this.id,
+    required this.title,
+    required this.body,
+    this.backgroundColor,
+    DateTime? createdAt,
+  }) : createdAt = createdAt ?? DateTime.now();
+
+  void startTimer(VoidCallback onTimeout) {
+    _timer?.cancel();
+    _timer = Timer(const Duration(seconds: 15), onTimeout);
+  }
+
+  void dispose() {
+    _timer?.cancel();
+  }
+}
+
 class LocalNotificationService {
   // create an instance of the flutter local notification plugin
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -26,7 +53,8 @@ class LocalNotificationService {
   static bool _initAttempted = false;
   static Future<void>? _initFuture;
 
-  static final ValueNotifier<WebNotification?> onInAppNotification = ValueNotifier(null);
+  static final ValueNotifier<List<InAppNotificationItem>> inAppNotificationsNotifier =
+      ValueNotifier<List<InAppNotificationItem>>([]);
 
   static bool get isInitialized => _isNativePluginInitialized || _isDesktopNotifierInitialized;
 
@@ -176,12 +204,51 @@ class LocalNotificationService {
     }
   }
 
-  static void _showInAppNotification({required String title, required String body}) {
-    onInAppNotification.value = WebNotification(
+  static void _showInAppNotification({
+    required String title,
+    required String body,
+    Color? backgroundColor,
+  }) {
+    addInAppNotification(title: title, body: body, backgroundColor: backgroundColor);
+  }
+
+  static void addInAppNotification({
+    required String title,
+    required String body,
+    Color? backgroundColor,
+  }) {
+    final String id = '${DateTime.now().microsecondsSinceEpoch}_${title.hashCode}_${body.hashCode}';
+    final item = InAppNotificationItem(
+      id: id,
       title: title,
-      msg: body,
-      timeout: DateTime.now().add(const Duration(seconds: 5)),
+      body: body,
+      backgroundColor: backgroundColor,
     );
+
+    item.startTimer(() {
+      removeInAppNotification(id);
+    });
+
+    final currentList = List<InAppNotificationItem>.from(inAppNotificationsNotifier.value);
+    currentList.add(item);
+    inAppNotificationsNotifier.value = currentList;
+  }
+
+  static void removeInAppNotification(String id) {
+    final currentList = List<InAppNotificationItem>.from(inAppNotificationsNotifier.value);
+    final index = currentList.indexWhere((item) => item.id == id);
+    if (index != -1) {
+      currentList[index].dispose();
+      currentList.removeAt(index);
+      inAppNotificationsNotifier.value = currentList;
+    }
+  }
+
+  static void clearInAppNotifications() {
+    for (var item in inAppNotificationsNotifier.value) {
+      item.dispose();
+    }
+    inAppNotificationsNotifier.value = [];
   }
 
   static Future<void> showInstantNotification({
