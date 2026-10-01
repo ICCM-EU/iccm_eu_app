@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart' show SharedPreferences;
 
+import '../../utils/text_functions.dart';
 import '../dataProviders/communication_provider.dart';
+import '../notifications/fcm_notifications_service.dart';
 
 class PreferencesProvider {
+  static const String listSep = "|";
+
   // ---------------------------------------------------------
   static const String _isDarkThemeKey = 'isDarkTheme';
 
@@ -51,7 +55,8 @@ class PreferencesProvider {
 
   // ---------------------------------------------------------
   static const String _calendarColorByRoomKey = 'calendarColorByRoom';
-  static final ValueNotifier<bool> calendarColorByRoomNotifier = ValueNotifier(false);
+  static final ValueNotifier<bool> calendarColorByRoomNotifier =
+    ValueNotifier(false);
 
   static Future<void> loadCalendarColorByRoom() async {
     final prefs = await SharedPreferences.getInstance();
@@ -67,7 +72,8 @@ class PreferencesProvider {
 
   // ---------------------------------------------------------
   static const String _useTestDataKey = 'useTestData';
-  static final ValueNotifier<bool> useTestDataNotifier = ValueNotifier(false);
+  static final ValueNotifier<bool> useTestDataNotifier =
+    ValueNotifier(false);
 
   static Future<void> loadUseTestData() async {
     bool value = false;
@@ -90,7 +96,8 @@ class PreferencesProvider {
 
   // ---------------------------------------------------------
   static const String _subscribeTestTopicKey = 'subscribeTestTopic';
-  static final ValueNotifier<bool> subscribeTestTopicNotifier = ValueNotifier(false);
+  static final ValueNotifier<bool> subscribeTestTopicNotifier =
+    ValueNotifier(false);
 
   static Future<void> loadSubscribeTestTopic() async {
     bool value = false;
@@ -112,8 +119,43 @@ class PreferencesProvider {
   }
 
   // ---------------------------------------------------------
+  static const String _notificationTopics = 'notificationsTopics';
+  static final ValueNotifier<List<String>> notificationTopicsNotifier =
+    ValueNotifier(FcmNotificationsService.defaultTopic.split(','));
+
+  static Future<void> loadNotificationTopics() async {
+    String value = "";
+    final prefs = await SharedPreferences.getInstance();
+    value = prefs.getString(_notificationTopics) ?? FcmNotificationsService.defaultTopic;
+    value = TextFunctions.normalizeListKey(value, listSep);
+    notificationTopicsNotifier.value = value.split(listSep);
+  }
+
+  static Future<void> addNotificationTopic(String value) async {
+    value = TextFunctions.normalizeListKey(value, listSep);
+    if (!notificationTopicsNotifier.value.contains(value)) {
+      notificationTopicsNotifier.value.add(value);
+    }
+    notificationTopicsNotifier.value.sort();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_notificationTopics,
+        notificationTopicsNotifier.value.join(listSep));
+  }
+
+  static Future<void> removeNotificationTopic(String value) async {
+    value = TextFunctions.normalizeListKey(value, listSep);
+    if (notificationTopicsNotifier.value.contains(value)) {
+      notificationTopicsNotifier.value.remove(value);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_notificationTopics,
+          notificationTopicsNotifier.value.join(listSep));
+    }
+  }
+
+  // ---------------------------------------------------------
   static const String _notificationsNickname = 'notificationsNickname';
-  static final ValueNotifier<String> notificationsNicknameNotifier = ValueNotifier("");
+  static final ValueNotifier<String> notificationsNicknameNotifier =
+    ValueNotifier("");
 
   static Future<void> loadNotificationsNickname() async {
     String value = "";
@@ -130,7 +172,8 @@ class PreferencesProvider {
 
   // ---------------------------------------------------------
   static const String _fcmAdminPwd = 'fcmAdminPwd';
-  static final ValueNotifier<String> fcmAdminPwdNotifier = ValueNotifier("");
+  static final ValueNotifier<String> fcmAdminPwdNotifier =
+    ValueNotifier("");
 
   static Future<void> loadFcmAdminPwd() async {
     String value = "";
@@ -160,7 +203,8 @@ class PreferencesProvider {
 
   // ---------------------------------------------------------
   static const String _futureEventsKey = 'futureEvents';
-  static final ValueNotifier<bool> futureEventsNotifier = ValueNotifier(false);
+  static final ValueNotifier<bool> futureEventsNotifier =
+    ValueNotifier(false);
 
   static Future<void> loadFutureEvents() async {
     final prefs = await SharedPreferences.getInstance();

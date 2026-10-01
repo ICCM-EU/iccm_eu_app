@@ -17,4 +17,7 @@ class TextFunctions {
       return limitedText;
     }
   }
+  static String normalizeListKey (String key, String sep) {
+    return key.toLowerCase().trim().replaceAll(' ', '_').replaceAll(sep, '_');
+  }
 }

@@ -5,6 +5,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
 class FcmNotificationsService {
+  static const String defaultTopic = "announcements";
+  static const String sep = "|";
+  static List<String> _topics = [defaultTopic];
+
   // Called directly on start without a login.
   static Future<void> initializeFcmNotifications() async {
     try {
@@ -34,5 +38,11 @@ class FcmNotificationsService {
     } catch (e) {
       debugPrint('Error initializing notifications: $e');
     }
+  }
+
+  List<String> getTopics()
+  {
+    _topics = [defaultTopic];
+    return _topics;
   }
 }
