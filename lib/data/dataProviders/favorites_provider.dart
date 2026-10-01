@@ -89,11 +89,11 @@ class FavoritesProvider with ChangeNotifier {
     await prefs.setString(_cacheTitle, cacheJson); // Save to SharedPreferences
   }
 
-  void _registerNotifications() {
+  void _registerNotifications() async {
     // Selectively cancel the favorites notifications from this class.
     for (int id in _notificationIDs) {
       Debug.msg('CANCEL ID $id');
-      LocalNotificationService.cancelNotification(id, null);
+      await LocalNotificationService.cancelNotification(id, null);
     }
     _notificationIDs.clear();
 
@@ -110,7 +110,7 @@ class FavoritesProvider with ChangeNotifier {
           time: item.start,
       );
       Debug.msg('NOTIFY ${item.name} at ${item.start} ($notificationTime) with ID ${item.id ?? 0}');
-      LocalNotificationService.scheduleNotification(
+      await LocalNotificationService.scheduleNotification(
         title: 'Upcoming: ${item.name}',
         body: item.details ?? '',
         id: item.id,

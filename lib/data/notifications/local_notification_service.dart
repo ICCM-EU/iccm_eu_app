@@ -18,16 +18,40 @@ class LocalNotificationService {
     FlutterLocalNotificationsPlugin();
   static final Map<int, WebNotification> _webNotifications = {};
 
+  static bool _isInitialized = false;
+  static Future<void>? _initFuture;
+
+  static bool get isInitialized => _isInitialized;
+
   // initialize the notification service
   static Future<void> init({
-    required NotificationChannelData channelData,
+    NotificationChannelData? channelData,
   }) async {
+    if (_isInitialized) {
+      if (channelData != null) {
+        await _createChannel(channelData);
+      }
+      return;
+    }
+    if (_initFuture != null) {
+      await _initFuture;
+      if (channelData != null) {
+        await _createChannel(channelData);
+      }
+      return;
+    }
+
+    _initFuture = _doInit(channelData);
+    await _initFuture;
+  }
+
+  static Future<void> _doInit([NotificationChannelData? channelData]) async {
     try {
       // Initialize the timezones
       tz_data.initializeTimeZones();
-      TimezoneInfo timezone = await FlutterTimezone.getLocalTimezone();
-      final String timeZoneName = timezone.identifier;
       try {
+        TimezoneInfo timezone = await FlutterTimezone.getLocalTimezone();
+        final String timeZoneName = timezone.identifier;
         tz.setLocalLocation(tz.getLocation(timeZoneName));
       } catch (e) {
         Debug.msg('Fallback timezone to UTC: $e');
@@ -46,15 +70,25 @@ class LocalNotificationService {
       const DarwinInitializationSettings initializationSettingsIos =
       DarwinInitializationSettings();
 
-      // combine the android and ios settings
+      // initialize the macos settings
+      const DarwinInitializationSettings initializationSettingsMacos =
+      DarwinInitializationSettings();
+
+      // initialize the linux settings
+      const LinuxInitializationSettings initializationSettingsLinux =
+      LinuxInitializationSettings(defaultActionName: 'Open app');
+
+      // combine the platform settings
       const InitializationSettings initializationSettings =
       InitializationSettings(
         android: initializationSettingsAndroid,
         iOS: initializationSettingsIos,
+        macOS: initializationSettingsMacos,
+        linux: initializationSettingsLinux,
       );
 
       // initialize the plugin
-      await flutterLocalNotificationsPlugin.initialize(
+      bool? initialized = await flutterLocalNotificationsPlugin.initialize(
         settings: initializationSettings,
         // onDidReceiveBackgroundNotificationResponse:
         // onDidReceiveBackgroundNotificationResponse,
@@ -62,31 +96,55 @@ class LocalNotificationService {
         // onDidReceiveBackgroundNotificationResponse,
       );
 
-      // request permission to show notifications on Android
-      await flutterLocalNotificationsPlugin
-          .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
-          ?.requestNotificationsPermission();
-      final status = await Permission.notification.status;
-      if (status != PermissionStatus.granted) {
-        Debug.msg('WARN: Notification permission not granted');
-      } else {
-        Debug.msg('OK: Notification permission granted');
+      _isInitialized = initialized ?? true;
+      Debug.msg('LocalNotificationService plugin initialized: $_isInitialized (result: $initialized)');
+
+      if (channelData != null) {
+        await _createChannel(channelData);
       }
-
-      AndroidNotificationChannel channel = AndroidNotificationChannel(
-        channelData.id,
-        channelData.name,
-        description: channelData.description,
-        importance: Importance.high,
-      );
-
-      await flutterLocalNotificationsPlugin
-          .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
-          ?.createNotificationChannel(channel);
     } catch (e) {
       Debug.msg('LocalNotificationService plugin setup skipped/failed: $e');
+      _isInitialized = false;
+    }
+  }
+
+  static Future<void> _createChannel(NotificationChannelData channelData) async {
+    if (!_isInitialized) return;
+    try {
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        await flutterLocalNotificationsPlugin
+            .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+            ?.requestNotificationsPermission();
+        final status = await Permission.notification.status;
+        if (status != PermissionStatus.granted) {
+          Debug.msg('WARN: Notification permission not granted');
+        } else {
+          Debug.msg('OK: Notification permission granted');
+        }
+
+        AndroidNotificationChannel channel = AndroidNotificationChannel(
+          channelData.id,
+          channelData.name,
+          description: channelData.description,
+          importance: Importance.high,
+        );
+
+        await flutterLocalNotificationsPlugin
+            .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+            ?.createNotificationChannel(channel);
+      }
+    } catch (e) {
+      Debug.msg('Failed to create notification channel: $e');
+    }
+  }
+
+  static Future<void> _ensureInitialized() async {
+    if (!_isInitialized && _initFuture == null) {
+      await init();
+    } else if (!_isInitialized && _initFuture != null) {
+      await _initFuture;
     }
   }
 
@@ -96,30 +154,40 @@ class LocalNotificationService {
     required String body,
     required NotificationChannelData channelData,
   }) async {
-    // define the notification details
-    NotificationDetails notificationDetails = NotificationDetails(
-      android: AndroidNotificationDetails(
-        channelData.id,
-        channelData.name,
-        channelDescription: channelData.description,
-        importance: Importance.max,
-        priority: Priority.high,
-        ticker: 'ticker',
-      ),
-      iOS: DarwinNotificationDetails(
-        presentAlert: true,
-        presentBadge: true,
-        presentSound: true,
-      ),
-    );
+    await _ensureInitialized();
+    if (!_isInitialized) {
+      Debug.msg('LocalNotificationService not initialized, skipping showInstantNotification');
+      return;
+    }
 
-    //show the notification
-    await flutterLocalNotificationsPlugin.show(
-      id: id,
-      title: title,
-      body: body,
-      notificationDetails: notificationDetails,
-    );
+    try {
+      // define the notification details
+      NotificationDetails notificationDetails = NotificationDetails(
+        android: AndroidNotificationDetails(
+          channelData.id,
+          channelData.name,
+          channelDescription: channelData.description,
+          importance: Importance.max,
+          priority: Priority.high,
+          ticker: 'ticker',
+        ),
+        iOS: const DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+      );
+
+      //show the notification
+      await flutterLocalNotificationsPlugin.show(
+        id: id,
+        title: title,
+        body: body,
+        notificationDetails: notificationDetails,
+      );
+    } catch (e) {
+      Debug.msg('Failed to show instant notification: $e');
+    }
   }
 
   static Future<void> scheduleNotification({
@@ -136,38 +204,49 @@ class LocalNotificationService {
           timeout: scheduledDate,
       );
     }
-    NotificationDetails notificationDetails = NotificationDetails(
-      android: AndroidNotificationDetails(
-        channelData.id,
-        channelData.name,
-        channelDescription: channelData.description,
-        importance: Importance.max,
-        priority: Priority.high,
-      ),
-      iOS: DarwinNotificationDetails(
-        presentAlert: true,
-        presentBadge: true,
-        presentSound: true,
-      ),
-    );
 
-    // Debug.msg('ACTUAL SCHEDULE TIME: ${tz.TZDateTime.from(scheduledDate, tz.local)}');
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-      id: id ?? 0,
-      title: TextFunctions.cutTextToWords(
-        text: title,
-        wordCount: 80,
-      ),
-      body: TextFunctions.cutTextToWords(
-        text: body,
-        wordCount: 80,
-      ),
-      scheduledDate: tz.TZDateTime.from(scheduledDate, tz.local),
-      notificationDetails: notificationDetails,
-      // uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time,
-      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-    );
+    await _ensureInitialized();
+    if (!_isInitialized) {
+      Debug.msg('LocalNotificationService not initialized, skipping scheduleNotification');
+      return;
+    }
+
+    try {
+      NotificationDetails notificationDetails = NotificationDetails(
+        android: AndroidNotificationDetails(
+          channelData.id,
+          channelData.name,
+          channelDescription: channelData.description,
+          importance: Importance.max,
+          priority: Priority.high,
+        ),
+        iOS: const DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+      );
+
+      // Debug.msg('ACTUAL SCHEDULE TIME: ${tz.TZDateTime.from(scheduledDate, tz.local)}');
+      await flutterLocalNotificationsPlugin.zonedSchedule(
+        id: id ?? 0,
+        title: TextFunctions.cutTextToWords(
+          text: title,
+          wordCount: 80,
+        ),
+        body: TextFunctions.cutTextToWords(
+          text: body,
+          wordCount: 80,
+        ),
+        scheduledDate: tz.TZDateTime.from(scheduledDate, tz.local),
+        notificationDetails: notificationDetails,
+        // uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.time,
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      );
+    } catch (e) {
+      Debug.msg('Failed to schedule notification: $e');
+    }
   }
 
   static Future<void> showBigPictureNotification({
@@ -177,39 +256,49 @@ class LocalNotificationService {
     required String imageUrl,
     required NotificationChannelData channelData,
   }) async {
-    final BigPictureStyleInformation bigPictureStyleInformation =
-    BigPictureStyleInformation(
-      DrawableResourceAndroidBitmap(imageUrl),
-      largeIcon: DrawableResourceAndroidBitmap(imageUrl),
-      contentTitle: title,
-      summaryText: body,
-      htmlFormatContent: true,
-      htmlFormatContentTitle: true,
-    );
+    await _ensureInitialized();
+    if (!_isInitialized) {
+      Debug.msg('LocalNotificationService not initialized, skipping showBigPictureNotification');
+      return;
+    }
 
-    NotificationDetails notificationDetails = NotificationDetails(
-      android: AndroidNotificationDetails(
-        channelData.id,
-        channelData.name,
-        channelDescription: channelData.description,
-        importance: Importance.max,
-        priority: Priority.high,
-        styleInformation: bigPictureStyleInformation,
-      ),
-      iOS: DarwinNotificationDetails(
-        presentAlert: true,
-        presentBadge: true,
-        presentSound: true,
-        attachments: [DarwinNotificationAttachment(imageUrl)],
-      ),
-    );
+    try {
+      final BigPictureStyleInformation bigPictureStyleInformation =
+      BigPictureStyleInformation(
+        DrawableResourceAndroidBitmap(imageUrl),
+        largeIcon: DrawableResourceAndroidBitmap(imageUrl),
+        contentTitle: title,
+        summaryText: body,
+        htmlFormatContent: true,
+        htmlFormatContentTitle: true,
+      );
 
-    await flutterLocalNotificationsPlugin.show(
-      id: id,
-      title: title,
-      body: body,
-      notificationDetails: notificationDetails,
-    );
+      NotificationDetails notificationDetails = NotificationDetails(
+        android: AndroidNotificationDetails(
+          channelData.id,
+          channelData.name,
+          channelDescription: channelData.description,
+          importance: Importance.max,
+          priority: Priority.high,
+          styleInformation: bigPictureStyleInformation,
+        ),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+          attachments: [DarwinNotificationAttachment(imageUrl)],
+        ),
+      );
+
+      await flutterLocalNotificationsPlugin.show(
+        id: id,
+        title: title,
+        body: body,
+        notificationDetails: notificationDetails,
+      );
+    } catch (e) {
+      Debug.msg('Failed to show big picture notification: $e');
+    }
   }
 
   static Future<void> showInstantNotificationWithPayload({
@@ -219,33 +308,54 @@ class LocalNotificationService {
     required String payload,
     required NotificationChannelData channelData,
   }) async {
-    NotificationDetails notificationDetails = NotificationDetails(
-      android: AndroidNotificationDetails(
-        channelData.id,
-        channelData.name,
-        channelDescription: channelData.description,
-        importance: Importance.max,
-        priority: Priority.high,
-      ),
-      iOS: const DarwinNotificationDetails(
-        presentAlert: true,
-        presentBadge: true,
-        presentSound: true,
-      ),
-    );
+    await _ensureInitialized();
+    if (!_isInitialized) {
+      Debug.msg('LocalNotificationService not initialized, skipping showInstantNotificationWithPayload');
+      return;
+    }
 
-    await flutterLocalNotificationsPlugin.show(
-      id: id,
-      title: title,
-      body: body,
-      notificationDetails: notificationDetails,
-      payload: payload,
-    );
+    try {
+      NotificationDetails notificationDetails = NotificationDetails(
+        android: AndroidNotificationDetails(
+          channelData.id,
+          channelData.name,
+          channelDescription: channelData.description,
+          importance: Importance.max,
+          priority: Priority.high,
+        ),
+        iOS: const DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+      );
+
+      await flutterLocalNotificationsPlugin.show(
+        id: id,
+        title: title,
+        body: body,
+        notificationDetails: notificationDetails,
+        payload: payload,
+      );
+    } catch (e) {
+      Debug.msg('Failed to show instant notification with payload: $e');
+    }
   }
 
   static Future cancelAllNotifications() async {
     _webNotifications.clear();
-    await flutterLocalNotificationsPlugin.cancelAll();
+
+    await _ensureInitialized();
+    if (!_isInitialized) {
+      Debug.msg('LocalNotificationService not initialized, skipping cancelAllNotifications');
+      return;
+    }
+
+    try {
+      await flutterLocalNotificationsPlugin.cancelAll();
+    } catch (e) {
+      Debug.msg('Failed to cancel all notifications: $e');
+    }
   }
 
   static Future cancelNotification(
@@ -253,10 +363,21 @@ class LocalNotificationService {
       String? tag,
   ) async {
     _webNotifications.remove(id);
-    await flutterLocalNotificationsPlugin.cancel(
-      id: id,
-      tag: tag,
-    );
+
+    await _ensureInitialized();
+    if (!_isInitialized) {
+      Debug.msg('LocalNotificationService not initialized, skipping cancelNotification');
+      return;
+    }
+
+    try {
+      await flutterLocalNotificationsPlugin.cancel(
+        id: id,
+        tag: tag,
+      );
+    } catch (e) {
+      Debug.msg('Failed to cancel notification: $e');
+    }
   }
 
   // static Future<void> onDidReceiveBackgroundNotificationResponse(

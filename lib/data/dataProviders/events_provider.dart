@@ -121,9 +121,9 @@ class EventsProvider with ChangeNotifier  {
     await prefs.setString(_cacheTitle, cacheJson); // Save to SharedPreferences
   }
 
-  void _registerNotifications() {
+  void _registerNotifications() async {
     for (int id in _notificationIDs) {
-      LocalNotificationService.cancelNotification(id, null);
+      await LocalNotificationService.cancelNotification(id, null);
     }
     _notificationIDs.clear();
 
@@ -142,7 +142,7 @@ class EventsProvider with ChangeNotifier  {
       );
       Debug.msg('ANNOUNCE ${item.name} at ${item
           .start} ($notificationTime) with ID ${item.id ?? 0}');
-      LocalNotificationService.scheduleNotification(
+      await LocalNotificationService.scheduleNotification(
           title: 'Upcoming: ${item.name}',
           body: item.description,
           id: item.id,
