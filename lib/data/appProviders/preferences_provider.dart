@@ -184,7 +184,7 @@ class PreferencesProvider {
   }
 
   static Future<void> setNotificationsNickname(String value) async {
-    notificationsNicknameNotifier.value = value;
+    notificationsNicknameNotifier.value = value.trim();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_notificationsNickname, value);
   }

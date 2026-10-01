@@ -11,16 +11,65 @@ import 'package:iccm_eu_app/data/notifications/fcm_notifications_service.dart';
 import 'package:iccm_eu_app/utils/text_functions.dart';
 import 'package:provider/provider.dart';
 
-class PreferencesPage extends StatelessWidget {
-  PreferencesPage({super.key}) {
+class PreferencesPage extends StatefulWidget {
+  const PreferencesPage({super.key});
+
+  @override
+  State<PreferencesPage> createState() => _PreferencesPageState();
+}
+
+class _PreferencesPageState extends State<PreferencesPage> {
+  late final TextEditingController _nicknameController;
+  late final TextEditingController _pwdController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nicknameController = TextEditingController(
+      text: PreferencesProvider.notificationsNicknameNotifier.value,
+    );
+    _pwdController = TextEditingController(
+      text: PreferencesProvider.fcmAdminPwdNotifier.value,
+    );
+
     _loadPreferences();
+
+    PreferencesProvider.notificationsNicknameNotifier.addListener(_onNicknameChanged);
+    PreferencesProvider.fcmAdminPwdNotifier.addListener(_onPwdChanged);
+  }
+
+  void _onNicknameChanged() {
+    if (_nicknameController.text != PreferencesProvider.notificationsNicknameNotifier.value) {
+      _nicknameController.text = PreferencesProvider.notificationsNicknameNotifier.value;
+    }
+  }
+
+  void _onPwdChanged() {
+    if (_pwdController.text != PreferencesProvider.fcmAdminPwdNotifier.value) {
+      _pwdController.text = PreferencesProvider.fcmAdminPwdNotifier.value;
+    }
   }
 
   Future<void> _loadPreferences() async {
-    PreferencesProvider.loadCalendarColorByRoom();
-    PreferencesProvider.loadUseTestData();
-    PreferencesProvider.loadSubscribeTestTopic();
-    PreferencesProvider.loadNotificationTopics();
+    await PreferencesProvider.loadCalendarColorByRoom();
+    await PreferencesProvider.loadUseTestData();
+    await PreferencesProvider.loadSubscribeTestTopic();
+    await PreferencesProvider.loadNotificationTopics();
+    await PreferencesProvider.loadNotificationsNickname();
+    await PreferencesProvider.loadFcmAdminPwd();
+    if (mounted) {
+      _nicknameController.text = PreferencesProvider.notificationsNicknameNotifier.value;
+      _pwdController.text = PreferencesProvider.fcmAdminPwdNotifier.value;
+    }
+  }
+
+  @override
+  void dispose() {
+    PreferencesProvider.notificationsNicknameNotifier.removeListener(_onNicknameChanged);
+    PreferencesProvider.fcmAdminPwdNotifier.removeListener(_onPwdChanged);
+    _nicknameController.dispose();
+    _pwdController.dispose();
+    super.dispose();
   }
 
   @override
@@ -169,6 +218,40 @@ class PreferencesPage extends StatelessWidget {
                     },
                   );
                 }).toList(),
+              );
+            },
+          ),
+          const Divider(),
+          ValueListenableBuilder<String>(
+            valueListenable: PreferencesProvider.notificationsNicknameNotifier,
+            builder: (context, nickname, child) {
+              final bool showPassword = nickname.trim().isNotEmpty;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextField(
+                    controller: _nicknameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Notification Nickname',
+                    ),
+                    onChanged: (value) {
+                      PreferencesProvider.setNotificationsNickname(value);
+                    },
+                  ),
+                  if (showPassword) ...[
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: _pwdController,
+                      obscureText: true,
+                      decoration: const InputDecoration(
+                        labelText: 'FCM Admin Password',
+                      ),
+                      onChanged: (value) {
+                        PreferencesProvider.setFcmAdminPwd(value);
+                      },
+                    ),
+                  ],
+                ],
               );
             },
           ),
