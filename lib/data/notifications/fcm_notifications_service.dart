@@ -119,4 +119,37 @@ class FcmNotificationsService {
     }
     return _topics;
   }
+
+  static Future<bool> sendMessage({
+    required String topic,
+    required String title,
+    required String messageText,
+    required String author,
+    required String secret,
+  }) async {
+    try {
+      final url = Uri.parse('$backendUrl/send');
+      final http.Response res = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'topic': topic,
+          'title': title,
+          'messageText': messageText,
+          'author': author,
+          'secret': secret,
+        }),
+      );
+      if (res.statusCode == 200) {
+        debugPrint('Send message response from server: ${res.statusCode}');
+        return true;
+      } else {
+        debugPrint('Error sending message: ${res.statusCode} ${res.body}');
+        return false;
+      }
+    } catch (e) {
+      debugPrint('Error sending message: $e');
+      return false;
+    }
+  }
 }
