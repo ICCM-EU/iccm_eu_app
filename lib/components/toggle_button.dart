@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 class ToggleButtonListTile extends StatelessWidget {
   final bool value;
-  final ValueChanged<bool> onChanged;
+  final ValueChanged<bool>? onChanged;
   final String title;
   final String toggleTitle;
 
   const ToggleButtonListTile({
     super.key,
     required this.value,
-    required this.onChanged,
+    this.onChanged,
     required this.title,
     required this.toggleTitle,
   });

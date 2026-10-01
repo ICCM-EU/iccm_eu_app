@@ -4,9 +4,11 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
+import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
+
 class FcmNotificationsService {
-  static const String defaultTopic = "announcements";
   static const String sep = "|";
+  static final String defaultTopic = "Announcements";
   static List<String> _topics = [defaultTopic];
 
   // Called directly on start without a login.
@@ -40,9 +42,16 @@ class FcmNotificationsService {
     }
   }
 
-  List<String> getTopics()
+  List<String> getTopics([TracksProvider? tracksProvider])
   {
     _topics = [defaultTopic];
+    if (tracksProvider != null) {
+      for (var track in tracksProvider.items()) {
+        if (track.name.isNotEmpty && !_topics.contains(track.name)) {
+          _topics.add(track.name);
+        }
+      }
+    }
     return _topics;
   }
 }

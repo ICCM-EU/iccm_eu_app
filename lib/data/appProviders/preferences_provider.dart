@@ -133,19 +133,30 @@ class PreferencesProvider {
 
   static Future<void> addNotificationTopic(String value) async {
     value = TextFunctions.normalizeListKey(value, listSep);
-    if (!notificationTopicsNotifier.value.contains(value)) {
-      notificationTopicsNotifier.value.add(value);
+    final list = List<String>.from(notificationTopicsNotifier.value);
+    if (!list.contains(value)) {
+      list.add(value);
+      list.sort();
+      notificationTopicsNotifier.value = list;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_notificationTopics,
+          notificationTopicsNotifier.value.join(listSep));
     }
-    notificationTopicsNotifier.value.sort();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_notificationTopics,
-        notificationTopicsNotifier.value.join(listSep));
   }
 
   static Future<void> removeNotificationTopic(String value) async {
     value = TextFunctions.normalizeListKey(value, listSep);
-    if (notificationTopicsNotifier.value.contains(value)) {
-      notificationTopicsNotifier.value.remove(value);
+    final String defaultKey = TextFunctions.normalizeListKey(
+      FcmNotificationsService.defaultTopic,
+      listSep,
+    );
+    if (value == defaultKey) {
+      return;
+    }
+    final list = List<String>.from(notificationTopicsNotifier.value);
+    if (list.contains(value)) {
+      list.remove(value);
+      notificationTopicsNotifier.value = list;
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_notificationTopics,
           notificationTopicsNotifier.value.join(listSep));

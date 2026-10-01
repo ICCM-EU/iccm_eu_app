@@ -6,6 +6,9 @@ import 'package:iccm_eu_app/data/appProviders/error_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/communication_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
+import 'package:iccm_eu_app/data/notifications/fcm_notifications_service.dart';
+import 'package:iccm_eu_app/utils/text_functions.dart';
 import 'package:provider/provider.dart';
 
 class PreferencesPage extends StatelessWidget {
@@ -17,6 +20,7 @@ class PreferencesPage extends StatelessWidget {
     PreferencesProvider.loadCalendarColorByRoom();
     PreferencesProvider.loadUseTestData();
     PreferencesProvider.loadSubscribeTestTopic();
+    PreferencesProvider.loadNotificationTopics();
   }
 
   @override
@@ -121,6 +125,53 @@ class PreferencesPage extends StatelessWidget {
             )
           else
             const SizedBox.shrink(),
+          Consumer<TracksProvider>(
+            builder: (context, tracksProvider, child) {
+              final tracks = tracksProvider.items();
+              if (tracks.isEmpty) {
+                return const SizedBox.shrink();
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: tracks.map((track) {
+                  return ValueListenableBuilder<List<String>>(
+                    valueListenable: PreferencesProvider.notificationTopicsNotifier,
+                    builder: (context, subscribedTopics, child) {
+                      final String topicKey = TextFunctions.normalizeListKey(
+                        track.name,
+                        PreferencesProvider.listSep,
+                      );
+                      final String defaultTopicKey = TextFunctions.normalizeListKey(
+                        FcmNotificationsService.defaultTopic,
+                        PreferencesProvider.listSep,
+                      );
+                      final bool isDefaultTopic =
+                          topicKey == defaultTopicKey ||
+                              track.name.toLowerCase().trim() ==
+                                  FcmNotificationsService.defaultTopic.toLowerCase().trim();
+                      final bool isSubscribed = isDefaultTopic ||
+                          subscribedTopics.contains(topicKey) ||
+                          subscribedTopics.contains(track.name);
+                      return ToggleButtonListTile(
+                        value: isSubscribed,
+                        onChanged: isDefaultTopic
+                            ? null
+                            : (bool newValue) {
+                                if (newValue) {
+                                  PreferencesProvider.addNotificationTopic(track.name);
+                                } else {
+                                  PreferencesProvider.removeNotificationTopic(track.name);
+                                }
+                              },
+                        title: track.name,
+                        toggleTitle: track.name,
+                      );
+                    },
+                  );
+                }).toList(),
+              );
+            },
+          ),
         ],
       ),
     );
