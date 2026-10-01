@@ -135,12 +135,14 @@ class PreferencesProvider {
     value = TextFunctions.normalizeListKey(value, listSep);
     final list = List<String>.from(notificationTopicsNotifier.value);
     if (!list.contains(value)) {
-      list.add(value);
-      list.sort();
-      notificationTopicsNotifier.value = list;
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_notificationTopics,
-          notificationTopicsNotifier.value.join(listSep));
+      if (await FcmNotificationsService.subscribeToTopic(value)) {
+        list.add(value);
+        list.sort();
+        notificationTopicsNotifier.value = list;
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(_notificationTopics,
+            notificationTopicsNotifier.value.join(listSep));
+      }
     }
   }
 
@@ -155,11 +157,13 @@ class PreferencesProvider {
     }
     final list = List<String>.from(notificationTopicsNotifier.value);
     if (list.contains(value)) {
-      list.remove(value);
-      notificationTopicsNotifier.value = list;
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_notificationTopics,
-          notificationTopicsNotifier.value.join(listSep));
+      if (await FcmNotificationsService.unsubscribeFromTopic(value)) {
+        list.remove(value);
+        notificationTopicsNotifier.value = list;
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(_notificationTopics,
+            notificationTopicsNotifier.value.join(listSep));
+      }
     }
   }
 
