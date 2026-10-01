@@ -14,5 +14,5 @@ void main() {
     final eventData = provider.getEventData();
     expect(eventData, isNotNull);
     expect(eventData!.isNotEmpty, isTrue);
-  });
+  }, timeout: const Timeout(Duration(seconds: 60)));
 }

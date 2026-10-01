@@ -67,49 +67,64 @@ class GsheetsProvider with ChangeNotifier {
     String rawUrl = "https://script.google.com/macros/s/$_deploymentID/exec";
     Uri url =
       Uri.parse(kIsWeb ? UrlFunctions.proxy(rawUrl) : rawUrl);
+    String worksheetName = body['worksheet']?.toString() ?? 'unknown';
 
-    try {
-      Map<String, String> bodyMap =
-        body.map((key, value) => MapEntry(key.toString(), value.toString()));
+    Map<String, String> bodyMap =
+      body.map((key, value) => MapEntry(key.toString(), value.toString()));
 
-      var client = http.Client();
-      var request = http.Request('POST', url)
-        ..followRedirects = false
-        ..bodyFields = bodyMap;
+    for (int attempt = 1; attempt <= 2; attempt++) {
+      try {
+        var client = http.Client();
+        var request = http.Request('POST', url)
+          ..followRedirects = false
+          ..bodyFields = bodyMap;
 
-      var response = await client.send(request);
+        var response = await client.send(request);
 
-      if ([301, 302, 303, 307, 308].contains(response.statusCode)) {
-        String? redirectedUrl = response.headers['location'];
-        await response.stream.drain();
+        if ([301, 302, 303, 307, 308].contains(response.statusCode)) {
+          String? redirectedUrl = response.headers['location'];
+          await response.stream.drain();
 
-        if (redirectedUrl != null && redirectedUrl.isNotEmpty) {
-          Uri redirectUri =
-            Uri.parse(kIsWeb ? UrlFunctions.proxy(redirectedUrl) : redirectedUrl);
-          var getResponse = await http.get(redirectUri);
-          if ([200, 201].contains(getResponse.statusCode)) {
-            String bodyText = getResponse.body.trim();
-            if (bodyText.startsWith('{') || bodyText.startsWith('[')) {
-              dataDict = jsonDecode(bodyText);
+          if (redirectedUrl != null && redirectedUrl.isNotEmpty) {
+            Uri redirectUri =
+              Uri.parse(kIsWeb ? UrlFunctions.proxy(redirectedUrl) : redirectedUrl);
+            var getResponse = await http.get(redirectUri);
+            if ([200, 201].contains(getResponse.statusCode)) {
+              String bodyText = getResponse.body.trim();
+              if (bodyText.startsWith('{') || bodyText.startsWith('[')) {
+                dataDict = jsonDecode(bodyText);
+              } else {
+                Debug.msg("_triggerWebAPP returned non-JSON for worksheet '$worksheetName' (attempt $attempt, HTTP ${getResponse.statusCode}): "
+                    "${bodyText.length > 150 ? bodyText.substring(0, 150) : bodyText}...");
+              }
             } else {
-              Debug.msg("_triggerWebAPP returned non-JSON: $bodyText");
+              Debug.msg("_triggerWebAPP redirect GET failed for worksheet '$worksheetName' (attempt $attempt): HTTP ${getResponse.statusCode}");
             }
+          } else {
+            Debug.msg("_triggerWebAPP redirect missing location header for worksheet '$worksheetName' (attempt $attempt)");
           }
-        }
-      } else if ([200, 201].contains(response.statusCode)) {
-        var responseBody = await response.stream.bytesToString();
-        String bodyText = responseBody.trim();
-        if (bodyText.startsWith('{') || bodyText.startsWith('[')) {
-          dataDict = jsonDecode(bodyText);
+        } else if ([200, 201].contains(response.statusCode)) {
+          var responseBody = await response.stream.bytesToString();
+          String bodyText = responseBody.trim();
+          if (bodyText.startsWith('{') || bodyText.startsWith('[')) {
+            dataDict = jsonDecode(bodyText);
+          } else {
+            Debug.msg("_triggerWebAPP returned non-JSON for worksheet '$worksheetName' (attempt $attempt, HTTP ${response.statusCode}): "
+                "${bodyText.length > 150 ? bodyText.substring(0, 150) : bodyText}...");
+          }
         } else {
-          Debug.msg("_triggerWebAPP returned non-JSON: $bodyText");
+          await response.stream.drain();
+          Debug.msg("_triggerWebAPP HTTP POST failed for worksheet '$worksheetName' (attempt $attempt): HTTP ${response.statusCode}");
         }
-      } else {
-        await response.stream.drain();
+        client.close();
+      } catch (e, stackTrace) {
+        Debug.msg("_triggerWebAPP Exception for worksheet '$worksheetName' (attempt $attempt): $e\n$stackTrace");
       }
-      client.close();
-    } catch (e) {
-      Debug.msg("_triggerWebAPP FAILED: $e");
+
+      if (dataDict.isNotEmpty) {
+        break;
+      }
+      await Future.delayed(const Duration(milliseconds: 200));
     }
 
     return dataDict;
@@ -138,9 +153,17 @@ class GsheetsProvider with ChangeNotifier {
       try {
         Map<String, dynamic> response =
           await _getSheetsData(worksheetName: worksheetTitle);
-        if ((response["status"] as String?) != 'SUCCESS') {
-          throw Exception('Worksheet "$worksheetTitle" not loaded.');
+
+        if (response.isEmpty) {
+          throw Exception('Worksheet "$worksheetTitle" received an empty or invalid response from Google Apps Script.');
         }
+
+        if ((response["status"] as String?) != 'SUCCESS') {
+          String status = response["status"]?.toString() ?? "null";
+          String msg = response["message"]?.toString() ?? "no message";
+          throw Exception('Worksheet "$worksheetTitle" status not SUCCESS (status: $status, message: $msg).');
+        }
+
         List<String> columns = (response['columns'] as List).cast<String>();
         List<List<dynamic>> data = (response["data"] as List)
             .map((row) => (row as List).map((e) => e.toString()).toList())
@@ -154,6 +177,7 @@ class GsheetsProvider with ChangeNotifier {
         }).toList();
         _rawData[worksheetTitle] = tableRows;
       } catch (e, stackTrace) {
+        Debug.msg("_readWorksheets Exception loading '$worksheetTitle': $e");
         final RegExp regExp = RegExp(r'#0 +([^\s]+) \(([^\s]+):([0-9]+)\)');
         final Match? match = regExp.firstMatch(stackTrace.toString());
         final fileName = match?.group(2) ?? 'unknown';
@@ -184,56 +208,61 @@ class GsheetsProvider with ChangeNotifier {
     }
     _isFetchingData = true;
 
-    DateTime now = DateTime.now();
-    DateTime? lastUpdated = await PreferencesProvider.cacheLastUpdated;
-    // set lastUpdated out of silent range
-    lastUpdated ??= DateTime.now().subtract(Duration(hours: 12));
-    if (lastUpdated.isAfter(now.subtract(
-            const Duration(minutes: 4, seconds: 50,))) &&
-        !force
-    ) {
-      String duration = 'unset';
-      duration = now.difference(lastUpdated).inMinutes.toString();
-      Debug.msg('Fetch omitted. (${force ? 'force' : 'noforce'}, '
-          '$duration since $now)');
-      _isFetchingData = false;
-      return;
-    }
-
-    if (!EventsProvider.showTestDataOption() ||
-        !PreferencesProvider.useTestDataNotifier.value) {
-      List<String> workSheetTitles = [];
-      workSheetTitles.add(EventsProvider.worksheetTitle);
-      workSheetTitles.add(RoomsProvider.worksheetTitle);
-      workSheetTitles.add(SpeakersProvider.worksheetTitle);
-      workSheetTitles.add(TracksProvider.worksheetTitle);
-      workSheetTitles.add(HomeProvider.worksheetTitle);
-      workSheetTitles.add(CommunicationProvider.worksheetTitle);
-      workSheetTitles.add(TravelProvider.worksheetTitle);
-      workSheetTitles.add(TravelDetailsProvider.worksheetTitle);
-
-      await _readWorksheets(
-          worksheetTitles: workSheetTitles,
-          errorProvider: errorProvider);
-
-      // Terminate if data is empty
-      if (_countDataObjects(_rawData) == 0) {
+    try {
+      DateTime now = DateTime.now();
+      DateTime? lastUpdated = await PreferencesProvider.cacheLastUpdated;
+      // set lastUpdated out of silent range
+      lastUpdated ??= DateTime.now().subtract(const Duration(hours: 12));
+      if (lastUpdated.isAfter(now.subtract(
+              const Duration(minutes: 4, seconds: 50,))) &&
+          !force
+      ) {
+        String duration = 'unset';
+        duration = now.difference(lastUpdated).inMinutes.toString();
+        Debug.msg('Fetch omitted. (${force ? 'force' : 'noforce'}, '
+            '$duration since $now)');
         _isFetchingData = false;
-        Debug.msg("Fetch: Not data found.");
         return;
       }
 
-      String cachedChecksum = await PreferencesProvider.cachedChecksum;
-      String dataChecksum = _generateChecksum(_rawData);
+      if (!EventsProvider.showTestDataOption() ||
+          !PreferencesProvider.useTestDataNotifier.value) {
+        List<String> workSheetTitles = [];
+        workSheetTitles.add(EventsProvider.worksheetTitle);
+        workSheetTitles.add(RoomsProvider.worksheetTitle);
+        workSheetTitles.add(SpeakersProvider.worksheetTitle);
+        workSheetTitles.add(TracksProvider.worksheetTitle);
+        workSheetTitles.add(HomeProvider.worksheetTitle);
+        workSheetTitles.add(CommunicationProvider.worksheetTitle);
+        workSheetTitles.add(TravelProvider.worksheetTitle);
+        workSheetTitles.add(TravelDetailsProvider.worksheetTitle);
 
-      if (cachedChecksum != dataChecksum || force) {
-        await PreferencesProvider.setCachedChecksum(dataChecksum);
-        await PreferencesProvider.setLastUpdated(now);
+        await _readWorksheets(
+            worksheetTitles: workSheetTitles,
+            errorProvider: errorProvider);
+
+        // Terminate if data is empty
+        if (_countDataObjects(_rawData) == 0) {
+          _isFetchingData = false;
+          Debug.msg("Fetch: No data found.");
+          return;
+        }
+
+        String cachedChecksum = await PreferencesProvider.cachedChecksum;
+        String dataChecksum = _generateChecksum(_rawData);
+
+        if (cachedChecksum != dataChecksum || force) {
+          await PreferencesProvider.setCachedChecksum(dataChecksum);
+          await PreferencesProvider.setLastUpdated(now);
+        }
       }
+      notifyListeners();
+      Debug.msg("Fetch completed successfully.");
+    } catch (e, stackTrace) {
+      Debug.msg("fetchData Exception: $e\n$stackTrace");
+    } finally {
+      _isFetchingData = false;
     }
-    notifyListeners();
-    Debug.msg("Fetch completed successfully.");
-    _isFetchingData = false;
   }
 
   List<Map<String, String>>? getEventData() {
