@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:iccm_eu_app/data/model/notification_channel_data.dart';
@@ -17,8 +18,10 @@ class LocalNotificationService {
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
   static final Map<int, WebNotification> _webNotifications = {};
+  static final Map<int, Timer> _scheduledTimers = {};
 
   static bool _isInitialized = false;
+  static bool _initAttempted = false;
   static Future<void>? _initFuture;
 
   static bool get isInitialized => _isInitialized;
@@ -46,6 +49,7 @@ class LocalNotificationService {
   }
 
   static Future<void> _doInit([NotificationChannelData? channelData]) async {
+    _initAttempted = true;
     try {
       // Initialize the timezones
       tz_data.initializeTimeZones();
@@ -141,7 +145,7 @@ class LocalNotificationService {
   }
 
   static Future<void> _ensureInitialized() async {
-    if (!_isInitialized && _initFuture == null) {
+    if (!_initAttempted && _initFuture == null) {
       await init();
     } else if (!_isInitialized && _initFuture != null) {
       await _initFuture;
@@ -156,7 +160,7 @@ class LocalNotificationService {
   }) async {
     await _ensureInitialized();
     if (!_isInitialized) {
-      Debug.msg('LocalNotificationService not initialized, skipping showInstantNotification');
+      Debug.msg('LocalNotificationService not initialized, showing debug log for instant notification: $title - $body');
       return;
     }
 
@@ -197,17 +201,50 @@ class LocalNotificationService {
     required NotificationChannelData channelData,
     int? id,
   }) async {
+    final notificationId = id ?? 0;
+
     if (kIsWeb) {
-      _webNotifications[id ?? 0] = WebNotification(
-          title: title,
-          msg: body,
-          timeout: scheduledDate,
+      _webNotifications[notificationId] = WebNotification(
+        title: title,
+        msg: body,
+        timeout: scheduledDate,
       );
     }
 
+    // Cancel existing timer for this ID if any
+    _scheduledTimers[notificationId]?.cancel();
+    _scheduledTimers.remove(notificationId);
+
+    // Desktop (Windows, Linux, macOS) or Web or fallback uses in-memory Timer
+    bool isDesktop = !kIsWeb && (
+      defaultTargetPlatform == TargetPlatform.windows ||
+      defaultTargetPlatform == TargetPlatform.linux ||
+      defaultTargetPlatform == TargetPlatform.macOS
+    );
+
+    if (kIsWeb || isDesktop) {
+      final Duration delay = scheduledDate.difference(DateTime.now());
+      if (!delay.isNegative) {
+        Debug.msg('Scheduling in-memory timer for "$title" in ${delay.inSeconds} seconds (ID: $notificationId)');
+        _scheduledTimers[notificationId] = Timer(delay, () {
+          _scheduledTimers.remove(notificationId);
+          showInstantNotification(
+            id: notificationId,
+            title: title,
+            body: body,
+            channelData: channelData,
+          );
+        });
+      } else {
+        Debug.msg('Scheduled date for "$title" is in the past, skipping timer (ID: $notificationId)');
+      }
+      return;
+    }
+
+    // Mobile platforms (Android & iOS) use native zonedSchedule
     await _ensureInitialized();
     if (!_isInitialized) {
-      Debug.msg('LocalNotificationService not initialized, skipping scheduleNotification');
+      Debug.msg('LocalNotificationService plugin not initialized, skipping zonedSchedule for $title');
       return;
     }
 
@@ -229,7 +266,7 @@ class LocalNotificationService {
 
       // Debug.msg('ACTUAL SCHEDULE TIME: ${tz.TZDateTime.from(scheduledDate, tz.local)}');
       await flutterLocalNotificationsPlugin.zonedSchedule(
-        id: id ?? 0,
+        id: notificationId,
         title: TextFunctions.cutTextToWords(
           text: title,
           wordCount: 80,
@@ -240,7 +277,6 @@ class LocalNotificationService {
         ),
         scheduledDate: tz.TZDateTime.from(scheduledDate, tz.local),
         notificationDetails: notificationDetails,
-        // uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
         matchDateTimeComponents: DateTimeComponents.time,
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       );
@@ -344,12 +380,13 @@ class LocalNotificationService {
 
   static Future cancelAllNotifications() async {
     _webNotifications.clear();
+    for (final timer in _scheduledTimers.values) {
+      timer.cancel();
+    }
+    _scheduledTimers.clear();
 
     await _ensureInitialized();
-    if (!_isInitialized) {
-      Debug.msg('LocalNotificationService not initialized, skipping cancelAllNotifications');
-      return;
-    }
+    if (!_isInitialized) return;
 
     try {
       await flutterLocalNotificationsPlugin.cancelAll();
@@ -363,12 +400,11 @@ class LocalNotificationService {
       String? tag,
   ) async {
     _webNotifications.remove(id);
+    _scheduledTimers[id]?.cancel();
+    _scheduledTimers.remove(id);
 
     await _ensureInitialized();
-    if (!_isInitialized) {
-      Debug.msg('LocalNotificationService not initialized, skipping cancelNotification');
-      return;
-    }
+    if (!_isInitialized) return;
 
     try {
       await flutterLocalNotificationsPlugin.cancel(
