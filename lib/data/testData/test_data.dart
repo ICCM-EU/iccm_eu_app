@@ -6,6 +6,8 @@ import 'package:iccm_eu_app/data/model/track_data.dart';
 
 
 class TestData {
+  // Enable test data injection through the preferences in the app in debug mode.
+
   static final List<RoomData> rooms = [
     RoomData(
       name: 'Room 1',
