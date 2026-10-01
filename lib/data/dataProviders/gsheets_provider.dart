@@ -67,6 +67,7 @@ class GsheetsProvider with ChangeNotifier {
     String rawUrl = "https://script.google.com/macros/s/$_deploymentID/exec";
     Uri url =
       Uri.parse(kIsWeb ? UrlFunctions.proxy(rawUrl) : rawUrl);
+
     try {
       Map<String, String> bodyMap =
         body.map((key, value) => MapEntry(key.toString(), value.toString()));
@@ -80,17 +81,31 @@ class GsheetsProvider with ChangeNotifier {
 
       if ([301, 302, 303, 307, 308].contains(response.statusCode)) {
         String? redirectedUrl = response.headers['location'];
+        await response.stream.drain();
+
         if (redirectedUrl != null && redirectedUrl.isNotEmpty) {
           Uri redirectUri =
             Uri.parse(kIsWeb ? UrlFunctions.proxy(redirectedUrl) : redirectedUrl);
           var getResponse = await http.get(redirectUri);
           if ([200, 201].contains(getResponse.statusCode)) {
-            dataDict = jsonDecode(getResponse.body);
+            String bodyText = getResponse.body.trim();
+            if (bodyText.startsWith('{') || bodyText.startsWith('[')) {
+              dataDict = jsonDecode(bodyText);
+            } else {
+              Debug.msg("_triggerWebAPP returned non-JSON: $bodyText");
+            }
           }
         }
       } else if ([200, 201].contains(response.statusCode)) {
         var responseBody = await response.stream.bytesToString();
-        dataDict = jsonDecode(responseBody);
+        String bodyText = responseBody.trim();
+        if (bodyText.startsWith('{') || bodyText.startsWith('[')) {
+          dataDict = jsonDecode(bodyText);
+        } else {
+          Debug.msg("_triggerWebAPP returned non-JSON: $bodyText");
+        }
+      } else {
+        await response.stream.drain();
       }
       client.close();
     } catch (e) {
@@ -119,14 +134,13 @@ class GsheetsProvider with ChangeNotifier {
       required List<String> worksheetTitles,
       ErrorProvider? errorProvider,
   }) async {
-    for (final worksheetTitle in worksheetTitles) {
+    Future<void> fetchSingleWorksheet(String worksheetTitle) async {
       try {
         Map<String, dynamic> response =
           await _getSheetsData(worksheetName: worksheetTitle);
         if ((response["status"] as String?) != 'SUCCESS') {
           throw Exception('Worksheet "$worksheetTitle" not loaded.');
         }
-        // Debug.msg("Got data: $response");
         List<String> columns = (response['columns'] as List).cast<String>();
         List<List<dynamic>> data = (response["data"] as List)
             .map((row) => (row as List).map((e) => e.toString()).toList())
@@ -147,6 +161,17 @@ class GsheetsProvider with ChangeNotifier {
         errorProvider?.setErrorSignal(
             ErrorSignal('Fetch Error ($fileName:$lineNumber): $e\n$stackTrace'));
       }
+    }
+
+    // Fetch worksheets in small batches of 2 to avoid overloading Google Apps Script
+    // concurrent execution limits.
+    int batchSize = 2;
+    for (int i = 0; i < worksheetTitles.length; i += batchSize) {
+      List<String> batch = worksheetTitles.sublist(
+        i,
+        (i + batchSize < worksheetTitles.length) ? i + batchSize : worksheetTitles.length,
+      );
+      await Future.wait(batch.map((title) => fetchSingleWorksheet(title)));
     }
   }
 
