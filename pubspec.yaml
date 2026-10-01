@@ -59,6 +59,7 @@ dependencies:
   flutter_timezone: ^5.0.0
   universal_html: ^2.2.4
   window_manager: ^0.5.1
+  local_notifier: ^0.1.6
 
 dev_dependencies:
   flutter_test:

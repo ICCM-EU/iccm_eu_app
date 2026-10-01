@@ -8,6 +8,7 @@ import 'package:iccm_eu_app/utils/text_functions.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:local_notifier/local_notifier.dart';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
@@ -21,12 +22,13 @@ class LocalNotificationService {
   static final Map<int, Timer> _scheduledTimers = {};
 
   static bool _isNativePluginInitialized = false;
+  static bool _isDesktopNotifierInitialized = false;
   static bool _initAttempted = false;
   static Future<void>? _initFuture;
 
   static final ValueNotifier<WebNotification?> onInAppNotification = ValueNotifier(null);
 
-  static bool get isInitialized => _isNativePluginInitialized;
+  static bool get isInitialized => _isNativePluginInitialized || _isDesktopNotifierInitialized;
 
   // initialize the notification service
   static Future<void> init({
@@ -65,6 +67,25 @@ class LocalNotificationService {
       }
     } catch (e) {
       Debug.msg('Timezone initialization skipped/failed: $e');
+    }
+
+    bool isDesktop = !kIsWeb && (
+      defaultTargetPlatform == TargetPlatform.windows ||
+      defaultTargetPlatform == TargetPlatform.linux ||
+      defaultTargetPlatform == TargetPlatform.macOS
+    );
+
+    if (isDesktop) {
+      try {
+        await localNotifier.setup(
+          appName: 'ICCM Europe App',
+          shortcutPolicy: ShortcutPolicy.requireCreate,
+        );
+        _isDesktopNotifierInitialized = true;
+        Debug.msg('localNotifier setup succeeded on desktop');
+      } catch (e) {
+        Debug.msg('localNotifier setup failed: $e');
+      }
     }
 
     try {
@@ -173,9 +194,25 @@ class LocalNotificationService {
 
     Debug.msg('SHOW NOTIFICATION [$id]: $title - $body');
 
-    bool shownNatively = false;
+    bool isDesktop = !kIsWeb && (
+      defaultTargetPlatform == TargetPlatform.windows ||
+      defaultTargetPlatform == TargetPlatform.linux ||
+      defaultTargetPlatform == TargetPlatform.macOS
+    );
 
-    if (_isNativePluginInitialized) {
+    if (isDesktop && _isDesktopNotifierInitialized) {
+      try {
+        LocalNotification notification = LocalNotification(
+          identifier: '$id',
+          title: title,
+          body: body,
+        );
+        await notification.show();
+        Debug.msg('Desktop native OS notification shown: $title - $body');
+      } catch (e) {
+        Debug.msg('Desktop native notification failed: $e');
+      }
+    } else if (_isNativePluginInitialized) {
       try {
         // define the notification details
         NotificationDetails notificationDetails = NotificationDetails(
@@ -201,16 +238,12 @@ class LocalNotificationService {
           body: body,
           notificationDetails: notificationDetails,
         );
-        shownNatively = true;
       } catch (e) {
         Debug.msg('Native notification failed ($e), falling back for: $title - $body');
       }
     }
 
-    if (!shownNatively) {
-      Debug.msg('DISPLAY NOTIFICATION (In-App Overlay): $title - $body');
-      _showInAppNotification(title: title, body: body);
-    }
+    _showInAppNotification(title: title, body: body);
   }
 
   static Future<void> scheduleNotification({
@@ -308,7 +341,24 @@ class LocalNotificationService {
   }) async {
     await _ensureInitialized();
 
-    if (_isNativePluginInitialized) {
+    bool isDesktop = !kIsWeb && (
+      defaultTargetPlatform == TargetPlatform.windows ||
+      defaultTargetPlatform == TargetPlatform.linux ||
+      defaultTargetPlatform == TargetPlatform.macOS
+    );
+
+    if (isDesktop && _isDesktopNotifierInitialized) {
+      try {
+        LocalNotification notification = LocalNotification(
+          identifier: '$id',
+          title: title,
+          body: body,
+        );
+        await notification.show();
+      } catch (e) {
+        Debug.msg('Desktop native notification failed: $e');
+      }
+    } else if (_isNativePluginInitialized) {
       try {
         final BigPictureStyleInformation bigPictureStyleInformation =
         BigPictureStyleInformation(
@@ -343,7 +393,6 @@ class LocalNotificationService {
           body: body,
           notificationDetails: notificationDetails,
         );
-        return;
       } catch (e) {
         Debug.msg('Failed to show big picture notification: $e');
       }
@@ -361,7 +410,24 @@ class LocalNotificationService {
   }) async {
     await _ensureInitialized();
 
-    if (_isNativePluginInitialized) {
+    bool isDesktop = !kIsWeb && (
+      defaultTargetPlatform == TargetPlatform.windows ||
+      defaultTargetPlatform == TargetPlatform.linux ||
+      defaultTargetPlatform == TargetPlatform.macOS
+    );
+
+    if (isDesktop && _isDesktopNotifierInitialized) {
+      try {
+        LocalNotification notification = LocalNotification(
+          identifier: '$id',
+          title: title,
+          body: body,
+        );
+        await notification.show();
+      } catch (e) {
+        Debug.msg('Desktop native notification failed: $e');
+      }
+    } else if (_isNativePluginInitialized) {
       try {
         NotificationDetails notificationDetails = NotificationDetails(
           android: AndroidNotificationDetails(
@@ -385,7 +451,6 @@ class LocalNotificationService {
           notificationDetails: notificationDetails,
           payload: payload,
         );
-        return;
       } catch (e) {
         Debug.msg('Failed to show instant notification with payload: $e');
       }
