@@ -183,6 +183,24 @@ class PreferencesProvider {
   }
 
   // ---------------------------------------------------------
+  static const String _fcmToken = 'fcmToken';
+  static final ValueNotifier<String> fcmTokenNotifier =
+    ValueNotifier("");
+
+  static Future<void> loadFcmToken() async {
+    String value = "";
+    final prefs = await SharedPreferences.getInstance();
+    value = prefs.getString(_fcmToken) ?? "";
+    fcmTokenNotifier.value = value;
+  }
+
+  static Future<void> setFcmToken(String value) async {
+    fcmTokenNotifier.value = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_fcmToken, value);
+  }
+
+  // ---------------------------------------------------------
   static const String _isDayViewKey = 'isDayView';
 
   static Future<bool> get isDayView async {

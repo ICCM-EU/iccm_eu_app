@@ -21,7 +21,7 @@ class FcmNotificationsService {
     try {
       await _ensureToken();
 
-      if (token != null) {
+      if (token != null && token!.isNotEmpty) {
         // Subscribe to the saved topics through the Backend-Endpoint
         try {
           await PreferencesProvider.loadNotificationTopics();
@@ -40,14 +40,25 @@ class FcmNotificationsService {
   }
 
   static Future<void> _ensureToken() async {
-    if (token != null) return;
+    if (token != null && token!.isNotEmpty) return;
+
+    await PreferencesProvider.loadFcmToken();
+    if (PreferencesProvider.fcmTokenNotifier.value.isNotEmpty) {
+      token = PreferencesProvider.fcmTokenNotifier.value;
+      return;
+    }
+
     try {
       messaging = FirebaseMessaging.instance;
       NotificationSettings settings = await messaging.requestPermission();
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-        token = await messaging.getToken(
+        String? fetchedToken = await messaging.getToken(
           vapidKey: "BGEz4g_2DgMpiDTsZo6i36iFJOM3nZvOKf_KR_EliLRzJWDmgc25hooKJBoGtlzj-0CaQbs9gVkeOuqEaoPsgTY",
         );
+        if (fetchedToken != null && fetchedToken.isNotEmpty) {
+          token = fetchedToken;
+          await PreferencesProvider.setFcmToken(fetchedToken);
+        }
       }
     } catch (e) {
       debugPrint('FCM token not available on this platform/device: $e');
@@ -56,7 +67,7 @@ class FcmNotificationsService {
 
   static Future<bool> subscribeToTopic(String topic) async {
     await _ensureToken();
-    if (token != null) {
+    if (token != null && token!.isNotEmpty) {
       try {
         final url = Uri.parse('$backendUrl/subscribe');
         final http.Response res = await http.post(
@@ -90,7 +101,7 @@ class FcmNotificationsService {
       return false;
     }
     await _ensureToken();
-    if (token != null) {
+    if (token != null && token!.isNotEmpty) {
       try {
         final url = Uri.parse('$backendUrl/unsubscribe');
         final http.Response res = await http.post(
