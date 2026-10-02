@@ -78,7 +78,8 @@ class GsheetsProvider with ChangeNotifier {
     Map<String, String> bodyMap =
       body.map((key, value) => MapEntry(key.toString(), value.toString()));
 
-    for (int attempt = 1; attempt <= 2; attempt++) {
+    const int maxAttempts = 3;
+    for (int attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
         var client = http.Client();
         var request = http.Request('POST', url)
@@ -95,51 +96,51 @@ class GsheetsProvider with ChangeNotifier {
             Uri redirectUri =
               Uri.parse(kIsWeb ? UrlFunctions.proxy(redirectedUrl) : redirectedUrl);
 
-            // Retry GET on redirect URI up to 2 times to handle Google CDN propagation delays
-            for (int getAttempt = 1; getAttempt <= 2; getAttempt++) {
+            // Retry GET on redirect URI up to 3 times with progressive delay
+            // to allow Google CDN cache key propagation on cold starts.
+            for (int getAttempt = 1; getAttempt <= 3; getAttempt++) {
               var getResponse = await http.get(redirectUri);
               if ([200, 201].contains(getResponse.statusCode)) {
                 String bodyText = getResponse.body.trim();
                 if (bodyText.startsWith('{') || bodyText.startsWith('[')) {
                   dataDict = jsonDecode(bodyText);
                   break;
-                } else {
-                  Debug.msg("_triggerWebAPP returned non-JSON for worksheet '$worksheetName' (attempt $attempt, HTTP ${getResponse.statusCode}): "
-                      "${bodyText.length > 150 ? bodyText.substring(0, 150) : bodyText}...");
                 }
-              } else if (getResponse.statusCode == 404 && getAttempt == 1) {
-                // Wait briefly for Google CDN cache key propagation on cold start
-                await Future.delayed(const Duration(milliseconds: 150));
-                continue;
-              } else {
-                Debug.msg("_triggerWebAPP redirect GET failed for worksheet '$worksheetName' (attempt $attempt): HTTP ${getResponse.statusCode}");
+              }
+
+              if (getResponse.statusCode == 404 && getAttempt < 3) {
+                await Future.delayed(Duration(milliseconds: 200 * getAttempt));
               }
             }
+
+            if (dataDict.isEmpty && attempt == maxAttempts) {
+              Debug.msg("_triggerWebAPP redirect GET failed for worksheet '$worksheetName' after $maxAttempts attempts.");
+            }
           } else {
-            Debug.msg("_triggerWebAPP redirect missing location header for worksheet '$worksheetName' (attempt $attempt)");
+            if (attempt == maxAttempts) {
+              Debug.msg("_triggerWebAPP redirect missing location header for worksheet '$worksheetName'.");
+            }
           }
         } else if ([200, 201].contains(response.statusCode)) {
           var responseBody = await response.stream.bytesToString();
           String bodyText = responseBody.trim();
           if (bodyText.startsWith('{') || bodyText.startsWith('[')) {
             dataDict = jsonDecode(bodyText);
-          } else {
-            Debug.msg("_triggerWebAPP returned non-JSON for worksheet '$worksheetName' (attempt $attempt, HTTP ${response.statusCode}): "
-                "${bodyText.length > 150 ? bodyText.substring(0, 150) : bodyText}...");
           }
         } else {
           await response.stream.drain();
-          Debug.msg("_triggerWebAPP HTTP POST failed for worksheet '$worksheetName' (attempt $attempt): HTTP ${response.statusCode}");
         }
         client.close();
       } catch (e, stackTrace) {
-        Debug.msg("_triggerWebAPP Exception for worksheet '$worksheetName' (attempt $attempt): $e\n$stackTrace");
+        if (attempt == maxAttempts) {
+          Debug.msg("_triggerWebAPP Exception for worksheet '$worksheetName': $e\n$stackTrace");
+        }
       }
 
       if (dataDict.isNotEmpty && (dataDict['status'] == 'SUCCESS')) {
         break;
       }
-      await Future.delayed(const Duration(milliseconds: 250));
+      await Future.delayed(Duration(milliseconds: 300 * attempt));
     }
 
     return dataDict;
