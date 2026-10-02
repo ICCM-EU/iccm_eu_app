@@ -64,10 +64,16 @@ class GsheetsProvider with ChangeNotifier {
 
   Future<Map<String, dynamic>> _triggerWebAPP({required Map body}) async {
     Map<String, dynamic> dataDict = {};
-    String rawUrl = "https://script.google.com/macros/s/$_deploymentID/exec";
-    Uri url =
-      Uri.parse(kIsWeb ? UrlFunctions.proxy(rawUrl) : rawUrl);
-    String worksheetName = body['worksheet']?.toString() ?? 'unknown';
+    String worksheetName = body['worksheet']?.toString() ?? '';
+    String sheetId = body['sheetId']?.toString() ?? _sheetId;
+    String action = body['action']?.toString() ?? 'read';
+
+    String queryString = "sheetId=${Uri.encodeComponent(sheetId)}"
+        "&action=${Uri.encodeComponent(action)}"
+        "&worksheet=${Uri.encodeComponent(worksheetName)}";
+
+    String rawUrl = "https://script.google.com/macros/s/$_deploymentID/exec?$queryString";
+    Uri url = Uri.parse(kIsWeb ? UrlFunctions.proxy(rawUrl) : rawUrl);
 
     Map<String, String> bodyMap =
       body.map((key, value) => MapEntry(key.toString(), value.toString()));
@@ -88,17 +94,26 @@ class GsheetsProvider with ChangeNotifier {
           if (redirectedUrl != null && redirectedUrl.isNotEmpty) {
             Uri redirectUri =
               Uri.parse(kIsWeb ? UrlFunctions.proxy(redirectedUrl) : redirectedUrl);
-            var getResponse = await http.get(redirectUri);
-            if ([200, 201].contains(getResponse.statusCode)) {
-              String bodyText = getResponse.body.trim();
-              if (bodyText.startsWith('{') || bodyText.startsWith('[')) {
-                dataDict = jsonDecode(bodyText);
+
+            // Retry GET on redirect URI up to 2 times to handle Google CDN propagation delays
+            for (int getAttempt = 1; getAttempt <= 2; getAttempt++) {
+              var getResponse = await http.get(redirectUri);
+              if ([200, 201].contains(getResponse.statusCode)) {
+                String bodyText = getResponse.body.trim();
+                if (bodyText.startsWith('{') || bodyText.startsWith('[')) {
+                  dataDict = jsonDecode(bodyText);
+                  break;
+                } else {
+                  Debug.msg("_triggerWebAPP returned non-JSON for worksheet '$worksheetName' (attempt $attempt, HTTP ${getResponse.statusCode}): "
+                      "${bodyText.length > 150 ? bodyText.substring(0, 150) : bodyText}...");
+                }
+              } else if (getResponse.statusCode == 404 && getAttempt == 1) {
+                // Wait briefly for Google CDN cache key propagation on cold start
+                await Future.delayed(const Duration(milliseconds: 150));
+                continue;
               } else {
-                Debug.msg("_triggerWebAPP returned non-JSON for worksheet '$worksheetName' (attempt $attempt, HTTP ${getResponse.statusCode}): "
-                    "${bodyText.length > 150 ? bodyText.substring(0, 150) : bodyText}...");
+                Debug.msg("_triggerWebAPP redirect GET failed for worksheet '$worksheetName' (attempt $attempt): HTTP ${getResponse.statusCode}");
               }
-            } else {
-              Debug.msg("_triggerWebAPP redirect GET failed for worksheet '$worksheetName' (attempt $attempt): HTTP ${getResponse.statusCode}");
             }
           } else {
             Debug.msg("_triggerWebAPP redirect missing location header for worksheet '$worksheetName' (attempt $attempt)");
@@ -121,10 +136,10 @@ class GsheetsProvider with ChangeNotifier {
         Debug.msg("_triggerWebAPP Exception for worksheet '$worksheetName' (attempt $attempt): $e\n$stackTrace");
       }
 
-      if (dataDict.isNotEmpty) {
+      if (dataDict.isNotEmpty && (dataDict['status'] == 'SUCCESS')) {
         break;
       }
-      await Future.delayed(const Duration(milliseconds: 200));
+      await Future.delayed(const Duration(milliseconds: 250));
     }
 
     return dataDict;
@@ -178,7 +193,7 @@ class GsheetsProvider with ChangeNotifier {
         _rawData[worksheetTitle] = tableRows;
       } catch (e, stackTrace) {
         Debug.msg("_readWorksheets Exception loading '$worksheetTitle': $e");
-        final RegExp regExp = RegExp(r'#0 +([^\s]+) \(([^\s]+):([0-9]+)\)');
+        final RegExp regExp = RegExp(r'#0 +(\S+) \((\S+):([0-9]+)\)');
         final Match? match = regExp.firstMatch(stackTrace.toString());
         final fileName = match?.group(2) ?? 'unknown';
         final lineNumber = match?.group(3) ?? 'unknown';
