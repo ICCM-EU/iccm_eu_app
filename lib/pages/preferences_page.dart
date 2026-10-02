@@ -152,87 +152,104 @@ class _PreferencesPageState extends State<PreferencesPage> {
                 .textTheme
                 .titleLarge,
           ),
-          Consumer<TracksProvider>(
-            builder: (context, tracksProvider, child) {
-              final topics = FcmNotificationsService().getTopics(tracksProvider);
-              if (topics.isEmpty) {
-                return const SizedBox.shrink();
-              }
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: topics.map((topicName) {
-                  return ValueListenableBuilder<List<String>>(
-                    valueListenable: PreferencesProvider.notificationTopicsNotifier,
-                    builder: (context, subscribedTopics, child) {
-                      final String topicKey = TextFunctions.normalizeListKey(
-                        topicName,
-                        PreferencesProvider.listSep,
-                      );
-                      final String defaultTopicKey = TextFunctions.normalizeListKey(
-                        FcmNotificationsService.defaultTopic,
-                        PreferencesProvider.listSep,
-                      );
-                      final bool isDefaultTopic =
-                          topicKey == defaultTopicKey ||
-                              topicName.toLowerCase().trim() ==
-                                  FcmNotificationsService.defaultTopic.toLowerCase().trim();
-                      final bool isSubscribed = isDefaultTopic ||
-                          subscribedTopics.contains(topicKey) ||
-                          subscribedTopics.contains(topicName);
-                      return ToggleButtonListTile(
-                        value: isSubscribed,
-                        onChanged: isDefaultTopic
-                            ? null
-                            : (bool newValue) {
-                                if (newValue) {
-                                  PreferencesProvider.addNotificationTopic(topicName);
-                                } else {
-                                  PreferencesProvider.removeNotificationTopic(topicName);
-                                }
-                              },
-                        title: topicName,
-                        toggleTitle: topicName,
-                      );
-                    },
-                  );
-                }).toList(),
-              );
-            },
-          ),
-          const Divider(),
-          ValueListenableBuilder<String>(
-            valueListenable: PreferencesProvider.notificationsNicknameNotifier,
-            builder: (context, nickname, child) {
-              final bool showPassword = nickname.trim().isNotEmpty;
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextField(
-                    controller: _nicknameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Notification Nickname',
-                    ),
-                    onChanged: (value) {
-                      PreferencesProvider.setNotificationsNickname(value);
-                    },
-                  ),
-                  if (showPassword) ...[
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: _pwdController,
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                        labelText: 'FCM Admin Password',
-                      ),
-                      onChanged: (value) {
-                        PreferencesProvider.setFcmAdminPwd(value);
+          // Limit the topic subscription to platforms supported by firebase_messaging only.
+          if (FcmNotificationsService.supportedPlatform)
+            Consumer<TracksProvider>(
+              builder: (context, tracksProvider, child) {
+                final topics = FcmNotificationsService().getTopics(
+                    tracksProvider);
+                if (topics.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: topics.map((topicName) {
+                    return ValueListenableBuilder<List<String>>(
+                      valueListenable: PreferencesProvider
+                          .notificationTopicsNotifier,
+                      builder: (context, subscribedTopics, child) {
+                        final String topicKey = TextFunctions.normalizeListKey(
+                          topicName,
+                          PreferencesProvider.listSep,
+                        );
+                        final String defaultTopicKey = TextFunctions
+                            .normalizeListKey(
+                          FcmNotificationsService.defaultTopic,
+                          PreferencesProvider.listSep,
+                        );
+                        final bool isDefaultTopic =
+                            topicKey == defaultTopicKey ||
+                                topicName.toLowerCase().trim() ==
+                                    FcmNotificationsService.defaultTopic
+                                        .toLowerCase().trim();
+                        final bool isSubscribed = isDefaultTopic ||
+                            subscribedTopics.contains(topicKey) ||
+                            subscribedTopics.contains(topicName);
+                        return ToggleButtonListTile(
+                          value: isSubscribed,
+                          onChanged: isDefaultTopic
+                              ? null
+                              : (bool newValue) {
+                            if (newValue) {
+                              PreferencesProvider.addNotificationTopic(
+                                  topicName);
+                            } else {
+                              PreferencesProvider.removeNotificationTopic(
+                                  topicName);
+                            }
+                          },
+                          title: topicName,
+                          toggleTitle: topicName,
+                        );
                       },
-                    ),
-                  ],
-                ],
-              );
-            },
-          ),
+                    );
+                  }).toList(),
+                );
+              },
+            ),
+            if (FcmNotificationsService.supportedPlatform)
+              const Divider(),
+            if (FcmNotificationsService.supportedPlatform)
+              ValueListenableBuilder<String>(
+                valueListenable: PreferencesProvider
+                    .notificationsNicknameNotifier,
+                builder: (context, nickname, child) {
+                  final bool showPassword = nickname
+                      .trim()
+                      .isNotEmpty;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextField(
+                        controller: _nicknameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Notification Nickname',
+                        ),
+                        onChanged: (value) {
+                          PreferencesProvider.setNotificationsNickname(value);
+                        },
+                      ),
+                      if (showPassword) ...[
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: _pwdController,
+                          obscureText: true,
+                          decoration: const InputDecoration(
+                            labelText: 'FCM Admin Password',
+                          ),
+                          onChanged: (value) {
+                            PreferencesProvider.setFcmAdminPwd(value);
+                          },
+                        ),
+                      ],
+                    ],
+                  );
+                },
+              )
+             else
+                const Text(
+                    'Notification topic subscriptions not supported on this platform.'
+                ),
         ],
       ),
     );

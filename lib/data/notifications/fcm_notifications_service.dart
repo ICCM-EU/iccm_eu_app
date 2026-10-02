@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -15,9 +16,15 @@ class FcmNotificationsService {
   static late FirebaseMessaging messaging;
   static String? token;
   static String backendUrl = 'https://iccm-eu-notifications.tappe-info.de';
+  static final bool supportedPlatform =
+    (kIsWeb || Platform.isAndroid || Platform.isIOS || Platform.isMacOS);
 
   // Called directly on start without a login.
   static Future<void> initializeFcmNotifications() async {
+    if (!supportedPlatform) {
+      debugPrint('FCM notifications not supported on this platform.');
+      return;
+    }
     try {
       await _ensureToken();
 
@@ -66,6 +73,9 @@ class FcmNotificationsService {
   }
 
   static Future<bool> subscribeToTopic(String topic) async {
+    if (!supportedPlatform) {
+      return false;
+    }
     await _ensureToken();
     if (token == null || token!.isEmpty) {
       debugPrint('Cannot subscribe to topic $topic: No FCM token available on this platform/device.');
@@ -95,6 +105,9 @@ class FcmNotificationsService {
   }
 
   static Future<bool> unsubscribeFromTopic(String topic) async {
+    if (!supportedPlatform) {
+      return false;
+    }
     if (topic == defaultTopic) {
       debugPrint('Error rejected unsubscription from default topic $topic.');
       return false;
@@ -150,6 +163,9 @@ class FcmNotificationsService {
     required String author,
     required String secret,
   }) async {
+    if (!supportedPlatform) {
+      return false;
+    }
     try {
       final url = Uri.parse('$backendUrl/send');
       final http.Response res = await http.post(

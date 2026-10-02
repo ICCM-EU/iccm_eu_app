@@ -27,6 +27,7 @@ void main() {
       // Token should be reused from preferences by _ensureToken
       final result = await FcmNotificationsService.subscribeToTopic('test_topic');
       expect(FcmNotificationsService.token, equals('cached_test_token_123'));
+      expect(result, isTrue);
     });
 
     test('unsubscribeFromTopic rejects default topic Announcements', () async {
