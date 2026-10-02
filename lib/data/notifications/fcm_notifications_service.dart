@@ -67,31 +67,30 @@ class FcmNotificationsService {
 
   static Future<bool> subscribeToTopic(String topic) async {
     await _ensureToken();
-    if (token != null && token!.isNotEmpty) {
-      try {
-        final url = Uri.parse('$backendUrl/subscribe');
-        final http.Response res = await http.post(
-          url,
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({
-            'token': token,
-            'topic': topic,
-          }),
-        );
-        if (res.statusCode == 200) {
-          debugPrint('Subscribe response from server: ${res.statusCode}');
-          return true;
-        } else {
-          debugPrint('Error subscribing to topic $topic: ${res.body}');
-          return false;
-        }
-      } catch (e) {
-        debugPrint('Error subscribing to topic $topic: $e');
+    if (token == null || token!.isEmpty) {
+      debugPrint('Cannot subscribe to topic $topic: No FCM token available on this platform/device.');
+      return false;
+    }
+    try {
+      final url = Uri.parse('$backendUrl/subscribe');
+      final http.Response res = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'token': token,
+          'topic': topic,
+        }),
+      );
+      if (res.statusCode == 200) {
+        debugPrint('Subscribe response from server for topic $topic: ${res.statusCode}');
+        return true;
+      } else {
+        debugPrint('Error subscribing to topic $topic: ${res.statusCode} ${res.body}');
         return false;
       }
-    } else {
-      debugPrint('Notice: No FCM token available for remote subscription. Subscribing to topic $topic locally.');
-      return true;
+    } catch (e) {
+      debugPrint('Error subscribing to topic $topic: $e');
+      return false;
     }
   }
 
@@ -101,26 +100,30 @@ class FcmNotificationsService {
       return false;
     }
     await _ensureToken();
-    if (token != null && token!.isNotEmpty) {
-      try {
-        final url = Uri.parse('$backendUrl/unsubscribe');
-        final http.Response res = await http.post(
-          url,
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({
-            'token': token,
-            'topic': topic,
-          }),
-        );
-        debugPrint('Unsubscribe response from server: ${res.statusCode}');
+    if (token == null || token!.isEmpty) {
+      debugPrint('Cannot unsubscribe from topic $topic: No FCM token available on this platform/device.');
+      return false;
+    }
+    try {
+      final url = Uri.parse('$backendUrl/unsubscribe');
+      final http.Response res = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'token': token,
+          'topic': topic,
+        }),
+      );
+      if (res.statusCode == 200) {
+        debugPrint('Unsubscribe response from server for topic $topic: ${res.statusCode}');
         return true;
-      } catch (e) {
-        debugPrint('Error unsubscribing from topic $topic: $e');
+      } else {
+        debugPrint('Error unsubscribing from topic $topic: ${res.statusCode} ${res.body}');
         return false;
       }
-    } else {
-      debugPrint('Notice: No FCM token available for remote unsubscription. Unsubscribing from topic $topic locally.');
-      return true;
+    } catch (e) {
+      debugPrint('Error unsubscribing from topic $topic: $e');
+      return false;
     }
   }
 
