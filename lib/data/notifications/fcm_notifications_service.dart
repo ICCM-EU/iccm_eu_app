@@ -19,31 +19,19 @@ class FcmNotificationsService {
   // Called directly on start without a login.
   static Future<void> initializeFcmNotifications() async {
     try {
-      messaging = FirebaseMessaging.instance;
+      await _ensureToken();
 
-      // 1. Check permissions (Necessary for PWA in the browser!)
-      NotificationSettings settings = await messaging.requestPermission();
-
-      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-        // 2. Generate anonymous Web-Push-Token
-        // The VAPID-Key-Certificate is generated in the Firebase Console Web-Tab
-        token = await messaging.getToken(
-          //vapidKey: "YOUR_PUBLIC_WEB_PUSH_VAPID_KEY"
-            vapidKey: "BGEz4g_2DgMpiDTsZo6i36iFJOM3nZvOKf_KR_EliLRzJWDmgc25hooKJBoGtlzj-0CaQbs9gVkeOuqEaoPsgTY"
-        );
-
-        if (token != null) {
-          // 3. Subscribe to the saved topics through the Backend-Endpoint
-          try {
-            await PreferencesProvider.loadNotificationTopics();
-            for (String topic in PreferencesProvider.notificationTopicsNotifier.value) {
-              if (topic.isNotEmpty) {
-                await subscribeToTopic(topic);
-              }
+      if (token != null) {
+        // Subscribe to the saved topics through the Backend-Endpoint
+        try {
+          await PreferencesProvider.loadNotificationTopics();
+          for (String topic in PreferencesProvider.notificationTopicsNotifier.value) {
+            if (topic.isNotEmpty) {
+              await subscribeToTopic(topic);
             }
-          } catch (e) {
-            debugPrint('Error sending token to server during registration: $e');
           }
+        } catch (e) {
+          debugPrint('Error sending token to server during registration: $e');
         }
       }
     } catch (e) {
@@ -51,7 +39,23 @@ class FcmNotificationsService {
     }
   }
 
+  static Future<void> _ensureToken() async {
+    if (token != null) return;
+    try {
+      messaging = FirebaseMessaging.instance;
+      NotificationSettings settings = await messaging.requestPermission();
+      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+        token = await messaging.getToken(
+          vapidKey: "BGEz4g_2DgMpiDTsZo6i36iFJOM3nZvOKf_KR_EliLRzJWDmgc25hooKJBoGtlzj-0CaQbs9gVkeOuqEaoPsgTY",
+        );
+      }
+    } catch (e) {
+      debugPrint('FCM token not available on this platform/device: $e');
+    }
+  }
+
   static Future<bool> subscribeToTopic(String topic) async {
+    await _ensureToken();
     if (token != null) {
       try {
         final url = Uri.parse('$backendUrl/subscribe');
@@ -75,17 +79,18 @@ class FcmNotificationsService {
         return false;
       }
     } else {
-      debugPrint('Error subscribing to topic $topic: No token available.');
-      return false;
+      debugPrint('Notice: No FCM token available for remote subscription. Subscribing to topic $topic locally.');
+      return true;
     }
   }
 
   static Future<bool> unsubscribeFromTopic(String topic) async {
+    if (topic == defaultTopic) {
+      debugPrint('Error rejected unsubscription from default topic $topic.');
+      return false;
+    }
+    await _ensureToken();
     if (token != null) {
-      if (topic == defaultTopic) {
-        debugPrint('Error rejected unsubscription from default topic $topic.');
-        return false;
-      }
       try {
         final url = Uri.parse('$backendUrl/unsubscribe');
         final http.Response res = await http.post(
@@ -103,8 +108,8 @@ class FcmNotificationsService {
         return false;
       }
     } else {
-      debugPrint('Error unsubscribing from topic $topic: No token available.');
-      return false;
+      debugPrint('Notice: No FCM token available for remote unsubscription. Unsubscribing from topic $topic locally.');
+      return true;
     }
   }
 
