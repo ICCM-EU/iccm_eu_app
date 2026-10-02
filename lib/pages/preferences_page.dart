@@ -3,7 +3,6 @@ import 'package:iccm_eu_app/components/toggle_button.dart';
 import 'package:iccm_eu_app/components/toggle_is_dark_mode.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/appProviders/error_provider.dart';
-import 'package:iccm_eu_app/data/dataProviders/communication_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
@@ -53,7 +52,6 @@ class _PreferencesPageState extends State<PreferencesPage> {
   Future<void> _loadPreferences() async {
     await PreferencesProvider.loadCalendarColorByRoom();
     await PreferencesProvider.loadUseTestData();
-    await PreferencesProvider.loadSubscribeTestTopic();
     await PreferencesProvider.loadNotificationTopics();
     await PreferencesProvider.loadNotificationsNickname();
     await PreferencesProvider.loadFcmAdminPwd();
@@ -154,40 +152,20 @@ class _PreferencesPageState extends State<PreferencesPage> {
                 .textTheme
                 .titleLarge,
           ),
-          if (CommunicationProvider.showTestTopicOption())
-            ValueListenableBuilder<bool>(
-              valueListenable: PreferencesProvider.subscribeTestTopicNotifier,
-              builder: (context, builderValue, child) {
-                return ToggleButtonListTile(
-                  value: builderValue,
-                  onChanged: (bool newValue) {
-                    PreferencesProvider.setSubscribeTestTopic(newValue);
-                    Provider.of<GsheetsProvider>(context, listen: false).fetchData(
-                      errorProvider: Provider.of<ErrorProvider>(context, listen: false),
-                      force: true,
-                    );
-                  },
-                  title: 'Test',
-                  toggleTitle: 'Test',
-                );
-              },
-            )
-          else
-            const SizedBox.shrink(),
           Consumer<TracksProvider>(
             builder: (context, tracksProvider, child) {
-              final tracks = tracksProvider.items();
-              if (tracks.isEmpty) {
+              final topics = FcmNotificationsService().getTopics(tracksProvider);
+              if (topics.isEmpty) {
                 return const SizedBox.shrink();
               }
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: tracks.map((track) {
+                children: topics.map((topicName) {
                   return ValueListenableBuilder<List<String>>(
                     valueListenable: PreferencesProvider.notificationTopicsNotifier,
                     builder: (context, subscribedTopics, child) {
                       final String topicKey = TextFunctions.normalizeListKey(
-                        track.name,
+                        topicName,
                         PreferencesProvider.listSep,
                       );
                       final String defaultTopicKey = TextFunctions.normalizeListKey(
@@ -196,24 +174,24 @@ class _PreferencesPageState extends State<PreferencesPage> {
                       );
                       final bool isDefaultTopic =
                           topicKey == defaultTopicKey ||
-                              track.name.toLowerCase().trim() ==
+                              topicName.toLowerCase().trim() ==
                                   FcmNotificationsService.defaultTopic.toLowerCase().trim();
                       final bool isSubscribed = isDefaultTopic ||
                           subscribedTopics.contains(topicKey) ||
-                          subscribedTopics.contains(track.name);
+                          subscribedTopics.contains(topicName);
                       return ToggleButtonListTile(
                         value: isSubscribed,
                         onChanged: isDefaultTopic
                             ? null
                             : (bool newValue) {
                                 if (newValue) {
-                                  PreferencesProvider.addNotificationTopic(track.name);
+                                  PreferencesProvider.addNotificationTopic(topicName);
                                 } else {
-                                  PreferencesProvider.removeNotificationTopic(track.name);
+                                  PreferencesProvider.removeNotificationTopic(topicName);
                                 }
                               },
-                        title: track.name,
-                        toggleTitle: track.name,
+                        title: topicName,
+                        toggleTitle: topicName,
                       );
                     },
                   );

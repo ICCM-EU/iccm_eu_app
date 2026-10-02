@@ -86,11 +86,4 @@ class CommunicationProvider with ChangeNotifier {
     final cacheJson = jsonEncode(_cache); // Convert _cache to JSON string
     await prefs.setString(_cacheTitle, cacheJson); // Save to SharedPreferences
   }
-
-  static bool showTestTopicOption() {
-    bool value = kDebugMode;
-    // Overwrite during development
-    //value = true;
-    return value;
-  }
 }

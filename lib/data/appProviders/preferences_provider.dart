@@ -3,7 +3,6 @@ import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart' show SharedPreferences;
 
 import '../../utils/text_functions.dart';
-import '../dataProviders/communication_provider.dart';
 import '../notifications/fcm_notifications_service.dart';
 
 class PreferencesProvider {
@@ -94,31 +93,7 @@ class PreferencesProvider {
     }
   }
 
-  // ---------------------------------------------------------
-  static const String _subscribeTestTopicKey = 'subscribeTestTopic';
-  static final ValueNotifier<bool> subscribeTestTopicNotifier =
-    ValueNotifier(false);
-
-  static Future<void> loadSubscribeTestTopic() async {
-    bool value = false;
-    if (CommunicationProvider.showTestTopicOption()) {
-      final prefs = await SharedPreferences.getInstance();
-      value = prefs.getBool(_subscribeTestTopicKey) ?? false; // Default
-    }
-    subscribeTestTopicNotifier.value = value;
-  }
-
-  static Future<void> setSubscribeTestTopic(bool value) async {
-    if (CommunicationProvider.showTestTopicOption()) {
-      subscribeTestTopicNotifier.value = value;
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(_subscribeTestTopicKey, value);
-    } else {
-      subscribeTestTopicNotifier.value = false;
-    }
-  }
-
-  // ---------------------------------------------------------
+    // ---------------------------------------------------------
   static const String _notificationTopics = 'notificationsTopics';
   static final ValueNotifier<List<String>> notificationTopicsNotifier =
     ValueNotifier(FcmNotificationsService.defaultTopic.split(','));

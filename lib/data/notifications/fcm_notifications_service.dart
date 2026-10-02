@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
@@ -10,6 +10,7 @@ import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
 class FcmNotificationsService {
   static const String sep = "|";
   static final String defaultTopic = "Announcements";
+  static final String testTopic = "TEST TOPIC";
   static List<String> _topics = [defaultTopic];
   static late FirebaseMessaging messaging;
   static String? token;
@@ -110,6 +111,9 @@ class FcmNotificationsService {
   List<String> getTopics([TracksProvider? tracksProvider])
   {
     _topics = [defaultTopic];
+    if (kDebugMode && !_topics.contains(testTopic)) {
+      _topics.add(testTopic);
+    }
     if (tracksProvider != null) {
       for (var track in tracksProvider.items()) {
         if (track.name.isNotEmpty && !_topics.contains(track.name)) {
