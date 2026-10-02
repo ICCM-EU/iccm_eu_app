@@ -109,6 +109,14 @@ class LocalNotificationService {
       const LinuxInitializationSettings initializationSettingsLinux =
       LinuxInitializationSettings(defaultActionName: 'Open app');
 
+      // initialize the windows settings
+      const WindowsInitializationSettings initializationSettingsWindows =
+      WindowsInitializationSettings(
+        appName: 'ICCM Europe App',
+        appUserModelId: 'ICCM.Europe.App',
+        guid: '03d8d32b-426b-4e8c-a968-3d19b7d425c7',
+      );
+
       // combine the platform settings
       const InitializationSettings initializationSettings =
       InitializationSettings(
@@ -116,6 +124,7 @@ class LocalNotificationService {
         iOS: initializationSettingsIos,
         macOS: initializationSettingsMacos,
         linux: initializationSettingsLinux,
+        windows: initializationSettingsWindows,
       );
 
       // initialize the plugin
