@@ -9,26 +9,27 @@ const app = express();
 app.use(express.json());
 app.use(cors()); // Allows the Flutter PWA access from other IPs
 
-// Setup port
-const port = 3000;
+const { initializeApp, cert } = require('firebase-admin/app');
 
-// Setup debug messages in the console
-const debug = true;
-debug(message) => {
-    if (debug)
-        console.log(message);
-}
+// Setup port
+const port = process.env.PORT || 3000;
 
 // Setup inhibition for test scenarios
 const testMode = true;
+
+// Setup debug messages in the console
+const isDebug = true || testMode || process.env.NODE_ENV !== 'production';
+const debug = isDebug
+  ? console.log.bind(console)
+  : () => {};
 
 const defaultTopic = 'announcements';
 
 // Initialize Firebase locally with the private service account key
 // Do not push this one to GitHub.
 const serviceAccount = require('./serviceAccountKey.json');
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+initializeApp({
+  credential: cert(serviceAccount)
 });
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET || "";
@@ -47,7 +48,7 @@ app.post('/', async (req, res) => {
     try {
         // Auto-connect to announcements topic
         const topic = defaultTopic;
-        if (!testMode)) {
+        if (!testMode) {
             debug('FCM admin requests inhibited.');
             await admin.messaging().subscribeToTopic(token, topic);
         }
@@ -74,7 +75,7 @@ app.post('/subscribe', async (req, res) => {
     }
 
     try {
-        if (!testMode)) {
+        if (!testMode) {
             debug('FCM admin requests inhibited.');
             await admin.messaging().subscribeToTopic(token, topic);
         }
@@ -101,7 +102,7 @@ app.post('/unsubscribe', async (req, res) => {
     }
 
     try {
-        if (!testMode)) {
+        if (!testMode) {
             debug('FCM admin requests inhibited.');
             await admin.messaging().unsubscribeFromTopic(token, topic);
         }
@@ -147,7 +148,7 @@ app.post('/send', async (req, res) => {
     };
 
     try {
-        if (!testMode)) {
+        if (!testMode) {
             debug('FCM admin requests inhibited.');
             await admin.messaging().send(payload);
         }
