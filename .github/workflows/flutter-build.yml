@@ -343,7 +343,8 @@ jobs:
           path: build/linux/x64/release/bundle
 
       - name: Deploy to GitHub Pages
-        if: github.ref == 'refs/heads/master' && false # Deactivate until notifications are done.
+        if: github.ref == 'refs/heads/master'
+          # && false # Deactivate until notifications are done.
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

@@ -11,7 +11,7 @@ import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
 class FcmNotificationsService {
   static const String sep = "|";
   static final String defaultTopic = "Announcements";
-  static final String testTopic = "TEST TOPIC";
+  static final String testTopic = "Test Topic";
   static List<String> _topics = [defaultTopic];
   static late FirebaseMessaging messaging;
   static String? token;
@@ -42,6 +42,10 @@ class FcmNotificationsService {
             if (topic.isNotEmpty) {
               await subscribeToTopic(topic);
             }
+          }
+          // ensure to unsubscribe from test topic when not listed in preferences
+          if (!_topics.contains(testTopic)) {
+            await unsubscribeFromTopic(testTopic);
           }
         } catch (e) {
           debugPrint('Error sending token to server during registration: $e');
@@ -149,9 +153,11 @@ class FcmNotificationsService {
   List<String> getTopics([TracksProvider? tracksProvider])
   {
     _topics = [defaultTopic];
-    if (kDebugMode && !_topics.contains(testTopic)) {
-      _topics.add(testTopic);
-    }
+    //if (kDebugMode) {
+      if (!_topics.contains(testTopic)) {
+        _topics.add(testTopic);
+      }
+    //}
     if (tracksProvider != null) {
       for (var track in tracksProvider.items()) {
         if (track.name.isNotEmpty && !_topics.contains(track.name)) {
