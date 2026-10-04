@@ -19,7 +19,7 @@ messaging.onBackgroundMessage((payload) => {
   const notificationOptions = {
     body: payload.notification?.body || 'There is a new announcement.',
     // Icon displayed in the notification (must be in the web/ folder)
-    icon: '/icons/Icon-192.png',
+    icon: 'icons/Icon-192.png',
     // Ensures the notification vibrates (if supported by the device)
     vibrate: [200, 100, 100, 100, 100, 100, 200],
     // Additional metadata, e.g., for click actions
