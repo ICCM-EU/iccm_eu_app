@@ -165,6 +165,7 @@ class FcmNotificationsService {
         }
       }
     }
+    _topics.sort();
     return _topics;
   }
 
