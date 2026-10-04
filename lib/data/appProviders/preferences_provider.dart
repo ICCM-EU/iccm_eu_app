@@ -114,7 +114,7 @@ class PreferencesProvider {
     value = TextFunctions.normalizeListKey(value, listSep);
     final list = List<String>.from(notificationTopicsNotifier.value);
     if (!list.contains(value)) {
-      if (await FcmNotificationsService.subscribeToTopic(value)) {
+      if (await FcmNotificationsService.subscribeToTopic(value, userGesture: true)) {
         list.add(value);
         list.sort();
         notificationTopicsNotifier.value = list;
@@ -136,7 +136,7 @@ class PreferencesProvider {
     }
     final list = List<String>.from(notificationTopicsNotifier.value);
     if (list.contains(value)) {
-      if (await FcmNotificationsService.unsubscribeFromTopic(value)) {
+      if (await FcmNotificationsService.unsubscribeFromTopic(value, userGesture: true)) {
         list.remove(value);
         notificationTopicsNotifier.value = list;
         final prefs = await SharedPreferences.getInstance();

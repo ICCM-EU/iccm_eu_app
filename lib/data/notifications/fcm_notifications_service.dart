@@ -27,13 +27,13 @@ class FcmNotificationsService {
   static bool get isSupported => supportedPlatform;
 
   // Called directly on start without a login.
-  static Future<void> initializeFcmNotifications() async {
+  static Future<void> initializeFcmNotifications({bool userGesture = false}) async {
     if (!supportedPlatform) {
       debugPrint('FCM notifications not supported on this platform.');
       return;
     }
     try {
-      await _ensureToken();
+      await _ensureToken(userGesture: userGesture);
 
       if (token != null && token!.isNotEmpty) {
         // Subscribe to the saved topics through the Backend-Endpoint
@@ -41,12 +41,12 @@ class FcmNotificationsService {
           await PreferencesProvider.loadNotificationTopics();
           for (String topic in PreferencesProvider.notificationTopicsNotifier.value) {
             if (topic.isNotEmpty) {
-              await subscribeToTopic(topic);
+              await subscribeToTopic(topic, userGesture: userGesture);
             }
           }
           // ensure to unsubscribe from test topic when not listed in preferences
           if (!_topics.contains(testTopic)) {
-            await unsubscribeFromTopic(testTopic);
+            await unsubscribeFromTopic(testTopic, userGesture: userGesture);
           }
         } catch (e) {
           debugPrint('Error sending token to server during registration: $e');
@@ -101,7 +101,7 @@ class FcmNotificationsService {
     return null;
   }
 
-  static Future<void> _ensureToken() async {
+  static Future<void> _ensureToken({bool userGesture = false}) async {
     if (token != null && token!.isNotEmpty) return;
 
     await PreferencesProvider.loadFcmToken();
@@ -135,13 +135,19 @@ class FcmNotificationsService {
       }
 
       messaging = FirebaseMessaging.instance;
-      NotificationSettings settings = await messaging.requestPermission();
+      NotificationSettings settings = await messaging.getNotificationSettings();
+
+      if (settings.authorizationStatus == AuthorizationStatus.notDetermined && userGesture) {
+        settings = await messaging.requestPermission();
+      }
+
       if (settings.authorizationStatus == AuthorizationStatus.authorized ||
           settings.authorizationStatus == AuthorizationStatus.provisional) {
         final vapidKey = _getWebVapidKey() ??
             "BGEz4g_2DgMpiDTsZo6i36iFJOM3nZvOKf_KR_EliLRzJWDmgc25hooKJBoGtlzj-0CaQbs9gVkeOuqEaoPsgTY";
         String? fetchedToken = await messaging.getToken(
           vapidKey: vapidKey,
+          serviceWorkerScriptPath: kIsWeb ? 'firebase-messaging-sw.js' : null,
         );
         if (fetchedToken != null && fetchedToken.isNotEmpty) {
           token = fetchedToken;
@@ -153,11 +159,11 @@ class FcmNotificationsService {
     }
   }
 
-  static Future<bool> subscribeToTopic(String topic) async {
+  static Future<bool> subscribeToTopic(String topic, {bool userGesture = false}) async {
     if (!supportedPlatform) {
       return false;
     }
-    await _ensureToken();
+    await _ensureToken(userGesture: userGesture);
     if (token == null || token!.isEmpty) {
       debugPrint('Cannot subscribe to topic $topic: No FCM token available on this platform/device.');
       return false;
@@ -185,7 +191,7 @@ class FcmNotificationsService {
     }
   }
 
-  static Future<bool> unsubscribeFromTopic(String topic) async {
+  static Future<bool> unsubscribeFromTopic(String topic, {bool userGesture = false}) async {
     if (!supportedPlatform) {
       return false;
     }
@@ -193,7 +199,7 @@ class FcmNotificationsService {
       debugPrint('Error rejected unsubscription from default topic $topic.');
       return false;
     }
-    await _ensureToken();
+    await _ensureToken(userGesture: userGesture);
     if (token == null || token!.isEmpty) {
       debugPrint('Cannot unsubscribe from topic $topic: No FCM token available on this platform/device.');
       return false;
