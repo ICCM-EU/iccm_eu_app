@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
+
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -16,8 +16,14 @@ class FcmNotificationsService {
   static late FirebaseMessaging messaging;
   static String? token;
   static String backendUrl = 'https://iccm-eu-notifications.tappe-info.de';
-  static final bool supportedPlatform =
-    (kIsWeb || Platform.isAndroid || Platform.isIOS || Platform.isMacOS);
+
+  static bool get supportedPlatform {
+    if (kIsWeb) return true;
+    return defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.macOS;
+  }
+  static bool get isSupported => supportedPlatform;
 
   // Called directly on start without a login.
   static Future<void> initializeFcmNotifications() async {

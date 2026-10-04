@@ -25,7 +25,7 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+firebase.initializeApp(firebaseConfig);
 
 // 3. Retrieve Messaging instance
 const messaging = firebase.messaging();
