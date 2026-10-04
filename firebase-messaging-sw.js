@@ -1,31 +1,10 @@
-// 1. Load Firebase Scripts (Using stable Web v9 compatibility libraries)
+// 1. Load Firebase Config & Scripts
+importScripts("firebase-config.js");
 importScripts("https://www.gstatic.com/firebasejs/9.10.0/firebase-app-compat.js");
 importScripts("https://www.gstatic.com/firebasejs/9.10.0/firebase-messaging-compat.js");
 
-// 2. Initialize Firebase from https://console.firebase.google.com/ / new web app
-// NOTE: This configuration data is publicly visible and non-critical.
-// Use exactly the same values as in your normal frontend app.
-//firebase.initializeApp({
-  // apiKey: "YOUR_API_KEY",
-  // authDomain: "YOUR_PROJECT_://firebaseapp.com",
-  // projectId: "YOUR_PROJECT_ID",
-  // storageBucket: "YOUR_PROJECT_://appspot.com",
-  // messagingSenderId: "YOUR_SENDER_ID",
-  // appId: "YOUR_APP_ID"
-//});
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyDv63cLTJEOcGFz1sxvQj3BF_4KCbg4p-E",
-  authDomain: "iccmeu-app.firebaseapp.com",
-  projectId: "iccmeu-app",
-  storageBucket: "iccmeu-app.firebasestorage.app",
-  messagingSenderId: "458814741758",
-  appId: "1:458814741758:web:b883d625127fde92cdd9af"
-};
-
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+// 2. Initialize Firebase from shared configuration
+firebase.initializeApp(self.firebaseConfig);
 
 // 3. Retrieve Messaging instance
 const messaging = firebase.messaging();
