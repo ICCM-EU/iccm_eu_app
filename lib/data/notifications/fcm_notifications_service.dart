@@ -1,9 +1,10 @@
 import 'dart:convert';
 
-
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:universal_html/js.dart' as js;
 
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
@@ -56,6 +57,50 @@ class FcmNotificationsService {
     }
   }
 
+  static FirebaseOptions? _getWebFirebaseOptions() {
+    if (!kIsWeb) return null;
+    try {
+      if (js.context.hasProperty('firebaseConfig')) {
+        final dynamic config = js.context['firebaseConfig'];
+        if (config == null) return null;
+        final apiKey = config['apiKey']?.toString();
+        final authDomain = config['authDomain']?.toString();
+        final projectId = config['projectId']?.toString();
+        final storageBucket = config['storageBucket']?.toString();
+        final messagingSenderId = config['messagingSenderId']?.toString();
+        final appId = config['appId']?.toString();
+
+        if (apiKey != null && projectId != null) {
+          return FirebaseOptions(
+            apiKey: apiKey,
+            authDomain: authDomain ?? '',
+            projectId: projectId,
+            storageBucket: storageBucket ?? '',
+            messagingSenderId: messagingSenderId ?? '',
+            appId: appId ?? '',
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('Error reading window.firebaseConfig: $e');
+    }
+    return null;
+  }
+
+  static String? _getWebVapidKey() {
+    if (!kIsWeb) return null;
+    try {
+      if (js.context.hasProperty('firebaseConfig')) {
+        final dynamic config = js.context['firebaseConfig'];
+        if (config == null) return null;
+        return config['vapidKey']?.toString();
+      }
+    } catch (e) {
+      debugPrint('Error reading vapidKey from window.firebaseConfig: $e');
+    }
+    return null;
+  }
+
   static Future<void> _ensureToken() async {
     if (token != null && token!.isNotEmpty) return;
 
@@ -66,11 +111,37 @@ class FcmNotificationsService {
     }
 
     try {
+      if (Firebase.apps.isEmpty) {
+        if (kIsWeb) {
+          final webOptions = _getWebFirebaseOptions();
+          if (webOptions != null) {
+            await Firebase.initializeApp(options: webOptions);
+          } else {
+            // Fallback default options
+            await Firebase.initializeApp(
+              options: const FirebaseOptions(
+                apiKey: "AIzaSyDv63cLTJEOcGFz1sxvQj3BF_4KCbg4p-E",
+                authDomain: "iccmeu-app.firebaseapp.com",
+                projectId: "iccmeu-app",
+                storageBucket: "iccmeu-app.firebasestorage.app",
+                messagingSenderId: "458814741758",
+                appId: "1:458814741758:web:b883d625127fde92cdd9af",
+              ),
+            );
+          }
+        } else {
+          await Firebase.initializeApp();
+        }
+      }
+
       messaging = FirebaseMessaging.instance;
       NotificationSettings settings = await messaging.requestPermission();
-      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      if (settings.authorizationStatus == AuthorizationStatus.authorized ||
+          settings.authorizationStatus == AuthorizationStatus.provisional) {
+        final vapidKey = _getWebVapidKey() ??
+            "BGEz4g_2DgMpiDTsZo6i36iFJOM3nZvOKf_KR_EliLRzJWDmgc25hooKJBoGtlzj-0CaQbs9gVkeOuqEaoPsgTY";
         String? fetchedToken = await messaging.getToken(
-          vapidKey: "BGEz4g_2DgMpiDTsZo6i36iFJOM3nZvOKf_KR_EliLRzJWDmgc25hooKJBoGtlzj-0CaQbs9gVkeOuqEaoPsgTY",
+          vapidKey: vapidKey,
         );
         if (fetchedToken != null && fetchedToken.isNotEmpty) {
           token = fetchedToken;
