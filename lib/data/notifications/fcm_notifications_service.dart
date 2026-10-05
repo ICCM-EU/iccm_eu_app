@@ -18,6 +18,14 @@ class FcmNotificationsService {
   static String? token;
   static String backendUrl = 'https://iccm-eu-notifications.tappe-info.de';
 
+  static String get _cleanBackendUrl {
+    var url = backendUrl.trim();
+    while (url.endsWith('/')) {
+      url = url.substring(0, url.length - 1);
+    }
+    return url;
+  }
+
   static bool get supportedPlatform {
     if (kIsWeb) return true;
     return defaultTargetPlatform == TargetPlatform.android ||
@@ -169,7 +177,7 @@ class FcmNotificationsService {
       return false;
     }
     try {
-      final url = Uri.parse('$backendUrl/subscribe');
+      final url = Uri.parse('$_cleanBackendUrl/subscribe');
       final http.Response res = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -205,7 +213,7 @@ class FcmNotificationsService {
       return false;
     }
     try {
-      final url = Uri.parse('$backendUrl/unsubscribe');
+      final url = Uri.parse('$_cleanBackendUrl/unsubscribe');
       final http.Response res = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -257,7 +265,7 @@ class FcmNotificationsService {
       return false;
     }
     try {
-      final url = Uri.parse('$backendUrl/send');
+      final url = Uri.parse('$_cleanBackendUrl/send');
       final http.Response res = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},

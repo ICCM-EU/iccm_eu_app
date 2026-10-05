@@ -9,6 +9,14 @@ const app = express();
 app.use(express.json());
 app.use(cors()); // Allows the Flutter PWA access from other IPs
 
+// Normalize double slashes in incoming request URLs (e.g. //subscribe -> /subscribe)
+app.use((req, res, next) => {
+  if (req.url) {
+    req.url = req.url.replace(/\/{2,}/g, '/');
+  }
+  next();
+});
+
 const { initializeApp, cert } = require('firebase-admin/app');
 
 // Setup port

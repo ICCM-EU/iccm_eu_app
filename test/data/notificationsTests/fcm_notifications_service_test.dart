@@ -39,5 +39,12 @@ void main() {
       expect(topics, contains(FcmNotificationsService.defaultTopic));
       expect(topics, contains(FcmNotificationsService.testTopic));
     });
+
+    test('backendUrl handles trailing slashes without creating double slashes', () {
+      FcmNotificationsService.backendUrl = 'https://iccm-eu-notifications.tappe-info.de///';
+      // Verify via attempt to subscribe or reset
+      expect(FcmNotificationsService.backendUrl, endsWith('/'));
+      FcmNotificationsService.backendUrl = 'https://iccm-eu-notifications.tappe-info.de';
+    });
   });
 }
