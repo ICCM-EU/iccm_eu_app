@@ -145,20 +145,7 @@ class _SendNotificationFormState extends State<SendNotificationForm> {
           ),
         ),
         const SizedBox(height: 12),
-        TextField(
-          controller: _authorController,
-          decoration: const InputDecoration(
-            labelText: 'Author',
-          ),
-        ),
-        const SizedBox(height: 12),
-        TextField(
-          controller: _secretController,
-          obscureText: true,
-          decoration: const InputDecoration(
-            labelText: 'Admin Password',
-          ),
-        ),
+        Text("Author: ${widget.nickname}"),
         const SizedBox(height: 16),
         ElevatedButton(
           onPressed: _isSending ? null : _handleSend,
