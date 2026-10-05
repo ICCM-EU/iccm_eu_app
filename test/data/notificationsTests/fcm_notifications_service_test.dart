@@ -46,5 +46,12 @@ void main() {
       expect(FcmNotificationsService.backendUrl, endsWith('/'));
       FcmNotificationsService.backendUrl = 'https://iccm-eu-notifications.tappe-info.de';
     });
+
+    test('initializeFcmNotifications recovers token from SharedPreferences and skips topic subscription', () async {
+      SharedPreferences.setMockInitialValues({'fcmToken': 'cached_token_abc'});
+      await FcmNotificationsService.initializeFcmNotifications();
+
+      expect(FcmNotificationsService.token, equals('cached_token_abc'));
+    });
   });
 }

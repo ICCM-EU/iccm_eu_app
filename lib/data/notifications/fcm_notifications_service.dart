@@ -41,9 +41,13 @@ class FcmNotificationsService {
       return;
     }
     try {
-      await _ensureToken(userGesture: userGesture);
+      final tokenRecoveredFromPrefs = await _ensureToken(userGesture: userGesture);
 
       if (token != null && token!.isNotEmpty) {
+        if (tokenRecoveredFromPrefs) {
+          return;
+        }
+
         // Subscribe to the saved topics through the Backend-Endpoint
         try {
           await PreferencesProvider.loadNotificationTopics();
@@ -109,13 +113,15 @@ class FcmNotificationsService {
     return null;
   }
 
-  static Future<void> _ensureToken({bool userGesture = false}) async {
-    if (token != null && token!.isNotEmpty) return;
-
+  static Future<bool> _ensureToken({bool userGesture = false}) async {
     await PreferencesProvider.loadFcmToken();
     if (PreferencesProvider.fcmTokenNotifier.value.isNotEmpty) {
       token = PreferencesProvider.fcmTokenNotifier.value;
-      return;
+      return true;
+    }
+
+    if (token != null && token!.isNotEmpty) {
+      return false;
     }
 
     try {
@@ -165,6 +171,8 @@ class FcmNotificationsService {
     } catch (e) {
       debugPrint('FCM token not available on this platform/device: $e');
     }
+
+    return false;
   }
 
   static Future<bool> subscribeToTopic(String topic, {bool userGesture = false}) async {
