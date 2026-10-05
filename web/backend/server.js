@@ -56,7 +56,7 @@ app.post('/', async (req, res) => {
     try {
         // Auto-connect to announcements topic
         const topic = defaultTopic;
-        if (!testMode) {
+        if (testMode) {
             debug('FCM admin requests inhibited.');
             await admin.messaging().subscribeToTopic(token, topic);
         }
@@ -83,7 +83,7 @@ app.post('/subscribe', async (req, res) => {
     }
 
     try {
-        if (!testMode) {
+        if (testMode) {
             debug('FCM admin requests inhibited.');
             await admin.messaging().subscribeToTopic(token, topic);
         }
@@ -110,7 +110,7 @@ app.post('/unsubscribe', async (req, res) => {
     }
 
     try {
-        if (!testMode) {
+        if (testMode) {
             debug('FCM admin requests inhibited.');
             await admin.messaging().unsubscribeFromTopic(token, topic);
         }
@@ -156,11 +156,11 @@ app.post('/send', async (req, res) => {
     };
 
     try {
-        if (!testMode) {
+        if (testMode) {
             debug('FCM admin requests inhibited.');
             await admin.messaging().send(payload);
         }
-        debug("FCM-Message sent successfully.");
+        debug("FCM-Message sent successfully on topic " + topic + ".");
         res.status(200).json({ success: true });
     } catch (error) {
         console.error('FCM-Error on send:', error.toString());
