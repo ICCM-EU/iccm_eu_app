@@ -23,6 +23,8 @@ class _CommunicationPageState extends State<CommunicationPage> {
     super.initState();
     PreferencesProvider.loadNotificationsNickname();
     PreferencesProvider.loadFcmAdminPwd();
+    PreferencesProvider.loadSendTopic();
+    PreferencesProvider.loadSendTitle();
   }
 
   @override

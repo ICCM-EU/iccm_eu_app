@@ -230,6 +230,48 @@ class PreferencesProvider {
   }
 
   // ---------------------------------------------------------
+  static const String _fcmSendTopic = 'fcmSendTopic';
+  static final ValueNotifier<String> fcmSendTopicNotifier =
+    ValueNotifier(FcmNotificationsService.defaultTopic);
+
+  static Future<void> loadSendTopic() async {
+    String value = "";
+    final prefs = await SharedPreferences.getInstance();
+    value = prefs.getString(_fcmSendTopic) ?? FcmNotificationsService.defaultTopic;
+    if (value.isEmpty) {
+      value = FcmNotificationsService.defaultTopic;
+    }
+    fcmSendTopicNotifier.value = value;
+  }
+
+  static Future<void> setSendTopic(String value) async {
+    fcmSendTopicNotifier.value = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_fcmSendTopic, value);
+  }
+
+  // ---------------------------------------------------------
+  static const String _fcmSendTitle = 'fcmSendTitle';
+  static final ValueNotifier<String> fcmSendTitleNotifier =
+  ValueNotifier("Conference Announcement");
+
+  static Future<void> loadSendTitle() async {
+    String value = "";
+    final prefs = await SharedPreferences.getInstance();
+    value = prefs.getString(_fcmSendTitle) ?? "Conference Announcement";
+    if (value.isEmpty) {
+      value = "Conference Announcement";
+    }
+    fcmSendTitleNotifier.value = value;
+  }
+
+  static Future<void> setSendTitle(String value) async {
+    fcmSendTitleNotifier.value = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_fcmSendTitle, value);
+  }
+
+  // ---------------------------------------------------------
   static const String _isDayViewKey = 'isDayView';
 
   static Future<bool> get isDayView async {

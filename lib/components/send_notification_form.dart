@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
 import 'package:iccm_eu_app/data/notifications/fcm_notifications_service.dart';
 import 'package:provider/provider.dart';
@@ -29,10 +30,46 @@ class _SendNotificationFormState extends State<SendNotificationForm> {
   @override
   void initState() {
     super.initState();
-    _titleController = TextEditingController(text: 'Conference Announcement');
+    _titleController = TextEditingController(
+      text: PreferencesProvider.fcmSendTitleNotifier.value,
+    );
     _messageController = TextEditingController();
     _authorController = TextEditingController(text: widget.nickname);
     _secretController = TextEditingController(text: widget.pwd);
+
+    _selectedTopic = PreferencesProvider.fcmSendTopicNotifier.value;
+
+    _loadPreferences();
+
+    PreferencesProvider.fcmSendTopicNotifier.addListener(_onTopicChanged);
+    PreferencesProvider.fcmSendTitleNotifier.addListener(_onTitleChanged);
+  }
+
+  Future<void> _loadPreferences() async {
+    await PreferencesProvider.loadSendTopic();
+    await PreferencesProvider.loadSendTitle();
+    if (mounted) {
+      setState(() {
+        _selectedTopic = PreferencesProvider.fcmSendTopicNotifier.value;
+        if (_titleController.text != PreferencesProvider.fcmSendTitleNotifier.value) {
+          _titleController.text = PreferencesProvider.fcmSendTitleNotifier.value;
+        }
+      });
+    }
+  }
+
+  void _onTopicChanged() {
+    if (mounted && _selectedTopic != PreferencesProvider.fcmSendTopicNotifier.value) {
+      setState(() {
+        _selectedTopic = PreferencesProvider.fcmSendTopicNotifier.value;
+      });
+    }
+  }
+
+  void _onTitleChanged() {
+    if (mounted && _titleController.text != PreferencesProvider.fcmSendTitleNotifier.value) {
+      _titleController.text = PreferencesProvider.fcmSendTitleNotifier.value;
+    }
   }
 
   @override
@@ -48,6 +85,8 @@ class _SendNotificationFormState extends State<SendNotificationForm> {
 
   @override
   void dispose() {
+    PreferencesProvider.fcmSendTopicNotifier.removeListener(_onTopicChanged);
+    PreferencesProvider.fcmSendTitleNotifier.removeListener(_onTitleChanged);
     _titleController.dispose();
     _messageController.dispose();
     _authorController.dispose();
@@ -73,9 +112,14 @@ class _SendNotificationFormState extends State<SendNotificationForm> {
       _isSending = true;
     });
 
+    final sendTitle = title.isEmpty ? 'Conference Announcement' : title;
+
+    await PreferencesProvider.setSendTopic(topic);
+    await PreferencesProvider.setSendTitle(sendTitle);
+
     final success = await FcmNotificationsService.sendMessage(
       topic: topic,
-      title: title.isEmpty ? 'Conference Announcement' : title,
+      title: sendTitle,
       messageText: message,
       author: author,
       secret: secret,
@@ -104,13 +148,18 @@ class _SendNotificationFormState extends State<SendNotificationForm> {
     final topics = FcmNotificationsService().getTopics(tracksProvider);
 
     if (_selectedTopic == null || !topics.contains(_selectedTopic)) {
-      _selectedTopic = topics.isNotEmpty ? topics.first : FcmNotificationsService.defaultTopic;
+      if (topics.contains(PreferencesProvider.fcmSendTopicNotifier.value)) {
+        _selectedTopic = PreferencesProvider.fcmSendTopicNotifier.value;
+      } else {
+        _selectedTopic = topics.isNotEmpty ? topics.first : FcmNotificationsService.defaultTopic;
+      }
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         DropdownButtonFormField<String>(
+          key: ValueKey(_selectedTopic),
           initialValue: _selectedTopic,
           decoration: const InputDecoration(
             labelText: 'Topic',
@@ -126,6 +175,7 @@ class _SendNotificationFormState extends State<SendNotificationForm> {
               setState(() {
                 _selectedTopic = value;
               });
+              PreferencesProvider.setSendTopic(value);
             }
           },
         ),
@@ -135,6 +185,9 @@ class _SendNotificationFormState extends State<SendNotificationForm> {
           decoration: const InputDecoration(
             labelText: 'Title',
           ),
+          onChanged: (value) {
+            PreferencesProvider.setSendTitle(value);
+          },
         ),
         const SizedBox(height: 12),
         TextField(
