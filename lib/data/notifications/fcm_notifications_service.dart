@@ -8,10 +8,15 @@ import 'package:universal_html/js.dart' as js;
 
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
+import 'package:iccm_eu_app/utils/text_functions.dart';
 
 class FcmNotificationsService {
-  static const String sep = "|";
+  static const String sep = PreferencesProvider.listSep;
   static final String defaultTopic = "Announcements";
+  static final normalizedDefault = TextFunctions.normalizeListKey(
+    FcmNotificationsService.defaultTopic,
+    sep,
+  );
   static final String testTopic = "Test Topic";
   static List<String> _topics = [defaultTopic];
   static late FirebaseMessaging messaging;
@@ -24,6 +29,10 @@ class FcmNotificationsService {
       url = url.substring(0, url.length - 1);
     }
     return url;
+  }
+
+  static String normalizeTopic(String topic) {
+    return TextFunctions.normalizeListKey(topic, sep);
   }
 
   static bool get supportedPlatform {
@@ -59,8 +68,9 @@ class FcmNotificationsService {
             }
           }
           // ensure to unsubscribe from test topic when not listed in preferences
-          if (!_topics.contains(testTopic)) {
-            await unsubscribeFromTopic(testTopic, userGesture: userGesture);
+          final normalizedTestTopic = normalizeTopic(testTopic);
+          if (!PreferencesProvider.notificationTopicsNotifier.value.contains(normalizedTestTopic)) {
+            await unsubscribeFromTopic(normalizedTestTopic, userGesture: userGesture);
           }
         } catch (e) {
           debugPrint('Error sending token to server during registration: $e');
@@ -181,6 +191,7 @@ class FcmNotificationsService {
     if (!supportedPlatform) {
       return false;
     }
+    final normalizedTopic = normalizeTopic(topic);
     await _ensureToken(userGesture: userGesture);
     if (token == null || token!.isEmpty) {
       debugPrint('Cannot subscribe to topic $topic: No FCM token available on this platform/device.');
@@ -193,18 +204,18 @@ class FcmNotificationsService {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'token': token,
-          'topic': topic,
+          'topic': normalizedTopic,
         }),
       );
       if (res.statusCode == 200) {
-        debugPrint('Subscribe response from server for topic $topic: ${res.statusCode}');
+        debugPrint('Subscribe response from server for topic $topic ($normalizedTopic): ${res.statusCode}');
         return true;
       } else {
-        debugPrint('Error subscribing to topic $topic: ${res.statusCode} ${res.body}');
+        debugPrint('Error subscribing to topic $topic ($normalizedTopic): ${res.statusCode} ${res.body}');
         return false;
       }
     } catch (e) {
-      debugPrint('Error subscribing to topic $topic: $e');
+      debugPrint('Error subscribing to topic $topic ($normalizedTopic): $e');
       return false;
     }
   }
@@ -213,13 +224,14 @@ class FcmNotificationsService {
     if (!supportedPlatform) {
       return false;
     }
-    if (topic == defaultTopic) {
+    final normalizedTopic = normalizeTopic(topic);
+    if (normalizedTopic == FcmNotificationsService.normalizedDefault) {
       debugPrint('Error rejected unsubscription from default topic $topic.');
       return false;
     }
     await _ensureToken(userGesture: userGesture);
     if (token == null || token!.isEmpty) {
-      debugPrint('Cannot unsubscribe from topic $topic: No FCM token available on this platform/device.');
+      debugPrint('Cannot unsubscribe from topic $topic ($normalizedTopic): No FCM token available on this platform/device.');
       return false;
     }
     try {
@@ -229,18 +241,18 @@ class FcmNotificationsService {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'token': token,
-          'topic': topic,
+          'topic': normalizedTopic,
         }),
       );
       if (res.statusCode == 200) {
-        debugPrint('Unsubscribe response from server for topic $topic: ${res.statusCode}');
+        debugPrint('Unsubscribe response from server for topic $topic ($normalizedTopic): ${res.statusCode}');
         return true;
       } else {
-        debugPrint('Error unsubscribing from topic $topic: ${res.statusCode} ${res.body}');
+        debugPrint('Error unsubscribing from topic $topic ($normalizedTopic): ${res.statusCode} ${res.body}');
         return false;
       }
     } catch (e) {
-      debugPrint('Error unsubscribing from topic $topic: $e');
+      debugPrint('Error unsubscribing from topic $topic ($normalizedTopic): $e');
       return false;
     }
   }
@@ -274,13 +286,14 @@ class FcmNotificationsService {
     if (!supportedPlatform) {
       return false;
     }
+    final normalizedTopic = normalizeTopic(topic);
     try {
       final url = Uri.parse('$_cleanBackendUrl/send');
       final http.Response res = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'topic': topic,
+          'topic': normalizedTopic,
           'title': title,
           'messageText': messageText,
           'author': author,

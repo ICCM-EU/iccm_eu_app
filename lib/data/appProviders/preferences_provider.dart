@@ -96,26 +96,33 @@ class PreferencesProvider {
     // ---------------------------------------------------------
   static const String _notificationTopics = 'notificationsTopics';
   static final ValueNotifier<List<String>> notificationTopicsNotifier =
-    ValueNotifier(FcmNotificationsService.defaultTopic.split(','));
+    ValueNotifier([FcmNotificationsService.normalizedDefault]);
 
   static Future<void> loadNotificationTopics() async {
     String value = "";
     final prefs = await SharedPreferences.getInstance();
     value = prefs.getString(_notificationTopics) ??
-        FcmNotificationsService.defaultTopic;
-    notificationTopicsNotifier.value = value.split(listSep);
-    if (!notificationTopicsNotifier.value.contains(FcmNotificationsService.defaultTopic)) {
-      notificationTopicsNotifier.value.add(FcmNotificationsService.defaultTopic);
+        FcmNotificationsService.normalizedDefault;
+    // Ensure the values read are in the normalized format
+    final normalizedTopics = value
+        .split(listSep)
+        .where((t) => t.isNotEmpty)
+        .toList();
+
+    // Add the default topic if not in the list
+    if (!normalizedTopics.contains(FcmNotificationsService.normalizedDefault)) {
+      normalizedTopics.add(FcmNotificationsService.normalizedDefault);
     }
-    notificationTopicsNotifier.value.sort();
+    normalizedTopics.sort();
+    notificationTopicsNotifier.value = normalizedTopics;
   }
 
   static Future<void> addNotificationTopic(String value) async {
-    value = TextFunctions.normalizeListKey(value, listSep);
+    String normalizedTopic = TextFunctions.normalizeListKey(value, listSep);
     final list = List<String>.from(notificationTopicsNotifier.value);
-    if (!list.contains(value)) {
+    if (!list.contains(normalizedTopic)) {
       if (await FcmNotificationsService.subscribeToTopic(value, userGesture: true)) {
-        list.add(value);
+        list.add(normalizedTopic);
         list.sort();
         notificationTopicsNotifier.value = list;
         final prefs = await SharedPreferences.getInstance();
