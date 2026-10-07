@@ -48,7 +48,7 @@ void main() async {
     });
   }
 
-  if (platform == Platform.web) {
+  if (FcmNotificationsService.isSupported) {
     await FcmNotificationsService.initializeFcmNotifications();
   }
 

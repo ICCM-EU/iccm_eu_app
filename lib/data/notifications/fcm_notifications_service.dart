@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -8,6 +9,8 @@ import 'package:universal_html/js.dart' as js;
 
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
+import 'package:iccm_eu_app/data/model/notification_channel_data.dart';
+import 'package:iccm_eu_app/data/notifications/local_notification_service.dart';
 import 'package:iccm_eu_app/utils/text_functions.dart';
 
 class FcmNotificationsService {
@@ -26,6 +29,74 @@ class FcmNotificationsService {
   static late FirebaseMessaging messaging;
   static String? token;
   static String backendUrl = 'https://iccm-eu-notifications.tappe-info.de';
+
+  static final StreamController<RemoteMessage> _messageStreamController =
+      StreamController<RemoteMessage>.broadcast();
+  static Stream<RemoteMessage> get onMessageStream => _messageStreamController.stream;
+
+  static bool _listenersConfigured = false;
+
+  static void _setupMessageListeners() {
+    if (_listenersConfigured) return;
+    try {
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        debugPrint('Foreground FCM message received: ${message.messageId}');
+        handleIncomingRemoteMessage(message);
+      });
+
+      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+        debugPrint('FCM message opened app: ${message.messageId}');
+        handleIncomingRemoteMessage(message);
+      });
+
+      _listenersConfigured = true;
+    } catch (e) {
+      debugPrint('Could not set up FirebaseMessaging listeners: $e');
+    }
+  }
+
+  static Future<void> handleIncomingRemoteMessage(RemoteMessage message) async {
+    _messageStreamController.add(message);
+
+    final String title = message.notification?.title ?? message.data['title'] ?? 'Announcement';
+    final String bodyText = message.notification?.body ?? message.data['messageText'] ?? message.data['body'] ?? '';
+    final String author = message.data['author'] ?? '';
+
+    String fullBody = bodyText;
+    if (author.isNotEmpty && !fullBody.contains('($author)')) {
+      fullBody = '$fullBody\n\n($author)';
+    }
+
+    if (title.isNotEmpty || fullBody.isNotEmpty) {
+      await LocalNotificationService.showInstantNotification(
+        id: message.messageId?.hashCode ?? DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        title: title,
+        body: fullBody,
+        channelData: NotificationChannelData(
+          id: 'fcm_channel',
+          name: 'Announcements',
+          description: 'Notifications from FCM',
+        ),
+      );
+    }
+  }
+
+  static Future<String?> generateToken({bool userGesture = false}) async {
+    if (token != null && token!.isNotEmpty) {
+      return token;
+    }
+    await PreferencesProvider.loadFcmToken();
+    if (PreferencesProvider.fcmTokenNotifier.value.isNotEmpty) {
+      token = PreferencesProvider.fcmTokenNotifier.value;
+      return token;
+    }
+    await _ensureToken(userGesture: userGesture);
+    if (token == null || token!.isEmpty) {
+      token = 'fcm_token_${DateTime.now().millisecondsSinceEpoch}_${DateTime.now().microsecondsSinceEpoch % 10000}';
+      await PreferencesProvider.setFcmToken(token!);
+    }
+    return token;
+  }
 
   static String get _cleanBackendUrl {
     var url = backendUrl.trim();
@@ -53,6 +124,7 @@ class FcmNotificationsService {
       debugPrint('FCM notifications not supported on this platform.');
       return;
     }
+    _setupMessageListeners();
     try {
       final tokenRecoveredFromPrefs = await _ensureToken(userGesture: userGesture);
 
@@ -130,14 +202,14 @@ class FcmNotificationsService {
   }
 
   static Future<bool> _ensureToken({bool userGesture = false}) async {
+    if (token != null && token!.isNotEmpty) {
+      return false;
+    }
+
     await PreferencesProvider.loadFcmToken();
     if (PreferencesProvider.fcmTokenNotifier.value.isNotEmpty) {
       token = PreferencesProvider.fcmTokenNotifier.value;
       return true;
-    }
-
-    if (token != null && token!.isNotEmpty) {
-      return false;
     }
 
     try {
