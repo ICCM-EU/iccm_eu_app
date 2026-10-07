@@ -45,7 +45,9 @@ class FcmNotificationsService {
 
       if (token != null && token!.isNotEmpty) {
         if (tokenRecoveredFromPrefs) {
-          return;
+          debugPrint('FCM token recovered from preferences.');
+          // Do not omit subscription as long as test mode simulates the behavior.
+          // return;
         }
 
         // Subscribe to the saved topics through the Backend-Endpoint
