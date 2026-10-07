@@ -1,9 +1,11 @@
 // Install dependencies: express firebase-admin cors dotenv
 // npm install
 const express = require('express');
-const admin = require('firebase-admin');
 const cors = require('cors'); // Important for PWA access
 require('dotenv').config();
+
+const { initializeApp, cert } = require('firebase-admin/app');
+const { getMessaging } = require('firebase-admin/messaging');
 
 const app = express();
 app.use(express.json());
@@ -34,9 +36,10 @@ const defaultTopic = 'announcements';
 // Initialize Firebase locally with the private service account key
 // Do not push this one to GitHub.
 const serviceAccount = require('./serviceAccountKey.json');
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+const firebaseApp = initializeApp({
+  credential: cert(serviceAccount)
 });
+const messaging = getMessaging(firebaseApp);
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET || "";
 
@@ -57,7 +60,7 @@ app.post('/', async (req, res) => {
         if (testMode) {
             debug('FCM admin requests inhibited.');
         } else {
-            await admin.messaging().subscribeToTopic(token, topic);
+            await messaging.subscribeToTopic(token, topic);
         }
         debug('Successfully registered and subscribed to topic ' + topic);
         res.status(200).json({ success: true });
@@ -85,7 +88,7 @@ app.post('/subscribe', async (req, res) => {
         if (testMode) {
             debug('FCM admin requests inhibited.');
         } else {
-            await admin.messaging().subscribeToTopic(token, topic);
+            await messaging.subscribeToTopic(token, topic);
         }
         debug('subscribe: Successfully subscribed to topic ' + topic);
         res.status(200).json({ success: true });
@@ -113,7 +116,7 @@ app.post('/unsubscribe', async (req, res) => {
         if (testMode) {
             debug('FCM admin requests inhibited.');
         } else {
-            await admin.messaging().unsubscribeFromTopic(token, topic);
+            await messaging.unsubscribeFromTopic(token, topic);
         }
         debug('unsubscribe: Successfully unsubscribed from topic ' + topic);
         res.status(200).json({ success: true });
@@ -160,7 +163,7 @@ app.post('/send', async (req, res) => {
         if (testMode) {
             debug('FCM admin requests inhibited.');
         } else {
-            await admin.messaging().send(payload);
+            await messaging.send(payload);
         }
         debug("FCM-Message sent successfully on topic " + topic + ".");
         res.status(200).json({ success: true });
