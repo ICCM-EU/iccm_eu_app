@@ -17,8 +17,6 @@ app.use((req, res, next) => {
   next();
 });
 
-const { initializeApp, cert } = require('firebase-admin/app');
-
 // Setup port
 const port = process.env.PORT || 3000;
 
@@ -36,8 +34,8 @@ const defaultTopic = 'announcements';
 // Initialize Firebase locally with the private service account key
 // Do not push this one to GitHub.
 const serviceAccount = require('./serviceAccountKey.json');
-initializeApp({
-  credential: cert(serviceAccount)
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
 });
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET || "";
