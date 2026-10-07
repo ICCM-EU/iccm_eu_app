@@ -53,5 +53,16 @@ void main() {
 
       expect(FcmNotificationsService.token, equals('cached_token_abc'));
     });
+
+    test('loadNotificationTopics cleans invalid topics not in getTopics', () async {
+      SharedPreferences.setMockInitialValues({
+        'notificationsTopics': 'announcements|test_topic|invalid_obsolete_topic_123'
+      });
+      await PreferencesProvider.loadNotificationTopics();
+
+      expect(PreferencesProvider.notificationTopicsNotifier.value, contains('announcements'));
+      expect(PreferencesProvider.notificationTopicsNotifier.value, contains('test_topic'));
+      expect(PreferencesProvider.notificationTopicsNotifier.value, isNot(contains('invalid_obsolete_topic_123')));
+    });
   });
 }

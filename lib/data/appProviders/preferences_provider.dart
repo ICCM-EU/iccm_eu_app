@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart' show SharedPreferences;
 
 import '../../utils/text_functions.dart';
@@ -98,7 +99,12 @@ class PreferencesProvider {
   static final ValueNotifier<List<String>> notificationTopicsNotifier =
     ValueNotifier([FcmNotificationsService.normalizedDefault]);
 
-  static Future<void> loadNotificationTopics() async {
+  static Set<String> _getValidNormalizedTopics([TracksProvider? tracksProvider]) {
+    final topics = FcmNotificationsService().getTopics(tracksProvider);
+    return topics.map((t) => TextFunctions.normalizeListKey(t, listSep)).toSet();
+  }
+
+  static Future<void> loadNotificationTopics([TracksProvider? tracksProvider]) async {
     String value = "";
     final prefs = await SharedPreferences.getInstance();
     value = prefs.getString(_notificationTopics) ??
@@ -113,44 +119,60 @@ class PreferencesProvider {
     if (!normalizedTopics.contains(FcmNotificationsService.normalizedDefault)) {
       normalizedTopics.add(FcmNotificationsService.normalizedDefault);
     }
-    normalizedTopics.sort();
-    notificationTopicsNotifier.value = normalizedTopics;
+
+    // Clean topics which are neither defaultTopic, testTopic nor in getTopics
+    final validTopics = _getValidNormalizedTopics(tracksProvider);
+    final cleanedTopics = normalizedTopics
+        .where((t) => validTopics.contains(t))
+        .toList();
+
+    cleanedTopics.sort();
+    notificationTopicsNotifier.value = cleanedTopics;
+    await prefs.setString(_notificationTopics, cleanedTopics.join(listSep));
   }
 
-  static Future<void> addNotificationTopic(String value) async {
+  static Future<void> addNotificationTopic(String value, [TracksProvider? tracksProvider]) async {
     String normalizedTopic = TextFunctions.normalizeListKey(value, listSep);
+    final validTopics = _getValidNormalizedTopics(tracksProvider);
+
+    if (!validTopics.contains(normalizedTopic)) {
+      debugPrint('Cannot add topic $value ($normalizedTopic): Not in valid topics.');
+      return;
+    }
+
     final list = List<String>.from(notificationTopicsNotifier.value);
     if (!list.contains(normalizedTopic)) {
       if (await FcmNotificationsService.subscribeToTopic(value, userGesture: true)) {
         list.add(normalizedTopic);
-        list.sort();
-        notificationTopicsNotifier.value = list;
+        final cleanedList = list.where((t) => validTopics.contains(t)).toList();
+        cleanedList.sort();
+        notificationTopicsNotifier.value = cleanedList;
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString(_notificationTopics,
-            notificationTopicsNotifier.value.join(listSep));
+            cleanedList.join(listSep));
       }
     }
   }
 
-  static Future<void> removeNotificationTopic(String value) async {
-    value = TextFunctions.normalizeListKey(value, listSep);
-    final String defaultKey = TextFunctions.normalizeListKey(
-      FcmNotificationsService.defaultTopic,
-      listSep,
-    );
-    if (value == defaultKey) {
+  static Future<void> removeNotificationTopic(String value, [TracksProvider? tracksProvider]) async {
+    String normalizedTopic = TextFunctions.normalizeListKey(value, listSep);
+    final String defaultKey = FcmNotificationsService.normalizedDefault;
+    if (normalizedTopic == defaultKey) {
       return;
     }
+    final validTopics = _getValidNormalizedTopics(tracksProvider);
     final list = List<String>.from(notificationTopicsNotifier.value);
-    if (list.contains(value)) {
+    if (list.contains(normalizedTopic)) {
       if (await FcmNotificationsService.unsubscribeFromTopic(value, userGesture: true)) {
-        list.remove(value);
-        notificationTopicsNotifier.value = list;
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString(_notificationTopics,
-            notificationTopicsNotifier.value.join(listSep));
+        list.remove(normalizedTopic);
       }
     }
+    final cleanedList = list.where((t) => validTopics.contains(t)).toList();
+    cleanedList.sort();
+    notificationTopicsNotifier.value = cleanedList;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_notificationTopics,
+        cleanedList.join(listSep));
   }
 
   // ---------------------------------------------------------

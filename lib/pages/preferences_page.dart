@@ -50,9 +50,10 @@ class _PreferencesPageState extends State<PreferencesPage> {
   }
 
   Future<void> _loadPreferences() async {
+    final tracksProvider = Provider.of<TracksProvider>(context, listen: false);
     await PreferencesProvider.loadCalendarColorByRoom();
     await PreferencesProvider.loadUseTestData();
-    await PreferencesProvider.loadNotificationTopics();
+    await PreferencesProvider.loadNotificationTopics(tracksProvider);
     await PreferencesProvider.loadNotificationsNickname();
     await PreferencesProvider.loadFcmAdminPwd();
     if (mounted) {
@@ -192,10 +193,10 @@ class _PreferencesPageState extends State<PreferencesPage> {
                               : (bool newValue) {
                             if (newValue) {
                               PreferencesProvider.addNotificationTopic(
-                                  topicName);
+                                  topicName, tracksProvider);
                             } else {
                               PreferencesProvider.removeNotificationTopic(
-                                  topicName);
+                                  topicName, tracksProvider);
                             }
                           },
                           title: topicName,

@@ -18,6 +18,10 @@ class FcmNotificationsService {
     sep,
   );
   static final String testTopic = "Test Topic";
+  static final normalizedTestTopic = TextFunctions.normalizeListKey(
+    testTopic,
+    sep,
+  );
   static List<String> _topics = [defaultTopic];
   static late FirebaseMessaging messaging;
   static String? token;
@@ -44,7 +48,7 @@ class FcmNotificationsService {
   static bool get isSupported => supportedPlatform;
 
   // Called directly on start without a login.
-  static Future<void> initializeFcmNotifications({bool userGesture = false}) async {
+  static Future<void> initializeFcmNotifications({bool userGesture = false, TracksProvider? tracksProvider}) async {
     if (!supportedPlatform) {
       debugPrint('FCM notifications not supported on this platform.');
       return;
@@ -61,7 +65,7 @@ class FcmNotificationsService {
 
         // Subscribe to the saved topics through the Backend-Endpoint
         try {
-          await PreferencesProvider.loadNotificationTopics();
+          await PreferencesProvider.loadNotificationTopics(tracksProvider);
           for (String topic in PreferencesProvider.notificationTopicsNotifier.value) {
             if (topic.isNotEmpty) {
               await subscribeToTopic(topic, userGesture: userGesture);
