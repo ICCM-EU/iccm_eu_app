@@ -23,7 +23,7 @@ const { initializeApp, cert } = require('firebase-admin/app');
 const port = process.env.PORT || 3000;
 
 // Setup inhibition for test scenarios
-const testMode = true;
+const testMode = false;
 
 // Setup debug messages in the console
 const isDebug = true || testMode || process.env.NODE_ENV !== 'production';
@@ -58,6 +58,7 @@ app.post('/', async (req, res) => {
         const topic = defaultTopic;
         if (testMode) {
             debug('FCM admin requests inhibited.');
+        } else {
             await admin.messaging().subscribeToTopic(token, topic);
         }
         debug('Successfully registered and subscribed to topic ' + topic);
@@ -85,6 +86,7 @@ app.post('/subscribe', async (req, res) => {
     try {
         if (testMode) {
             debug('FCM admin requests inhibited.');
+        } else {
             await admin.messaging().subscribeToTopic(token, topic);
         }
         debug('subscribe: Successfully subscribed to topic ' + topic);
@@ -112,6 +114,7 @@ app.post('/unsubscribe', async (req, res) => {
     try {
         if (testMode) {
             debug('FCM admin requests inhibited.');
+        } else {
             await admin.messaging().unsubscribeFromTopic(token, topic);
         }
         debug('unsubscribe: Successfully unsubscribed from topic ' + topic);
@@ -158,6 +161,7 @@ app.post('/send', async (req, res) => {
     try {
         if (testMode) {
             debug('FCM admin requests inhibited.');
+        } else {
             await admin.messaging().send(payload);
         }
         debug("FCM-Message sent successfully on topic " + topic + ".");
