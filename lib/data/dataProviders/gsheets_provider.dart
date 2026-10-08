@@ -199,7 +199,8 @@ class GsheetsProvider with ChangeNotifier {
         final fileName = match?.group(2) ?? 'unknown';
         final lineNumber = match?.group(3) ?? 'unknown';
         errorProvider?.setErrorSignal(
-            ErrorSignal('Fetch Error ($fileName:$lineNumber): $e\n$stackTrace'));
+            ErrorSignal('Fetch Error: $e'));
+            //ErrorSignal('Fetch Error ($fileName:$lineNumber): $e\n$stackTrace'));
       }
     }
 
