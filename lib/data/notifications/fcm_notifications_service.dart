@@ -408,6 +408,13 @@ class FcmNotificationsService {
     }
     final normalizedTopic = normalizeTopic(topic);
     Debug.msg('[FCM] sendMessage called: topic="$topic" (normalized="$normalizedTopic"), title="$title", text="$messageText", author="$author"');
+
+    // Ensure sender device is subscribed to the topic so FCM includes it in topic broadcasts
+    if (!PreferencesProvider.notificationTopicsNotifier.value.contains(normalizedTopic)) {
+      Debug.msg('[FCM] Sender is not currently subscribed to "$normalizedTopic", auto-subscribing...');
+      await PreferencesProvider.addNotificationTopic(topic);
+    }
+
     try {
       final url = Uri.parse('$_cleanBackendUrl/send');
       Debug.msg('[FCM] Posting to send endpoint: $url');
@@ -424,6 +431,26 @@ class FcmNotificationsService {
       );
       if (res.statusCode == 200) {
         Debug.msg('[FCM] Send message SUCCESS from backend: HTTP ${res.statusCode}');
+
+        // Immediately trigger local notification display for the sender
+        final String sendTitle = title.isEmpty ? 'Conference Announcement' : title;
+        final String msgId = 'send_local_${DateTime.now().millisecondsSinceEpoch}';
+        await handleIncomingRemoteMessage(
+          RemoteMessage(
+            messageId: msgId,
+            notification: RemoteNotification(
+              title: sendTitle,
+              body: '$messageText\n\n($author)',
+            ),
+            data: {
+              'topic': normalizedTopic,
+              'title': sendTitle,
+              'messageText': messageText,
+              'author': author,
+            },
+          ),
+        );
+
         return true;
       } else {
         Debug.msg('[FCM] Send message FAILED from backend: HTTP ${res.statusCode} ${res.body}');
