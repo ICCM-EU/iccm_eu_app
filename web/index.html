@@ -37,10 +37,21 @@
   <script src="firebase-config.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
-      // Service workers are supported. Use them.
       window.addEventListener('load', function () {
-        // Register Firebase Messaging service worker.
-        navigator.serviceWorker.register('firebase-messaging-sw.js');
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for (var i = 0; i < registrations.length; i++) {
+            var reg = registrations[i];
+            if (reg.active && reg.active.scriptURL.indexOf('notifications_service_worker.js') !== -1) {
+              console.log('[Web] Unregistering conflicting flutter_local_notifications service worker:', reg.active.scriptURL);
+              reg.unregister();
+            }
+          }
+          navigator.serviceWorker.register('firebase-messaging-sw.js').then(function(reg) {
+            console.log('[Web] Registered firebase-messaging-sw.js with scope:', reg.scope);
+          }).catch(function(err) {
+            console.error('[Web] Failed to register firebase-messaging-sw.js:', err);
+          });
+        });
       });
     }
   </script>

@@ -94,60 +94,64 @@ class LocalNotificationService {
       }
     }
 
-    try {
-      // initialize the android settings
-      const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('@mipmap/ic_launcher');
-
-      // initialize the ios settings
-      const DarwinInitializationSettings initializationSettingsIos =
-      DarwinInitializationSettings();
-
-      // initialize the macos settings
-      const DarwinInitializationSettings initializationSettingsMacos =
-      DarwinInitializationSettings();
-
-      // initialize the linux settings
-      const LinuxInitializationSettings initializationSettingsLinux =
-      LinuxInitializationSettings(defaultActionName: 'Open app');
-
-      // initialize the windows settings
-      const WindowsInitializationSettings initializationSettingsWindows =
-      WindowsInitializationSettings(
-        appName: 'ICCM Europe App',
-        appUserModelId: 'ICCM.Europe.App',
-        guid: '03d8d32b-426b-4e8c-a968-3d19b7d425c7',
-      );
-
-      // combine the platform settings
-      const InitializationSettings initializationSettings =
-      InitializationSettings(
-        android: initializationSettingsAndroid,
-        iOS: initializationSettingsIos,
-        macOS: initializationSettingsMacos,
-        linux: initializationSettingsLinux,
-        windows: initializationSettingsWindows,
-      );
-
-      // initialize the plugin
-      bool? initialized;
+    if (!kIsWeb) {
       try {
-        initialized = await flutterLocalNotificationsPlugin.initialize(
-          settings: initializationSettings,
+        // initialize the android settings
+        const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+
+        // initialize the ios settings
+        const DarwinInitializationSettings initializationSettingsIos =
+        DarwinInitializationSettings();
+
+        // initialize the macos settings
+        const DarwinInitializationSettings initializationSettingsMacos =
+        DarwinInitializationSettings();
+
+        // initialize the linux settings
+        const LinuxInitializationSettings initializationSettingsLinux =
+        LinuxInitializationSettings(defaultActionName: 'Open app');
+
+        // initialize the windows settings
+        const WindowsInitializationSettings initializationSettingsWindows =
+        WindowsInitializationSettings(
+          appName: 'ICCM Europe App',
+          appUserModelId: 'ICCM.Europe.App',
+          guid: '03d8d32b-426b-4e8c-a968-3d19b7d425c7',
         );
+
+        // combine the platform settings
+        const InitializationSettings initializationSettings =
+        InitializationSettings(
+          android: initializationSettingsAndroid,
+          iOS: initializationSettingsIos,
+          macOS: initializationSettingsMacos,
+          linux: initializationSettingsLinux,
+          windows: initializationSettingsWindows,
+        );
+
+        // initialize the plugin
+        bool? initialized;
+        try {
+          initialized = await flutterLocalNotificationsPlugin.initialize(
+            settings: initializationSettings,
+          );
+        } catch (e) {
+          Debug.msg('flutterLocalNotificationsPlugin.initialize exception: $e');
+        }
+
+        _isNativePluginInitialized = initialized ?? false;
+        Debug.msg('LocalNotificationService native plugin initialized: $_isNativePluginInitialized (result: $initialized)');
+
+        if (channelData != null && _isNativePluginInitialized) {
+          await _createChannel(channelData);
+        }
       } catch (e) {
-        Debug.msg('flutterLocalNotificationsPlugin.initialize exception: $e');
+        Debug.msg('LocalNotificationService plugin setup failed: $e');
+        _isNativePluginInitialized = false;
       }
-
-      _isNativePluginInitialized = initialized ?? false;
-      Debug.msg('LocalNotificationService native plugin initialized: $_isNativePluginInitialized (result: $initialized)');
-
-      if (channelData != null && _isNativePluginInitialized) {
-        await _createChannel(channelData);
-      }
-    } catch (e) {
-      Debug.msg('LocalNotificationService plugin setup failed: $e');
-      _isNativePluginInitialized = false;
+    } else {
+      Debug.msg('LocalNotificationService: Skipping flutterLocalNotificationsPlugin on Web to preserve firebase-messaging-sw.js service worker.');
     }
   }
 
