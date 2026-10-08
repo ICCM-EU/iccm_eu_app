@@ -150,13 +150,31 @@ app.post('/send', async (req, res) => {
         return;
     }
 
+    const notificationTitle = title || 'Conference Announcement';
+    const notificationBody = messageText + "\n\n(" + author + ")";
+
     const payload = {
-        notification:
-            {
-                title: title || 'Conference Announcement',
-                body: messageText + "\n\n(" + author + ")",
+        notification: {
+            title: notificationTitle,
+            body: notificationBody,
+        },
+        data: {
+            title: notificationTitle,
+            messageText: messageText,
+            author: author,
+            topic: topic || 'announcements',
+        },
+        webpush: {
+            notification: {
+                title: notificationTitle,
+                body: notificationBody,
+                icon: 'icons/Icon-192.png',
             },
-            topic: topic || 'announcements'
+            fcmOptions: {
+                link: '/'
+            }
+        },
+        topic: topic || 'announcements'
     };
 
     try {
