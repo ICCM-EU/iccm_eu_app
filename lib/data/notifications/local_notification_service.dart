@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:universal_html/js.dart' as js;
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:iccm_eu_app/data/model/notification_channel_data.dart';
 import 'package:iccm_eu_app/data/model/web_notification.dart';
@@ -202,6 +204,7 @@ class LocalNotificationService {
     required String body,
     Color? backgroundColor,
   }) {
+    Debug.msg('[LocalNotification] addInAppNotification called: title="$title", body="$body"');
     final String id = '${DateTime.now().microsecondsSinceEpoch}_${title.hashCode}_${body.hashCode}';
     final item = InAppNotificationItem(
       id: id,
@@ -211,15 +214,18 @@ class LocalNotificationService {
     );
 
     item.startTimer(() {
+      Debug.msg('[LocalNotification] Auto-removing in-app notification id="$id"');
       removeInAppNotification(id);
     });
 
     final currentList = List<InAppNotificationItem>.from(inAppNotificationsNotifier.value);
     currentList.add(item);
     inAppNotificationsNotifier.value = currentList;
+    Debug.msg('[LocalNotification] Updated inAppNotificationsNotifier (total items count: ${currentList.length})');
   }
 
   static void removeInAppNotification(String id) {
+    Debug.msg('[LocalNotification] removeInAppNotification called for id="$id"');
     final currentList = List<InAppNotificationItem>.from(inAppNotificationsNotifier.value);
     final index = currentList.indexWhere((item) => item.id == id);
     if (index != -1) {
@@ -230,6 +236,7 @@ class LocalNotificationService {
   }
 
   static void clearInAppNotifications() {
+    Debug.msg('[LocalNotification] clearInAppNotifications called');
     for (var item in inAppNotificationsNotifier.value) {
       item.dispose();
     }
@@ -244,6 +251,7 @@ class LocalNotificationService {
   }) async {
     await _ensureInitialized();
 
+    Debug.msg('[LocalNotification] showInstantNotification triggered: id=$id, title="$title", body="$body"');
     Debug.msg('SHOW NOTIFICATION [$id]: $title - $body');
 
     bool isDesktop = !kIsWeb && (
@@ -251,6 +259,29 @@ class LocalNotificationService {
       defaultTargetPlatform == TargetPlatform.linux ||
       defaultTargetPlatform == TargetPlatform.macOS
     );
+
+    if (kIsWeb) {
+      try {
+        if (js.context.hasProperty('Notification')) {
+          final dynamic notificationClass = js.context['Notification'];
+          final String permission = notificationClass['permission']?.toString() ?? 'denied';
+          Debug.msg('[LocalNotification Web] window.Notification permission state: "$permission"');
+          if (permission == 'granted') {
+            final String safeTitle = jsonEncode(title);
+            final String safeBody = jsonEncode(body);
+            js.context.callMethod('eval', [
+              'try { new Notification($safeTitle, { body: $safeBody, icon: "icons/Icon-192.png" }); console.log("[LocalNotification Web] Native browser Notification window displayed."); } catch(e) { console.error("[LocalNotification Web] Error creating Notification:", e); }'
+            ]);
+          } else {
+            Debug.msg('[LocalNotification Web] Native browser Notification omitted because permission is "$permission"');
+          }
+        } else {
+          Debug.msg('[LocalNotification Web] window.Notification property is missing.');
+        }
+      } catch (e) {
+        Debug.msg('[LocalNotification Web] Native web notification exception: $e');
+      }
+    }
 
     if (isDesktop && _isDesktopNotifierInitialized) {
       try {
@@ -290,11 +321,13 @@ class LocalNotificationService {
           body: body,
           notificationDetails: notificationDetails,
         );
+        Debug.msg('[LocalNotification] Native plugin show notification completed.');
       } catch (e) {
         Debug.msg('Native notification failed ($e), falling back for: $title - $body');
       }
     }
 
+    Debug.msg('[LocalNotification] Forwarding to _showInAppNotification...');
     _showInAppNotification(title: title, body: body);
   }
 

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../data/appProviders/error_provider.dart';
 import '../data/notifications/local_notification_service.dart';
+import '../utils/debug.dart';
 import 'notification_card.dart';
 
 class ErrorOverlay extends StatefulWidget {
@@ -27,6 +28,7 @@ class _ErrorOverlayState extends State<ErrorOverlay> {
   }
 
   void _onNotificationsChanged() {
+    Debug.msg('[ErrorOverlay] _onNotificationsChanged listener triggered! Total items: ${LocalNotificationService.inAppNotificationsNotifier.value.length}');
     setState(() {});
   }
 

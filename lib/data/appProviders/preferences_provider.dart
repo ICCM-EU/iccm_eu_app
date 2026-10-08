@@ -3,6 +3,7 @@ import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart' show SharedPreferences;
 
+import '../../utils/debug.dart';
 import '../../utils/text_functions.dart';
 import '../notifications/fcm_notifications_service.dart';
 
@@ -136,7 +137,7 @@ class PreferencesProvider {
     final validTopics = _getValidNormalizedTopics(tracksProvider);
 
     if (!validTopics.contains(normalizedTopic)) {
-      debugPrint('Cannot add topic $value ($normalizedTopic): Not in valid topics.');
+      Debug.msg('Cannot add topic $value ($normalizedTopic): Not in valid topics.');
       return;
     }
 

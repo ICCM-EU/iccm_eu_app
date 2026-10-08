@@ -4,6 +4,8 @@ import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
 import 'package:iccm_eu_app/data/notifications/fcm_notifications_service.dart';
 import 'package:provider/provider.dart';
 
+import '../utils/debug.dart';
+
 class SendNotificationForm extends StatefulWidget {
   final String nickname;
   final String pwd;
@@ -100,6 +102,8 @@ class _SendNotificationFormState extends State<SendNotificationForm> {
     final message = _messageController.text.trim();
     final author = _authorController.text.trim();
     final secret = _secretController.text.trim();
+
+    Debug.msg('[SendNotificationForm] User clicked Send: topic="$topic", title="$title", message="$message", author="$author"');
 
     if (message.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
