@@ -226,18 +226,20 @@ class FcmNotificationsService {
     return null;
   }
 
-  static Future<bool> _ensureToken({bool userGesture = false}) async {
-    Debug.msg('[FCM] _ensureToken called (memory token="$token")');
-    if (token != null && token!.isNotEmpty) {
+  static Future<bool> _ensureToken({bool userGesture = false, bool forceRefresh = false}) async {
+    Debug.msg('[FCM] _ensureToken called (memory token="$token", userGesture=$userGesture, forceRefresh=$forceRefresh)');
+
+    if (!forceRefresh && token != null && token!.isNotEmpty) {
       Debug.msg('[FCM] Using token already present in memory: "$token"');
-      return false;
+      return true;
     }
 
-    await PreferencesProvider.loadFcmToken();
-    if (PreferencesProvider.fcmTokenNotifier.value.isNotEmpty) {
-      token = PreferencesProvider.fcmTokenNotifier.value;
-      Debug.msg('[FCM] Token loaded from preferences: "$token"');
-      return true;
+    if (!forceRefresh) {
+      await PreferencesProvider.loadFcmToken();
+      if (PreferencesProvider.fcmTokenNotifier.value.isNotEmpty) {
+        token = PreferencesProvider.fcmTokenNotifier.value;
+        Debug.msg('[FCM] Token loaded from preferences: "$token"');
+      }
     }
 
     try {
@@ -279,25 +281,26 @@ class FcmNotificationsService {
           settings.authorizationStatus == AuthorizationStatus.provisional) {
         final vapidKey = _getWebVapidKey() ??
             "BGEz4g_2DgMpiDTsZo6i36iFJOM3nZvOKf_KR_EliLRzJWDmgc25hooKJBoGtlzj-0CaQbs9gVkeOuqEaoPsgTY";
-        Debug.msg('[FCM] Fetching token with vapidKey="$vapidKey"...');
+        Debug.msg('[FCM] Fetching active FCM token with vapidKey="$vapidKey"...');
         String? fetchedToken = await messaging.getToken(
           vapidKey: vapidKey,
           serviceWorkerScriptPath: kIsWeb ? 'firebase-messaging-sw.js' : null,
         );
         Debug.msg('[FCM] messaging.getToken result: "$fetchedToken"');
         if (fetchedToken != null && fetchedToken.isNotEmpty) {
+          final bool tokenChanged = (token != fetchedToken);
           token = fetchedToken;
           await PreferencesProvider.setFcmToken(fetchedToken);
-          Debug.msg('[FCM] Saved new FCM token to preferences: "$token"');
+          Debug.msg('[FCM] Saved active FCM token to preferences (tokenChanged=$tokenChanged): "$token"');
         }
       } else {
-        Debug.msg('[FCM] Notification permissions not granted, cannot fetch FCM token.');
+        Debug.msg('[FCM] Notification permissions not granted, cannot fetch active FCM token.');
       }
     } catch (e) {
-      Debug.msg('[FCM] Exception fetching FCM token: $e');
+      Debug.msg('[FCM] Exception in _ensureToken: $e');
     }
 
-    return false;
+    return token != null && token!.isNotEmpty;
   }
 
   static Future<bool> subscribeToTopic(String topic, {bool userGesture = false}) async {

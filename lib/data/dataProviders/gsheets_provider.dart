@@ -192,12 +192,13 @@ class GsheetsProvider with ChangeNotifier {
           return rowMap;
         }).toList();
         _rawData[worksheetTitle] = tableRows;
-      } catch (e, stackTrace) {
+      } catch (e) {
+      //} catch (e, stackTrace) {
         Debug.msg("_readWorksheets Exception loading '$worksheetTitle': $e");
-        final RegExp regExp = RegExp(r'#0 +(\S+) \((\S+):([0-9]+)\)');
-        final Match? match = regExp.firstMatch(stackTrace.toString());
-        final fileName = match?.group(2) ?? 'unknown';
-        final lineNumber = match?.group(3) ?? 'unknown';
+        //final RegExp regExp = RegExp(r'#0 +(\S+) \((\S+):([0-9]+)\)');
+        //final Match? match = regExp.firstMatch(stackTrace.toString());
+        //final fileName = match?.group(2) ?? 'unknown';
+        //final lineNumber = match?.group(3) ?? 'unknown';
         errorProvider?.setErrorSignal(
             ErrorSignal('Fetch Error: $e'));
             //ErrorSignal('Fetch Error ($fileName:$lineNumber): $e\n$stackTrace'));
