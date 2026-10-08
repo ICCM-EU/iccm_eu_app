@@ -17,8 +17,6 @@ import 'package:iccm_eu_app/data/dataProviders/travel_provider.dart';
 import 'package:iccm_eu_app/data/model/error_signal.dart';
 import 'package:iccm_eu_app/utils/debug.dart';
 
-import '../../utils/url_functions.dart';
-
 class GsheetsProvider with ChangeNotifier {
   final String _sheetId =
       '1dFLWrcbI1AltIvVCEjBx9I3I3d0ToGN2FmzcFuAYsZE';
@@ -73,64 +71,26 @@ class GsheetsProvider with ChangeNotifier {
         "&worksheet=${Uri.encodeComponent(worksheetName)}";
 
     String rawUrl = "https://script.google.com/macros/s/$_deploymentID/exec?$queryString";
-    Uri url = Uri.parse(kIsWeb ? UrlFunctions.proxy(rawUrl) : rawUrl);
-
-    Map<String, String> bodyMap =
-      body.map((key, value) => MapEntry(key.toString(), value.toString()));
+    Uri url = Uri.parse(rawUrl);
 
     const int maxAttempts = 3;
     for (int attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
-        var client = http.Client();
-        var request = http.Request('POST', url)
-          ..followRedirects = false
-          ..bodyFields = bodyMap;
+        http.Response response;
+        if (action == 'read') {
+          response = await http.get(url);
+        } else {
+          Map<String, String> bodyMap =
+              body.map((key, value) => MapEntry(key.toString(), value.toString()));
+          response = await http.post(url, body: bodyMap);
+        }
 
-        var response = await client.send(request);
-
-        if ([301, 302, 303, 307, 308].contains(response.statusCode)) {
-          String? redirectedUrl = response.headers['location'];
-          await response.stream.drain();
-
-          if (redirectedUrl != null && redirectedUrl.isNotEmpty) {
-            Uri redirectUri =
-              Uri.parse(kIsWeb ? UrlFunctions.proxy(redirectedUrl) : redirectedUrl);
-
-            // Retry GET on redirect URI up to 3 times with progressive delay
-            // to allow Google CDN cache key propagation on cold starts.
-            for (int getAttempt = 1; getAttempt <= 3; getAttempt++) {
-              var getResponse = await http.get(redirectUri);
-              if ([200, 201].contains(getResponse.statusCode)) {
-                String bodyText = getResponse.body.trim();
-                if (bodyText.startsWith('{') || bodyText.startsWith('[')) {
-                  dataDict = jsonDecode(bodyText);
-                  break;
-                }
-              }
-
-              if (getResponse.statusCode == 404 && getAttempt < 3) {
-                await Future.delayed(Duration(milliseconds: 200 * getAttempt));
-              }
-            }
-
-            if (dataDict.isEmpty && attempt == maxAttempts) {
-              Debug.msg("_triggerWebAPP redirect GET failed for worksheet '$worksheetName' after $maxAttempts attempts.");
-            }
-          } else {
-            if (attempt == maxAttempts) {
-              Debug.msg("_triggerWebAPP redirect missing location header for worksheet '$worksheetName'.");
-            }
-          }
-        } else if ([200, 201].contains(response.statusCode)) {
-          var responseBody = await response.stream.bytesToString();
-          String bodyText = responseBody.trim();
+        if ([200, 201].contains(response.statusCode)) {
+          String bodyText = response.body.trim();
           if (bodyText.startsWith('{') || bodyText.startsWith('[')) {
             dataDict = jsonDecode(bodyText);
           }
-        } else {
-          await response.stream.drain();
         }
-        client.close();
       } catch (e, stackTrace) {
         if (attempt == maxAttempts) {
           Debug.msg("_triggerWebAPP Exception for worksheet '$worksheetName': $e\n$stackTrace");

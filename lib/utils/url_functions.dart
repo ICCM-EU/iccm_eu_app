@@ -27,7 +27,9 @@ class UrlFunctions {
     if (kIsWeb &&
         kDebugMode &&
         url.isNotEmpty &&
-        ! url.startsWith('https://firebasestorage.googleapis.com')
+        !url.startsWith('https://firebasestorage.googleapis.com') &&
+        !url.startsWith('https://script.google.com') &&
+        !url.startsWith('https://scriptusercontent.com')
     ) {
       url = 'https://corsproxy.io/?${Uri.encodeFull(url)}';
     }
