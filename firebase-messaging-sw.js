@@ -50,27 +50,33 @@ if (messaging) {
   messaging.onBackgroundMessage((payload) => {
     console.log('[firebase-messaging-sw.js] onBackgroundMessage RECEIVED! Payload:', JSON.stringify(payload));
 
-    const notificationTitle = payload.notification?.title || payload.data?.title || 'Conference Update';
-    const notificationBody = payload.notification?.body || payload.data?.messageText || payload.data?.body || 'There is a new announcement.';
+    // Firebase JS SDK automatically shows a notification if payload contains `notification`.
+    // Only invoke showNotification manually if `notification` payload is missing (data-only payload).
+    if (!payload.notification) {
+      const notificationTitle = payload.data?.title || 'Conference Update';
+      const notificationBody = payload.data?.messageText || payload.data?.body || 'There is a new announcement.';
 
-    const notificationOptions = {
-      body: notificationBody,
-      icon: 'icons/Icon-192.png',
-      vibrate: [200, 100, 100, 100, 100, 100, 200],
-      data: {
-        click_action: payload.data?.click_action || '/'
-      }
-    };
+      const notificationOptions = {
+        body: notificationBody,
+        icon: 'icons/Icon-192.png',
+        vibrate: [200, 100, 100, 100, 100, 100, 200],
+        data: {
+          click_action: payload.data?.click_action || '/'
+        }
+      };
 
-    console.log(`[firebase-messaging-sw.js] Invoking showNotification("${notificationTitle}", "${notificationBody}")`);
+      console.log(`[firebase-messaging-sw.js] Invoking showNotification("${notificationTitle}", "${notificationBody}") for data message`);
 
-    return self.registration.showNotification(notificationTitle, notificationOptions)
-      .then(() => {
-        console.log('[firebase-messaging-sw.js] self.registration.showNotification SUCCEEDED.');
-      })
-      .catch((err) => {
-        console.error('[firebase-messaging-sw.js] self.registration.showNotification FAILED:', err);
-      });
+      return self.registration.showNotification(notificationTitle, notificationOptions)
+        .then(() => {
+          console.log('[firebase-messaging-sw.js] self.registration.showNotification SUCCEEDED.');
+        })
+        .catch((err) => {
+          console.error('[firebase-messaging-sw.js] self.registration.showNotification FAILED:', err);
+        });
+    } else {
+      console.log('[firebase-messaging-sw.js] Payload contains notification field; Firebase SDK handles native display automatically.');
+    }
   });
 }
 

@@ -60,7 +60,13 @@ app.post('/', async (req, res) => {
         if (testMode) {
             debug('FCM admin requests inhibited.');
         } else {
-            await messaging.subscribeToTopic(token, topic);
+            const response = await messaging.subscribeToTopic(token, topic);
+            if (response && response.failureCount > 0) {
+                const errMessage = response.errors.map(e => e.error ? e.error.message : JSON.stringify(e)).join('; ');
+                console.error('FCM-Error on Topic-assignment during token registration:', errMessage);
+                res.status(400).json({ error: errMessage, response });
+                return;
+            }
         }
         debug('Successfully registered and subscribed to topic ' + topic);
         res.status(200).json({ success: true });
@@ -88,7 +94,13 @@ app.post('/subscribe', async (req, res) => {
         if (testMode) {
             debug('FCM admin requests inhibited.');
         } else {
-            await messaging.subscribeToTopic(token, topic);
+            const response = await messaging.subscribeToTopic(token, topic);
+            if (response && response.failureCount > 0) {
+                const errMessage = response.errors.map(e => e.error ? e.error.message : JSON.stringify(e)).join('; ');
+                console.error('subscribe FCM-Error:', errMessage);
+                res.status(400).json({ error: errMessage, response });
+                return;
+            }
         }
         debug('subscribe: Successfully subscribed to topic ' + topic);
         res.status(200).json({ success: true });
@@ -116,7 +128,13 @@ app.post('/unsubscribe', async (req, res) => {
         if (testMode) {
             debug('FCM admin requests inhibited.');
         } else {
-            await messaging.unsubscribeFromTopic(token, topic);
+            const response = await messaging.unsubscribeFromTopic(token, topic);
+            if (response && response.failureCount > 0) {
+                const errMessage = response.errors.map(e => e.error ? e.error.message : JSON.stringify(e)).join('; ');
+                console.error('unsubscribe FCM-Error:', errMessage);
+                res.status(400).json({ error: errMessage, response });
+                return;
+            }
         }
         debug('unsubscribe: Successfully unsubscribed from topic ' + topic);
         res.status(200).json({ success: true });
