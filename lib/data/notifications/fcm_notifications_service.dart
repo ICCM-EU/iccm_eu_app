@@ -271,7 +271,7 @@ class FcmNotificationsService {
       NotificationSettings settings = await messaging.getNotificationSettings();
       Debug.msg('[FCM] Current notification permission status: ${settings.authorizationStatus}');
 
-      if (settings.authorizationStatus == AuthorizationStatus.notDetermined && userGesture) {
+      if (settings.authorizationStatus == AuthorizationStatus.notDetermined) {
         Debug.msg('[FCM] Requesting notification permissions...');
         settings = await messaging.requestPermission();
         Debug.msg('[FCM] Permission request result: ${settings.authorizationStatus}');
