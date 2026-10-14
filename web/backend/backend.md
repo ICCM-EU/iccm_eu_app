@@ -364,7 +364,11 @@ v
 ## 2. Step 1: Prepare the Local Node.js Backend
 Since you are outside the Google Cloud environment, you must set up the project as a standard Express.js app. Additionally, you need to manually load the Firebase credentials (Service Account JSON).
 
-1. Download the serviceAccountKey.json from the Firebase Console and place it on the local server.
+1. Download the serviceAccountKey.json from the Firebase Console (Project Settings > Service accounts > Generate new private key) and place it on the local server.
+> [!IMPORTANT]
+> **Service Account IAM Permissions:**
+> Ensure that the Service Account used for `serviceAccountKey.json` has the **Firebase Cloud Messaging Admin** (`roles/firebase.growthAdmin` or `roles/firebasemessaging.admin`) or **Firebase Admin** (`roles/firebase.admin`) role assigned in [Google Cloud IAM Console](https://console.cloud.google.com/iam-admin/iam). Without this role, FCM calls such as `subscribeToTopic` will fail with permission error `cloudmessaging.topicSubscriptions.create denied`.
+
 2. Create the server.js file:
 
 ```javascript
