@@ -145,7 +145,6 @@ class FcmNotificationsService {
       Debug.msg('[FCM] FCM notifications not supported on this platform.');
       return;
     }
-    _setupMessageListeners();
     try {
       Debug.msg('[FCM] Ensuring FCM token...');
       final tokenRecoveredFromPrefs = await _ensureToken(userGesture: userGesture);
@@ -229,19 +228,6 @@ class FcmNotificationsService {
   static Future<bool> _ensureToken({bool userGesture = false, bool forceRefresh = false}) async {
     Debug.msg('[FCM] _ensureToken called (memory token="$token", userGesture=$userGesture, forceRefresh=$forceRefresh)');
 
-    if (!forceRefresh && token != null && token!.isNotEmpty) {
-      Debug.msg('[FCM] Using token already present in memory: "$token"');
-      return true;
-    }
-
-    if (!forceRefresh) {
-      await PreferencesProvider.loadFcmToken();
-      if (PreferencesProvider.fcmTokenNotifier.value.isNotEmpty) {
-        token = PreferencesProvider.fcmTokenNotifier.value;
-        Debug.msg('[FCM] Token loaded from preferences: "$token"');
-      }
-    }
-
     try {
       if (Firebase.apps.isEmpty) {
         if (kIsWeb) {
@@ -268,30 +254,51 @@ class FcmNotificationsService {
       }
 
       messaging = FirebaseMessaging.instance;
-      NotificationSettings settings = await messaging.getNotificationSettings();
-      Debug.msg('[FCM] Current notification permission status: ${settings.authorizationStatus}');
+      _setupMessageListeners();
+    } catch (e) {
+      Debug.msg('[FCM] Exception initializing Firebase in _ensureToken: $e');
+    }
 
-      if (settings.authorizationStatus == AuthorizationStatus.notDetermined) {
-        Debug.msg('[FCM] Requesting notification permissions...');
-        settings = await messaging.requestPermission();
-        Debug.msg('[FCM] Permission request result: ${settings.authorizationStatus}');
+    if (!forceRefresh && token != null && token!.isNotEmpty) {
+      Debug.msg('[FCM] Using token already present in memory: "$token"');
+      return true;
+    }
+
+    if (!forceRefresh) {
+      await PreferencesProvider.loadFcmToken();
+      if (PreferencesProvider.fcmTokenNotifier.value.isNotEmpty) {
+        token = PreferencesProvider.fcmTokenNotifier.value;
+        Debug.msg('[FCM] Token loaded from preferences: "$token"');
       }
+    }
 
-      if (settings.authorizationStatus == AuthorizationStatus.authorized ||
-          settings.authorizationStatus == AuthorizationStatus.provisional) {
-        final vapidKey = _getWebVapidKey() ??
-            "BGEz4g_2DgMpiDTsZo6i36iFJOM3nZvOKf_KR_EliLRzJWDmgc25hooKJBoGtlzj-0CaQbs9gVkeOuqEaoPsgTY";
-        Debug.msg('[FCM] Fetching active FCM token with vapidKey="$vapidKey"...');
-        String? fetchedToken = await messaging.getToken(
-          vapidKey: vapidKey,
-          serviceWorkerScriptPath: kIsWeb ? 'firebase-messaging-sw.js' : null,
-        );
-        Debug.msg('[FCM] messaging.getToken result: "$fetchedToken"');
-        if (fetchedToken != null && fetchedToken.isNotEmpty) {
-          final bool tokenChanged = (token != fetchedToken);
-          token = fetchedToken;
-          await PreferencesProvider.setFcmToken(fetchedToken);
-          Debug.msg('[FCM] Saved active FCM token to preferences (tokenChanged=$tokenChanged): "$token"');
+    try {
+      if (Firebase.apps.isNotEmpty) {
+        NotificationSettings settings = await messaging.getNotificationSettings();
+        Debug.msg('[FCM] Current notification permission status: ${settings.authorizationStatus}');
+
+        if (settings.authorizationStatus == AuthorizationStatus.notDetermined) {
+          Debug.msg('[FCM] Requesting notification permissions...');
+          settings = await messaging.requestPermission();
+          Debug.msg('[FCM] Permission request result: ${settings.authorizationStatus}');
+        }
+
+        if (settings.authorizationStatus == AuthorizationStatus.authorized ||
+            settings.authorizationStatus == AuthorizationStatus.provisional) {
+          final vapidKey = _getWebVapidKey() ??
+              "BGEz4g_2DgMpiDTsZo6i36iFJOM3nZvOKf_KR_EliLRzJWDmgc25hooKJBoGtlzj-0CaQbs9gVkeOuqEaoPsgTY";
+          Debug.msg('[FCM] Fetching active FCM token with vapidKey="$vapidKey"...');
+          String? fetchedToken = await messaging.getToken(
+            vapidKey: vapidKey,
+            serviceWorkerScriptPath: kIsWeb ? 'firebase-messaging-sw.js' : null,
+          );
+          Debug.msg('[FCM] messaging.getToken result: "$fetchedToken"');
+          if (fetchedToken != null && fetchedToken.isNotEmpty) {
+            final bool tokenChanged = (token != fetchedToken);
+            token = fetchedToken;
+            await PreferencesProvider.setFcmToken(fetchedToken);
+            Debug.msg('[FCM] Saved active FCM token to preferences (tokenChanged=$tokenChanged): "$token"');
+          }
         }
       } else {
         Debug.msg('[FCM] Notification permissions not granted, cannot fetch active FCM token.');
