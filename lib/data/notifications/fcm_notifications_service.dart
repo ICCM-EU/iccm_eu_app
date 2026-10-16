@@ -446,13 +446,20 @@ class FcmNotificationsService {
       return false;
     }
     final normalizedTopic = normalizeTopic(topic);
+
     Debug.msg('[FCM] sendMessage called: topic="$topic" (normalized="$normalizedTopic"), title="$title", text="$messageText", author="$author"');
+
+    title = title.isEmpty ? 'Conference Announcement' : title;
 
     // Ensure sender device is subscribed to the topic so FCM includes it in topic broadcasts
     if (!PreferencesProvider.notificationTopicsNotifier.value.contains(normalizedTopic)) {
       Debug.msg('[FCM] Sender is not currently subscribed to "$normalizedTopic", auto-subscribing...');
       await PreferencesProvider.addNotificationTopic(topic, userGesture: true);
     }
+
+    // Append the author to the message text
+    final String composedMessageText = '$messageText\n(Author: $author)';
+    final String composedTitle = '[$topic] $title';
 
     try {
       final url = Uri.parse('$_cleanBackendUrl/send');
@@ -462,8 +469,8 @@ class FcmNotificationsService {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'topic': normalizedTopic,
-          'title': title,
-          'messageText': messageText,
+          'title': composedTitle,
+          'messageText': composedMessageText,
           'author': author,
           'secret': secret,
         }),
@@ -472,19 +479,18 @@ class FcmNotificationsService {
         Debug.msg('[FCM] Send message SUCCESS from backend: HTTP ${res.statusCode}');
 
         // Immediately trigger local notification display for the sender
-        final String sendTitle = title.isEmpty ? 'Conference Announcement' : title;
         final String msgId = 'send_local_${DateTime.now().millisecondsSinceEpoch}';
         await handleIncomingRemoteMessage(
           RemoteMessage(
             messageId: msgId,
             notification: RemoteNotification(
-              title: sendTitle,
-              body: '$messageText\n\n($author)',
+              title: composedTitle,
+              body: composedMessageText,
             ),
             data: {
               'topic': normalizedTopic,
-              'title': sendTitle,
-              'messageText': messageText,
+              'title': 'Sent: $composedTitle',
+              'messageText': composedMessageText,
               'author': author,
             },
           ),

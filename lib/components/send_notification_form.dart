@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
 import 'package:iccm_eu_app/data/notifications/fcm_notifications_service.dart';
@@ -197,6 +198,8 @@ class _SendNotificationFormState extends State<SendNotificationForm> {
         TextField(
           controller: _messageController,
           maxLines: 3,
+          maxLength: 180,
+          maxLengthEnforcement: MaxLengthEnforcement.enforced,
           decoration: const InputDecoration(
             labelText: 'Message',
           ),
