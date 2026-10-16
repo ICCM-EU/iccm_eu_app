@@ -15,6 +15,7 @@ void main() {
     });
 
     Future<void> pumpOverlay(WidgetTester tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -39,6 +40,8 @@ void main() {
       expect(find.text('Yes'), findsOneWidget);
       expect(find.text('No'), findsOneWidget);
       expect(find.text('Cancel'), findsOneWidget);
+
+      debugDefaultTargetPlatformOverride = null;
     });
 
     testWidgets('Overlay is NOT shown when inhibitNotifications is true', (WidgetTester tester) async {
@@ -47,6 +50,8 @@ void main() {
       await pumpOverlay(tester);
 
       expect(find.text('Receive Announcement Notifications?'), findsNothing);
+
+      debugDefaultTargetPlatformOverride = null;
     });
 
     testWidgets('Tapping No sets inhibitNotifications to true and hides overlay', (WidgetTester tester) async {
@@ -59,6 +64,8 @@ void main() {
 
       expect(find.text('Receive Announcement Notifications?'), findsNothing);
       expect(await PreferencesProvider.inhibitNotifications, isTrue);
+
+      debugDefaultTargetPlatformOverride = null;
     });
 
     testWidgets('Tapping Cancel leaves inhibitNotifications false and hides overlay', (WidgetTester tester) async {
@@ -71,6 +78,8 @@ void main() {
 
       expect(find.text('Receive Announcement Notifications?'), findsNothing);
       expect(await PreferencesProvider.inhibitNotifications, isFalse);
+
+      debugDefaultTargetPlatformOverride = null;
     });
 
     testWidgets('Tapping Yes hides overlay and subscribes to default topic with userGesture', (WidgetTester tester) async {
@@ -82,6 +91,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Receive Announcement Notifications?'), findsNothing);
+
+      debugDefaultTargetPlatformOverride = null;
     });
   });
 }

@@ -132,7 +132,7 @@ class _NotificationPermissionOverlayState
                     const SizedBox(width: 8),
                     TextButton(
                       onPressed: _onCancel,
-                      child: const Text('Later'),
+                      child: const Text('Cancel'),
                     ),
                   ],
                 ),
