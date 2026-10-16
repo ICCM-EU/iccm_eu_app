@@ -44,6 +44,16 @@ void main() {
       debugDefaultTargetPlatformOverride = null;
     });
 
+    testWidgets('Overlay is shown when notificationTopics list is empty', (WidgetTester tester) async {
+      SharedPreferences.setMockInitialValues({'notificationsTopics': ''});
+
+      await pumpOverlay(tester);
+
+      expect(find.text('Receive Announcement Notifications?'), findsOneWidget);
+
+      debugDefaultTargetPlatformOverride = null;
+    });
+
     testWidgets('Overlay is NOT shown when inhibitNotifications is true', (WidgetTester tester) async {
       SharedPreferences.setMockInitialValues({'inhibitNotifications': true});
 

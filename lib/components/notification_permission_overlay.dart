@@ -30,8 +30,12 @@ class _NotificationPermissionOverlayState
     if (inhibit) {
       return;
     }
+    await PreferencesProvider.loadNotificationTopics();
     final bool granted = await FcmNotificationsService.isPermissionGranted();
-    if (!granted) {
+    final bool hasNoTopics =
+        PreferencesProvider.notificationTopicsNotifier.value.isEmpty;
+
+    if (!granted || hasNoTopics) {
       if (mounted) {
         setState(() {
           _showOverlay = true;
