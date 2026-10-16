@@ -101,7 +101,21 @@ class FcmNotificationsService {
     }
   }
 
-  static Future<String?> generateToken({bool userGesture = false}) async {
+  static Future<bool> isPermissionGranted() async {
+    if (!supportedPlatform) return false;
+    try {
+      await _initFirebaseIfNeeded();
+      if (Firebase.apps.isEmpty) return false;
+      NotificationSettings settings = await messaging.getNotificationSettings();
+      return settings.authorizationStatus == AuthorizationStatus.authorized ||
+          settings.authorizationStatus == AuthorizationStatus.provisional;
+    } catch (e) {
+      Debug.msg('[FCM] Error checking permission status: $e');
+      return false;
+    }
+  }
+
+  static Future<String?> generateToken({required bool userGesture}) async {
     if (token != null && token!.isNotEmpty) {
       return token;
     }
@@ -139,7 +153,10 @@ class FcmNotificationsService {
   static bool get isSupported => supportedPlatform;
 
   // Called directly on start without a login.
-  static Future<void> initializeFcmNotifications({bool userGesture = false, TracksProvider? tracksProvider}) async {
+  static Future<void> initializeFcmNotifications({
+    required bool userGesture,
+    TracksProvider? tracksProvider,
+  }) async {
     Debug.msg('[FCM] initializeFcmNotifications started (userGesture=$userGesture, supportedPlatform=$supportedPlatform)');
     if (!supportedPlatform) {
       Debug.msg('[FCM] FCM notifications not supported on this platform.');
@@ -225,9 +242,7 @@ class FcmNotificationsService {
     return null;
   }
 
-  static Future<bool> _ensureToken({bool userGesture = false, bool forceRefresh = false}) async {
-    Debug.msg('[FCM] _ensureToken called (memory token="$token", userGesture=$userGesture, forceRefresh=$forceRefresh)');
-
+  static Future<void> _initFirebaseIfNeeded() async {
     try {
       if (Firebase.apps.isEmpty) {
         if (kIsWeb) {
@@ -256,8 +271,17 @@ class FcmNotificationsService {
       messaging = FirebaseMessaging.instance;
       _setupMessageListeners();
     } catch (e) {
-      Debug.msg('[FCM] Exception initializing Firebase in _ensureToken: $e');
+      Debug.msg('[FCM] Exception initializing Firebase in _initFirebaseIfNeeded: $e');
     }
+  }
+
+  static Future<bool> _ensureToken({
+      required bool userGesture,
+      bool forceRefresh = false,
+  }) async {
+    Debug.msg('[FCM] _ensureToken called (memory token="$token", userGesture=$userGesture, forceRefresh=$forceRefresh)');
+
+    await _initFirebaseIfNeeded();
 
     if (!forceRefresh && token != null && token!.isNotEmpty) {
       Debug.msg('[FCM] Using token already present in memory: "$token"');
@@ -278,9 +302,13 @@ class FcmNotificationsService {
         Debug.msg('[FCM] Current notification permission status: ${settings.authorizationStatus}');
 
         if (settings.authorizationStatus == AuthorizationStatus.notDetermined) {
-          Debug.msg('[FCM] Requesting notification permissions...');
-          settings = await messaging.requestPermission();
-          Debug.msg('[FCM] Permission request result: ${settings.authorizationStatus}');
+          if (userGesture) {
+            Debug.msg('[FCM] Requesting notification permissions...');
+            settings = await messaging.requestPermission();
+            Debug.msg('[FCM] Permission request result: ${settings.authorizationStatus}');
+          } else {
+            Debug.msg('[FCM] Notification permissions not requested because userGesture is false.');
+          }
         }
 
         if (settings.authorizationStatus == AuthorizationStatus.authorized ||
@@ -310,7 +338,11 @@ class FcmNotificationsService {
     return token != null && token!.isNotEmpty;
   }
 
-  static Future<bool> subscribeToTopic(String topic, {bool userGesture = false}) async {
+  static Future<bool> subscribeToTopic(
+      String topic,
+      {
+        required bool userGesture,
+      }) async {
     if (!supportedPlatform) {
       return false;
     }
@@ -345,16 +377,16 @@ class FcmNotificationsService {
     }
   }
 
-  static Future<bool> unsubscribeFromTopic(String topic, {bool userGesture = false}) async {
+  static Future<bool> unsubscribeFromTopic(
+      String topic,
+      {
+        required bool userGesture,
+      }) async {
     if (!supportedPlatform) {
       return false;
     }
     final normalizedTopic = normalizeTopic(topic);
     Debug.msg('[FCM] unsubscribeFromTopic called for topic="$topic" (normalized="$normalizedTopic")');
-    if (normalizedTopic == FcmNotificationsService.normalizedDefault) {
-      Debug.msg('[FCM] Rejected unsubscription from default topic "$topic".');
-      return false;
-    }
     await _ensureToken(userGesture: userGesture);
     if (token == null || token!.isEmpty) {
       Debug.msg('[FCM] Cannot unsubscribe from topic "$topic": No FCM token available.');
@@ -419,7 +451,7 @@ class FcmNotificationsService {
     // Ensure sender device is subscribed to the topic so FCM includes it in topic broadcasts
     if (!PreferencesProvider.notificationTopicsNotifier.value.contains(normalizedTopic)) {
       Debug.msg('[FCM] Sender is not currently subscribed to "$normalizedTopic", auto-subscribing...');
-      await PreferencesProvider.addNotificationTopic(topic);
+      await PreferencesProvider.addNotificationTopic(topic, userGesture: true);
     }
 
     try {

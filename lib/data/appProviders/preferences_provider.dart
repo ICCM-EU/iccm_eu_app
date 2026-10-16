@@ -95,10 +95,23 @@ class PreferencesProvider {
     }
   }
 
+  // ---------------------------------------------------------
+  static const String _inhibitNotificationsKey = 'inhibitNotifications';
+
+  static Future<bool> get inhibitNotifications async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_inhibitNotificationsKey) ?? false; // Default
+  }
+
+  static Future<void> setInhibitNotifications(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_inhibitNotificationsKey, value);
+  }
+
     // ---------------------------------------------------------
   static const String _notificationTopics = 'notificationsTopics';
   static final ValueNotifier<List<String>> notificationTopicsNotifier =
-    ValueNotifier([FcmNotificationsService.normalizedDefault]);
+    ValueNotifier([]);
 
   static Set<String> _getValidNormalizedTopics([TracksProvider? tracksProvider]) {
     final topics = FcmNotificationsService().getTopics(tracksProvider);
@@ -108,18 +121,12 @@ class PreferencesProvider {
   static Future<void> loadNotificationTopics([TracksProvider? tracksProvider]) async {
     String value = "";
     final prefs = await SharedPreferences.getInstance();
-    value = prefs.getString(_notificationTopics) ??
-        FcmNotificationsService.normalizedDefault;
+    value = prefs.getString(_notificationTopics) ?? "";
     // Ensure the values read are in the normalized format
     final normalizedTopics = value
         .split(listSep)
         .where((t) => t.isNotEmpty)
         .toList();
-
-    // Add the default topic if not in the list
-    if (!normalizedTopics.contains(FcmNotificationsService.normalizedDefault)) {
-      normalizedTopics.add(FcmNotificationsService.normalizedDefault);
-    }
 
     // Clean topics which are neither defaultTopic, testTopic nor in getTopics
     final validTopics = _getValidNormalizedTopics(tracksProvider);
@@ -132,7 +139,11 @@ class PreferencesProvider {
     await prefs.setString(_notificationTopics, cleanedTopics.join(listSep));
   }
 
-  static Future<void> addNotificationTopic(String value, [TracksProvider? tracksProvider]) async {
+  static Future<void> addNotificationTopic(
+    String value, {
+    required bool userGesture,
+    TracksProvider? tracksProvider,
+  }) async {
     String normalizedTopic = TextFunctions.normalizeListKey(value, listSep);
     final validTopics = _getValidNormalizedTopics(tracksProvider);
 
@@ -143,7 +154,7 @@ class PreferencesProvider {
 
     final list = List<String>.from(notificationTopicsNotifier.value);
     if (!list.contains(normalizedTopic)) {
-      if (await FcmNotificationsService.subscribeToTopic(value, userGesture: true)) {
+      if (await FcmNotificationsService.subscribeToTopic(value, userGesture: userGesture)) {
         list.add(normalizedTopic);
         final cleanedList = list.where((t) => validTopics.contains(t)).toList();
         cleanedList.sort();
@@ -152,19 +163,21 @@ class PreferencesProvider {
         await prefs.setString(_notificationTopics,
             cleanedList.join(listSep));
       }
+    } else {
+      await FcmNotificationsService.subscribeToTopic(value, userGesture: userGesture);
     }
   }
 
-  static Future<void> removeNotificationTopic(String value, [TracksProvider? tracksProvider]) async {
+  static Future<void> removeNotificationTopic(
+    String value, {
+    required bool userGesture,
+    TracksProvider? tracksProvider,
+  }) async {
     String normalizedTopic = TextFunctions.normalizeListKey(value, listSep);
-    final String defaultKey = FcmNotificationsService.normalizedDefault;
-    if (normalizedTopic == defaultKey) {
-      return;
-    }
     final validTopics = _getValidNormalizedTopics(tracksProvider);
     final list = List<String>.from(notificationTopicsNotifier.value);
     if (list.contains(normalizedTopic)) {
-      if (await FcmNotificationsService.unsubscribeFromTopic(value, userGesture: true)) {
+      if (await FcmNotificationsService.unsubscribeFromTopic(value, userGesture: userGesture)) {
         list.remove(normalizedTopic);
       }
     }

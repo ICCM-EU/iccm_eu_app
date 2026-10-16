@@ -28,7 +28,7 @@ void main() {
     });
 
     test('subscribeToTopic returns false gracefully when Firebase is not initialized and no token exists', () async {
-      final result = await FcmNotificationsService.subscribeToTopic('test_topic');
+      final result = await FcmNotificationsService.subscribeToTopic('test_topic', userGesture: false);
       expect(result, isFalse);
       expect(FcmNotificationsService.token, isNull);
     });
@@ -40,12 +40,12 @@ void main() {
       expect(PreferencesProvider.fcmTokenNotifier.value, equals('cached_test_token_123'));
 
       // Token should be reused from preferences by _ensureToken
-      await FcmNotificationsService.subscribeToTopic('test_topic');
+      await FcmNotificationsService.subscribeToTopic('test_topic', userGesture: false);
       expect(FcmNotificationsService.token, equals('cached_test_token_123'));
     });
 
-    test('unsubscribeFromTopic rejects default topic Announcements', () async {
-      final result = await FcmNotificationsService.unsubscribeFromTopic(FcmNotificationsService.defaultTopic);
+    test('unsubscribeFromTopic returns false gracefully when no token exists', () async {
+      final result = await FcmNotificationsService.unsubscribeFromTopic('test_topic', userGesture: false);
       expect(result, isFalse);
     });
 
@@ -63,7 +63,7 @@ void main() {
 
     test('initializeFcmNotifications recovers token from SharedPreferences and skips topic subscription', () async {
       SharedPreferences.setMockInitialValues({'fcmToken': 'cached_token_abc'});
-      await FcmNotificationsService.initializeFcmNotifications();
+      await FcmNotificationsService.initializeFcmNotifications(userGesture: false);
 
       expect(FcmNotificationsService.token, equals('cached_token_abc'));
     });
@@ -142,7 +142,7 @@ void main() {
 
       try {
         // 1. Generates itself a token
-        final token = await FcmNotificationsService.generateToken();
+        final token = await FcmNotificationsService.generateToken(userGesture: true);
         expect(token, isNotNull);
         expect(token, isNotEmpty);
 
@@ -155,7 +155,7 @@ void main() {
         });
 
         // 2. Subscribes to "Test Topic"
-        final subSuccess = await FcmNotificationsService.subscribeToTopic(FcmNotificationsService.testTopic);
+        final subSuccess = await FcmNotificationsService.subscribeToTopic(FcmNotificationsService.testTopic, userGesture: true);
         expect(subSuccess, isTrue);
         final normalizedTestTopic = FcmNotificationsService.normalizeTopic(FcmNotificationsService.testTopic);
         expect(subscribedTopics, contains(normalizedTestTopic));

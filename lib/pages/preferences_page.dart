@@ -173,30 +173,24 @@ class _PreferencesPageState extends State<PreferencesPage> {
                           topicName,
                           PreferencesProvider.listSep,
                         );
-                        final String defaultTopicKey = TextFunctions
-                            .normalizeListKey(
-                          FcmNotificationsService.defaultTopic,
-                          PreferencesProvider.listSep,
-                        );
-                        final bool isDefaultTopic =
-                            topicKey == defaultTopicKey ||
-                                topicName.toLowerCase().trim() ==
-                                    FcmNotificationsService.defaultTopic
-                                        .toLowerCase().trim();
-                        final bool isSubscribed = isDefaultTopic ||
+                        final bool isSubscribed =
                             subscribedTopics.contains(topicKey) ||
                             subscribedTopics.contains(topicName);
                         return ToggleButtonListTile(
                           value: isSubscribed,
-                          onChanged: isDefaultTopic
-                              ? null
-                              : (bool newValue) {
+                          onChanged: (bool newValue) {
                             if (newValue) {
                               PreferencesProvider.addNotificationTopic(
-                                  topicName, tracksProvider);
+                                topicName,
+                                userGesture: true,
+                                tracksProvider: tracksProvider,
+                              );
                             } else {
                               PreferencesProvider.removeNotificationTopic(
-                                  topicName, tracksProvider);
+                                topicName,
+                                userGesture: true,
+                                tracksProvider: tracksProvider,
+                              );
                             }
                           },
                           title: topicName,

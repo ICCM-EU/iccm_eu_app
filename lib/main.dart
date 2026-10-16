@@ -23,6 +23,7 @@ import 'package:iccm_eu_app/platform/multiplatform.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'components/error_overlay.dart';
+import 'components/notification_permission_overlay.dart';
 import 'data/notifications/fcm_notifications_service.dart';
 
 void main() async {
@@ -49,7 +50,7 @@ void main() async {
   }
 
   if (FcmNotificationsService.isSupported) {
-    await FcmNotificationsService.initializeFcmNotifications();
+    await FcmNotificationsService.initializeFcmNotifications(userGesture: false);
   }
 
   runApp(
@@ -185,6 +186,7 @@ class MyApp extends StatelessWidget {
                         },
                       ),
                       const ErrorOverlay(),
+                      const NotificationPermissionOverlay(),
                     ],
                   ),
                 ),
