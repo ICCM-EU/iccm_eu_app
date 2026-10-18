@@ -17,7 +17,11 @@ class TextFunctions {
       return limitedText;
     }
   }
-  static String normalizeListKey (String key, String sep) {
-    return key.toLowerCase().trim().replaceAll(' ', '_').replaceAll(sep, '_');
+  static String normalizeListKey(String key, String sep) {
+    String normalized = key.toLowerCase().trim();
+    if (sep.isNotEmpty) {
+      normalized = normalized.replaceAll(sep, '_');
+    }
+    return normalized.replaceAll(RegExp(r'[^a-zA-Z0-9\-_.~%]'), '_');
   }
 }

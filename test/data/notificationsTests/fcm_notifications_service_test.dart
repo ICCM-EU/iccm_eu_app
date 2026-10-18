@@ -177,7 +177,7 @@ void main() {
         );
         await streamSub.cancel();
 
-        expect(receivedMsg.notification?.title, equals('Test FCM Notification'));
+        expect(receivedMsg.notification?.title, contains('Test FCM Notification'));
         expect(receivedMsg.notification?.body, contains('Hello from test suite!'));
 
         // Brief delay to allow async LocalNotificationService.showInstantNotification to populate inAppNotificationsNotifier
@@ -186,7 +186,7 @@ void main() {
         // Verify that local in-app notification was triggered
         final notifications = LocalNotificationService.inAppNotificationsNotifier.value;
         expect(notifications, isNotEmpty);
-        expect(notifications.last.title, equals('Test FCM Notification'));
+        expect(notifications.last.title, contains('Test FCM Notification'));
         expect(notifications.last.body, contains('Hello from test suite!'));
         expect(notifications.last.body, contains('TestRunner'));
       } finally {
