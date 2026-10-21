@@ -35,7 +35,8 @@ void main() {
   });
 
   group('TextFunctions.cutTextToWords Tests', () {
-    test('returns empty string when text is empty', () {
+    test('returns empty string when text is null or empty', () {
+      expect(TextFunctions.cutTextToWords(text: null, wordCount: 5), equals(''));
       expect(TextFunctions.cutTextToWords(text: '', wordCount: 5), equals(''));
     });
 
@@ -47,6 +48,26 @@ void main() {
     test('returns original text without ellipsis when word count is within limit', () {
       const text = 'One two three';
       expect(TextFunctions.cutTextToWords(text: text, wordCount: 5), equals('One two three'));
+    });
+
+    test('returns original text without ellipsis when word count matches total word count', () {
+      const text = 'One two three';
+      expect(TextFunctions.cutTextToWords(text: text, wordCount: 3), equals('One two three'));
+    });
+
+    test('handles multiple whitespaces, tabs, and newlines correctly', () {
+      const text = 'Hello \t world \n from \r\n Flutter  app';
+      expect(TextFunctions.cutTextToWords(text: text, wordCount: 3), equals('Hello world from...'));
+    });
+
+    test('handles word count of 0', () {
+      const text = 'One two three';
+      expect(TextFunctions.cutTextToWords(text: text, wordCount: 0), equals('...'));
+    });
+
+    test('handles single word input', () {
+      expect(TextFunctions.cutTextToWords(text: 'Hello', wordCount: 1), equals('Hello'));
+      expect(TextFunctions.cutTextToWords(text: 'Hello', wordCount: 0), equals('...'));
     });
   });
 }

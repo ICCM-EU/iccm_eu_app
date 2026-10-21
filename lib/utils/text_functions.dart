@@ -3,7 +3,7 @@ class TextFunctions {
     required String? text,
     required int wordCount,
   }) {
-    if (text!.isEmpty) {
+    if (text == null || text.isEmpty) {
       return '';
     }
     final words = text.split(RegExp(r'\s+')); // Split into words

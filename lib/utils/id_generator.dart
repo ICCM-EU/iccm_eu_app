@@ -10,6 +10,7 @@ class IdGenerator {
     List<String> idStrings = prefs.getStringList(_counterKey) ?? [];
     _notificationIds = idStrings.map((id) => int.tryParse(id) ?? 0).toList();
     int nextId = _findFirstNonExistingInteger(_notificationIds);
+    _notificationIds.add(nextId);
     await prefs.setStringList(
         _counterKey,
         _notificationIds.map((id) => id.toString()).toList(),
