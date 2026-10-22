@@ -33,8 +33,11 @@ class CountdownPageState extends State<CountdownPage> {
     super.initState();
     _loadSelectedRoom();
     _startTimer();
-    Provider.of<ExpandContentProvider>(context, listen: false).
-      setIsExpanded(true);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        Provider.of<ExpandContentProvider>(context, listen: false).setIsExpanded(true);
+      }
+    });
   }
 
   @override
