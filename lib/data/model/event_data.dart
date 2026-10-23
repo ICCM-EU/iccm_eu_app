@@ -92,8 +92,8 @@ class EventData extends FlutterWeekViewEvent {
       facilitator: json['facilitator'],
       surveyUrl: json['surveyUrl'],
       parallelSessions: json['parallelSessions'],
-      forceNotify: bool.tryParse(json['forceNotify']),
-      id: int.tryParse(json['id'] ?? '-1'),
+      forceNotify: bool.tryParse(json['forceNotify']?.toString() ?? 'false'),
+      id: int.tryParse(json['id']?.toString() ?? '-1'),
     );
   }
 

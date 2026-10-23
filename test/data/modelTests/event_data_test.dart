@@ -34,5 +34,18 @@ void main() {
       expect(reconstructed.room, equals('Auditorium A'));
       expect(reconstructed.id, equals(42));
     });
+
+    test('fromJson handles null and missing optional fields gracefully', () {
+      final json = {
+        'start': '2026-10-21T09:00:00.000',
+        'end': '2026-10-21T10:00:00.000',
+      };
+
+      final event = EventData.fromJson(json);
+      expect(event.name, equals(''));
+      expect(event.details, equals(''));
+      expect(event.forceNotify, isFalse);
+      expect(event.id, equals(-1));
+    });
   });
 }

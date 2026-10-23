@@ -1,14 +1,27 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
+import 'package:iccm_eu_app/data/notifications/fcm_notifications_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+class TestHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)..findProxy = (uri) => 'DIRECT';
+  }
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  HttpOverrides.global = TestHttpOverrides();
 
   group('PreferencesProvider Tests', () {
     setUp(() {
       SharedPreferences.setMockInitialValues({});
+      FcmNotificationsService.token = null;
     });
 
     test('darkTheme preference getter and setter', () async {
@@ -89,6 +102,37 @@ void main() {
 
       await PreferencesProvider.loadSendTitle();
       expect(PreferencesProvider.fcmSendTitleNotifier.value, equals('Special Notice'));
+    });
+
+    test('addNotificationTopic rejects topics not in valid topics list', () async {
+      await PreferencesProvider.addNotificationTopic('invalid_custom_topic', userGesture: false);
+      expect(PreferencesProvider.notificationTopicsNotifier.value, isNot(contains('invalid_custom_topic')));
+    });
+
+    test('addNotificationTopic and removeNotificationTopic manage valid topic subscriptions', () async {
+      final originalBackendUrl = FcmNotificationsService.backendUrl;
+      final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+      FcmNotificationsService.backendUrl = 'http://${server.address.address}:${server.port}';
+
+      final serverSub = server.listen((HttpRequest request) async {
+        request.response.statusCode = 200;
+        request.response.headers.contentType = ContentType.json;
+        request.response.write(jsonEncode({'success': true}));
+        await request.response.close();
+      });
+
+      try {
+        FcmNotificationsService.token = 'test_token';
+        await PreferencesProvider.addNotificationTopic('Announcements', userGesture: true);
+        expect(PreferencesProvider.notificationTopicsNotifier.value, contains('announcements'));
+
+        await PreferencesProvider.removeNotificationTopic('Announcements', userGesture: true);
+        expect(PreferencesProvider.notificationTopicsNotifier.value, isNot(contains('announcements')));
+      } finally {
+        await serverSub.cancel();
+        await server.close(force: true);
+        FcmNotificationsService.backendUrl = originalBackendUrl;
+      }
     });
 
     test('isDayView getter and setter', () async {
