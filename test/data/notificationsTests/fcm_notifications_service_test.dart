@@ -5,6 +5,8 @@ import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
+import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
 import 'package:iccm_eu_app/data/notifications/fcm_notifications_service.dart';
 import 'package:iccm_eu_app/data/notifications/local_notification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,6 +27,20 @@ void main() {
       SharedPreferences.setMockInitialValues({});
       FcmNotificationsService.token = null;
       LocalNotificationService.clearInAppNotifications();
+    });
+
+    test('isSupported matches supportedPlatform getter', () {
+      expect(FcmNotificationsService.isSupported, equals(FcmNotificationsService.supportedPlatform));
+    });
+
+    test('isPermissionGranted returns boolean status safely', () async {
+      final granted = await FcmNotificationsService.isPermissionGranted();
+      expect(granted, isA<bool>());
+    });
+
+    test('normalizeTopic formats strings with listSep key normalization', () {
+      final normalized = FcmNotificationsService.normalizeTopic('Test Topic 123');
+      expect(normalized, equals('test_topic_123'));
     });
 
     test('subscribeToTopic returns false gracefully when Firebase is not initialized and no token exists', () async {
@@ -49,8 +65,40 @@ void main() {
       expect(result, isFalse);
     });
 
+    test('unsubscribeFromTopic returns true on HTTP 200 from backend', () async {
+      final originalBackendUrl = FcmNotificationsService.backendUrl;
+      final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+      FcmNotificationsService.backendUrl = 'http://${server.address.address}:${server.port}';
+
+      final serverSubscription = server.listen((HttpRequest request) async {
+        request.response.statusCode = 200;
+        request.response.headers.contentType = ContentType.json;
+        request.response.write(jsonEncode({'success': true}));
+        await request.response.close();
+      });
+
+      try {
+        FcmNotificationsService.token = 'valid_test_token';
+        final result = await FcmNotificationsService.unsubscribeFromTopic('test_topic', userGesture: true);
+        expect(result, isTrue);
+      } finally {
+        await serverSubscription.cancel();
+        await server.close(force: true);
+        FcmNotificationsService.backendUrl = originalBackendUrl;
+      }
+    });
+
     test('getTopics returns defaultTopic and testTopic', () {
       final topics = FcmNotificationsService().getTopics();
+      expect(topics, contains(FcmNotificationsService.defaultTopic));
+      expect(topics, contains(FcmNotificationsService.testTopic));
+    });
+
+    test('getTopics includes track names when TracksProvider is provided', () {
+      final gsheets = GsheetsProvider();
+      final tracksProvider = TracksProvider(gsheetsProvider: gsheets);
+      final topics = FcmNotificationsService().getTopics(tracksProvider);
+
       expect(topics, contains(FcmNotificationsService.defaultTopic));
       expect(topics, contains(FcmNotificationsService.testTopic));
     });
@@ -77,6 +125,26 @@ void main() {
       expect(PreferencesProvider.notificationTopicsNotifier.value, contains('announcements'));
       expect(PreferencesProvider.notificationTopicsNotifier.value, contains('test_topic'));
       expect(PreferencesProvider.notificationTopicsNotifier.value, isNot(contains('invalid_obsolete_topic_123')));
+    });
+
+    test('handleIncomingRemoteMessage skips in-app notification when title and body are empty', () async {
+      LocalNotificationService.clearInAppNotifications();
+
+      await FcmNotificationsService.handleIncomingRemoteMessage(
+        const RemoteMessage(
+          messageId: 'empty_msg_1',
+          notification: RemoteNotification(
+            title: '',
+            body: '',
+          ),
+          data: {
+            'title': '',
+            'messageText': '',
+          },
+        ),
+      );
+
+      expect(LocalNotificationService.inAppNotificationsNotifier.value, isEmpty);
     });
 
     test('Full FCM flow: generates token, subscribes to Test Topic, sends test message, and receives message with local notification', () async {
