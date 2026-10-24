@@ -4,17 +4,21 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 class FullScreenQrCode extends StatelessWidget {
   final String url;
+  final String title;
+  final bool showText;
 
   const FullScreenQrCode({
     super.key,
     required this.url,
+    this.title = 'Full Screen QR Code',
+    this.showText = true,
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Full Screen QR Code'),
+        title: Text(title),
         actions: [
           IconButton(
             icon: Icon(
@@ -30,8 +34,8 @@ class FullScreenQrCode extends StatelessWidget {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          UrlText(url: url),
-          SizedBox(height: 8),
+          if (showText) UrlText(url: url),
+          if (showText) const SizedBox(height: 8),
           Center(
             child: SizedBox(
               child: QrImageView(

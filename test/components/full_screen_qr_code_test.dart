@@ -19,5 +19,23 @@ void main() {
       expect(find.byType(QrImageView), findsOneWidget);
       expect(find.byIcon(Icons.close), findsOneWidget);
     });
+
+    testWidgets('hides human-readable text when showText is false', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: FullScreenQrCode(
+            url: 'super_secret_password',
+            title: 'FCM Admin Password',
+            showText: false,
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('FCM Admin Password'), findsOneWidget);
+      expect(find.text('super_secret_password'), findsNothing);
+      expect(find.byType(QrImageView), findsOneWidget);
+      expect(find.byIcon(Icons.close), findsOneWidget);
+    });
   });
 }

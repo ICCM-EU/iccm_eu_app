@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:iccm_eu_app/components/full_screen_qr_code.dart';
+import 'package:iccm_eu_app/components/qr_scanner.dart';
 import 'package:iccm_eu_app/components/toggle_button.dart';
 import 'package:iccm_eu_app/components/toggle_is_dark_mode.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
@@ -59,6 +61,32 @@ class _PreferencesPageState extends State<PreferencesPage> {
     if (mounted) {
       _nicknameController.text = PreferencesProvider.notificationsNicknameNotifier.value;
       _pwdController.text = PreferencesProvider.fcmAdminPwdNotifier.value;
+    }
+  }
+
+  void _sharePasswordQr(BuildContext context, String password) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FullScreenQrCode(
+          url: password,
+          title: 'FCM Admin Password',
+          showText: false,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _scanPasswordQr(BuildContext context) async {
+    final String? scannedCode = await Navigator.push<String>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const QrScanner(),
+      ),
+    );
+    if (scannedCode != null && scannedCode.isNotEmpty && mounted) {
+      _pwdController.text = scannedCode;
+      PreferencesProvider.setFcmAdminPwd(scannedCode);
     }
   }
 
@@ -226,14 +254,38 @@ class _PreferencesPageState extends State<PreferencesPage> {
                       ),
                       if (showPassword) ...[
                         const SizedBox(height: 16),
-                        TextField(
-                          controller: _pwdController,
-                          obscureText: true,
-                          decoration: const InputDecoration(
-                            labelText: 'FCM Admin Password',
-                          ),
-                          onChanged: (value) {
-                            PreferencesProvider.setFcmAdminPwd(value);
+                        ValueListenableBuilder<String>(
+                          valueListenable: PreferencesProvider.fcmAdminPwdNotifier,
+                          builder: (context, pwdValue, child) {
+                            final bool hasPassword = pwdValue.isNotEmpty;
+                            return TextField(
+                              controller: _pwdController,
+                              obscureText: true,
+                              decoration: InputDecoration(
+                                labelText: 'FCM Admin Password',
+                                suffixIcon: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (hasPassword)
+                                      IconButton(
+                                        key: const Key('share_fcm_pwd_qr_button'),
+                                        icon: const Icon(Icons.qr_code),
+                                        tooltip: 'Share FCM Admin Password via QR code',
+                                        onPressed: () => _sharePasswordQr(context, pwdValue),
+                                      ),
+                                    IconButton(
+                                      key: const Key('scan_fcm_pwd_qr_button'),
+                                      icon: const Icon(Icons.qr_code_scanner),
+                                      tooltip: 'Scan FCM Admin Password QR code',
+                                      onPressed: () => _scanPasswordQr(context),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              onChanged: (value) {
+                                PreferencesProvider.setFcmAdminPwd(value);
+                              },
+                            );
                           },
                         ),
                       ],
