@@ -321,8 +321,21 @@ jobs:
       - name: Install project dependencies
         run: flutter pub get
 
-      - name: Run tests
+      - name: Run Flutter tests
         run: flutter test
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install backend JS dependencies
+        run: |
+          cd web/backend
+          npm install
+
+      - name: Run Web JS tests
+        run: node --test test/web/*.js
 
       #- name: Generate intermediates
       #  run: flutter pub run build_runner build --delete-conflicting-outputs

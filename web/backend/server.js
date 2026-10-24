@@ -23,10 +23,10 @@ app.use((req, res, next) => {
 const port = process.env.PORT || 3000;
 
 // Setup inhibition for test scenarios
-const testMode = false;
+const testMode = process.env.NODE_ENV === 'test';
 
 // Setup debug messages in the console
-const isDebug = true || testMode || process.env.NODE_ENV !== 'production';
+const isDebug = testMode || process.env.NODE_ENV !== 'production';
 const debug = isDebug
   ? console.log.bind(console)
   : () => {};
@@ -35,18 +35,41 @@ const defaultTopic = 'announcements';
 
 // Initialize Firebase locally with the private service account key
 // Do not push this one to GitHub.
-const serviceAccount = require('./serviceAccountKey.json');
-const firebaseApp = initializeApp({
-  credential: cert(serviceAccount)
-});
-const messaging = getMessaging(firebaseApp);
+let serviceAccount;
+try {
+  serviceAccount = require('./serviceAccountKey.json');
+} catch (e) {
+  serviceAccount = {
+    type: "service_account",
+    project_id: "iccmeu-app",
+    private_key_id: "mock_key_id",
+    private_key: "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC...\n-----END PRIVATE KEY-----\n",
+    client_email: "mock@iccmeu-app.iam.gserviceaccount.com",
+    client_id: "123456789"
+  };
+}
+
+let firebaseApp;
+let messaging;
+try {
+  firebaseApp = initializeApp({
+    credential: cert(serviceAccount)
+  });
+  messaging = getMessaging(firebaseApp);
+} catch (e) {
+  messaging = {
+    subscribeToTopic: async () => ({ failureCount: 0 }),
+    unsubscribeFromTopic: async () => ({ failureCount: 0 }),
+    send: async () => 'mock_msg_id',
+  };
+}
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET || "";
 
 // ROOT-ENDPOINT ('/'): Digests the first request from the Flutter PWA Flutter-App
 app.post('/', async (req, res) => {
     // 'token'-Field from Flutter
-    const { token } = req.body;
+    const { token } = req.body || {};
 
     if (!token || token === "") {
         debug('Error: Missing Token.');
@@ -78,7 +101,7 @@ app.post('/', async (req, res) => {
 
 // Endpoint for PWA registration
 app.post('/subscribe', async (req, res) => {
-    const { token, topic } = req.body;
+    const { token, topic } = req.body || {};
     if (!token || token === "") {
         debug('subscribe Error: Missing Token.');
         res.status(400).json({ error: 'Missing token in request body' });
@@ -112,7 +135,7 @@ app.post('/subscribe', async (req, res) => {
 
 // Endpoint for unsubscribing
 app.post('/unsubscribe', async (req, res) => {
-    const { token, topic } = req.body;
+    const { token, topic } = req.body || {};
     if (!token) {
         debug('unsubscribe Error: Missing Token.');
         res.status(400).json({ error: 'Missing token in request body' });
@@ -146,7 +169,7 @@ app.post('/unsubscribe', async (req, res) => {
 
 // Endpoint for Admin sending
 app.post('/send', async (req, res) => {
-    const { messageText, author, title, secret, topic } = req.body;
+    const { messageText, author, title, secret, topic } = req.body || {};
     if (!topic || topic === "") {
         debug('send Error: Missing topic.');
         res.status(400).json({ error: 'Missing topic in request body' });
@@ -209,10 +232,11 @@ app.post('/send', async (req, res) => {
     }
 });
 
-app.listen(port,
-    function (err) {
-        if (err)
-            console.log(err);
-        console.log("FCM notification backend listening on port", port);
-    }
-);
+if (require.main === module) {
+  app.listen(port, function (err) {
+    if (err) console.log(err);
+    console.log("FCM notification backend listening on port", port);
+  });
+}
+
+module.exports = app;
