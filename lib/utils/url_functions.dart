@@ -3,22 +3,17 @@ import 'package:url_launcher/url_launcher.dart';
 
 class UrlFunctions {
   static Future<void> launch(String url, bool inApp) async {
-    if (inApp) {
-      if (!await launchUrl(
-        Uri.parse(url),
-        mode: LaunchMode.inAppWebView,
-      )
-      ) {
-        throw Exception('Could not launch $url');
-      }
-    } else {
-      if (!await launchUrl(
-        Uri.parse(url),
-        mode: LaunchMode.externalApplication,
-      )
-      ) {
-        throw Exception('Could not launch $url');
-      }
+    final trimmed = url.trim();
+    if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+      throw Exception('Invalid URL scheme for launching: $url');
+    }
+    final uri = Uri.parse(trimmed);
+    final mode = inApp ? LaunchMode.inAppWebView : LaunchMode.externalApplication;
+    if (!await launchUrl(
+      uri,
+      mode: mode,
+    )) {
+      throw Exception('Could not launch $url');
     }
   }
 

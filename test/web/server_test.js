@@ -45,7 +45,7 @@ describe('Node.js Express Server (server.js) Tests', () => {
         res.on('end', () => {
           let json;
           try { json = JSON.parse(raw); } catch (e) { json = raw; }
-          resolve({ status: res.statusCode, body: json });
+          resolve({ status: res.statusCode, body: json, headers: res.headers });
         });
       });
       req.on('error', reject);
@@ -53,6 +53,12 @@ describe('Node.js Express Server (server.js) Tests', () => {
       req.end();
     });
   }
+
+  test('Security headers X-Content-Type-Options and X-Frame-Options are present', async () => {
+    const res = await makePost('/', { token: 'valid_token' });
+    assert.strictEqual(res.headers['x-content-type-options'], 'nosniff');
+    assert.strictEqual(res.headers['x-frame-options'], 'DENY');
+  });
 
   test('POST / returns 400 when token is missing', async () => {
     const res = await makePost('/', {});
@@ -70,6 +76,12 @@ describe('Node.js Express Server (server.js) Tests', () => {
     const res = await makePost('//subscribe', { token: 'token_1', topic: 'announcements' });
     assert.strictEqual(res.status, 200);
     assert.strictEqual(res.body.success, true);
+  });
+
+  test('POST /subscribe rejects invalid topic with spaces or special characters', async () => {
+    const res = await makePost('/subscribe', { token: 'token_1', topic: 'invalid topic name!' });
+    assert.strictEqual(res.status, 400);
+    assert.strictEqual(res.body.error, 'Missing or invalid topic in request body');
   });
 
   test('POST /subscribe returns 400 when token or topic is missing', async () => {
@@ -91,14 +103,22 @@ describe('Node.js Express Server (server.js) Tests', () => {
     assert.strictEqual(res.body.success, true);
   });
 
-  test('POST /send returns 403 when secret is incorrect', async () => {
-    const res = await makePost('/send', {
+  test('POST /send rejects unauthorized or partially matching secret using timing safe comparison', async () => {
+    const resWrongSecret = await makePost('/send', {
       topic: 'announcements',
-      secret: 'wrong_secret',
+      secret: 'test_secret_12',
       messageText: 'Hello',
       author: 'Admin'
     });
-    assert.strictEqual(res.status, 403);
+    assert.strictEqual(resWrongSecret.status, 403);
+
+    const resEmptySecret = await makePost('/send', {
+      topic: 'announcements',
+      secret: '',
+      messageText: 'Hello',
+      author: 'Admin'
+    });
+    assert.strictEqual(resEmptySecret.status, 403);
   });
 
   test('POST /send returns 200 when valid parameters and secret are provided', async () => {

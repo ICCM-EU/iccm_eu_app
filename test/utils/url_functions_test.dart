@@ -50,6 +50,26 @@ void main() {
           .setMockMethodCallHandler(channel, null);
     });
 
+    test('throws Exception when attempting to launch non-http/https URL scheme', () async {
+      expect(
+        () => UrlFunctions.launch('javascript:alert(1)', true),
+        throwsA(isA<Exception>().having(
+          (e) => e.toString(),
+          'message',
+          contains('Invalid URL scheme for launching'),
+        )),
+      );
+
+      expect(
+        () => UrlFunctions.launch('file:///etc/passwd', false),
+        throwsA(isA<Exception>().having(
+          (e) => e.toString(),
+          'message',
+          contains('Invalid URL scheme for launching'),
+        )),
+      );
+    });
+
     test('launches URL inAppWebView mode when inApp is true', () async {
       await UrlFunctions.launch('https://example.com', true);
       expect(log, isNotEmpty);
