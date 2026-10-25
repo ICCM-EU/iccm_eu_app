@@ -151,7 +151,7 @@ class LocalNotificationService {
         _isNativePluginInitialized = false;
       }
     } else {
-      Debug.msg('LocalNotificationService: Skipping flutterLocalNotificationsPlugin on Web to preserve firebase-messaging-sw.js service worker.');
+      Debug.info('LocalNotificationService: Skipping flutterLocalNotificationsPlugin on Web to preserve firebase-messaging-sw.js service worker.');
     }
   }
 
@@ -165,7 +165,7 @@ class LocalNotificationService {
             ?.requestNotificationsPermission();
         final status = await Permission.notification.status;
         if (status != PermissionStatus.granted) {
-          Debug.msg('WARN: Notification permission not granted');
+          Debug.info('WARN: Notification permission not granted');
         } else {
           Debug.msg('OK: Notification permission granted');
         }
@@ -208,7 +208,7 @@ class LocalNotificationService {
     required String body,
     Color? backgroundColor,
   }) {
-    Debug.msg('[LocalNotification] addInAppNotification called: title="$title", body="$body"');
+    Debug.info('[LocalNotification] addInAppNotification called: title="$title", body="$body"');
     final String id = '${DateTime.now().microsecondsSinceEpoch}_${title.hashCode}_${body.hashCode}';
     final item = InAppNotificationItem(
       id: id,
@@ -218,18 +218,18 @@ class LocalNotificationService {
     );
 
     item.startTimer(() {
-      Debug.msg('[LocalNotification] Auto-removing in-app notification id="$id"');
+      Debug.info('[LocalNotification] Auto-removing in-app notification id="$id"');
       removeInAppNotification(id);
     });
 
     final currentList = List<InAppNotificationItem>.from(inAppNotificationsNotifier.value);
     currentList.add(item);
     inAppNotificationsNotifier.value = currentList;
-    Debug.msg('[LocalNotification] Updated inAppNotificationsNotifier (total items count: ${currentList.length})');
+    Debug.info('[LocalNotification] Updated inAppNotificationsNotifier (total items count: ${currentList.length})');
   }
 
   static void removeInAppNotification(String id) {
-    Debug.msg('[LocalNotification] removeInAppNotification called for id="$id"');
+    Debug.info('[LocalNotification] removeInAppNotification called for id="$id"');
     final currentList = List<InAppNotificationItem>.from(inAppNotificationsNotifier.value);
     final index = currentList.indexWhere((item) => item.id == id);
     if (index != -1) {
@@ -240,7 +240,7 @@ class LocalNotificationService {
   }
 
   static void clearInAppNotifications() {
-    Debug.msg('[LocalNotification] clearInAppNotifications called');
+    Debug.info('[LocalNotification] clearInAppNotifications called');
     for (var item in inAppNotificationsNotifier.value) {
       item.dispose();
     }
@@ -255,7 +255,7 @@ class LocalNotificationService {
   }) async {
     await _ensureInitialized();
 
-    Debug.msg('[LocalNotification] showInstantNotification triggered: id=$id, title="$title", body="$body"');
+    Debug.info('[LocalNotification] showInstantNotification triggered: id=$id, title="$title", body="$body"');
     Debug.msg('SHOW NOTIFICATION [$id]: $title - $body');
 
     bool isDesktop = !kIsWeb && (
@@ -269,7 +269,7 @@ class LocalNotificationService {
         if (js.context.hasProperty('Notification')) {
           final dynamic notificationClass = js.context['Notification'];
           final String permission = notificationClass['permission']?.toString() ?? 'denied';
-          Debug.msg('[LocalNotification Web] window.Notification permission state: "$permission"');
+          Debug.info('[LocalNotification Web] window.Notification permission state: "$permission"');
           if (permission == 'granted') {
             final String safeTitle = jsonEncode(title);
             final String safeBody = jsonEncode(body);
@@ -277,10 +277,10 @@ class LocalNotificationService {
               'try { new Notification($safeTitle, { body: $safeBody, icon: "icons/Icon-192.png" }); console.log("[LocalNotification Web] Native browser Notification window displayed."); } catch(e) { console.error("[LocalNotification Web] Error creating Notification:", e); }'
             ]);
           } else {
-            Debug.msg('[LocalNotification Web] Native browser Notification omitted because permission is "$permission"');
+            Debug.info('[LocalNotification Web] Native browser Notification omitted because permission is "$permission"');
           }
         } else {
-          Debug.msg('[LocalNotification Web] window.Notification property is missing.');
+          Debug.info('[LocalNotification Web] window.Notification property is missing.');
         }
       } catch (e) {
         Debug.msg('[LocalNotification Web] Native web notification exception: $e');
@@ -325,13 +325,13 @@ class LocalNotificationService {
           body: body,
           notificationDetails: notificationDetails,
         );
-        Debug.msg('[LocalNotification] Native plugin show notification completed.');
+        Debug.info('[LocalNotification] Native plugin show notification completed.');
       } catch (e) {
         Debug.msg('Native notification failed ($e), falling back for: $title - $body');
       }
     }
 
-    Debug.msg('[LocalNotification] Forwarding to _showInAppNotification...');
+    Debug.info('[LocalNotification] Forwarding to _showInAppNotification...');
     _showInAppNotification(title: title, body: body);
   }
 
@@ -366,7 +366,7 @@ class LocalNotificationService {
     if (kIsWeb || isDesktop || !_isNativePluginInitialized) {
       final Duration delay = scheduledDate.difference(DateTime.now());
       if (!delay.isNegative) {
-        Debug.msg('Scheduling in-memory timer for "$title" in ${delay.inSeconds} seconds (ID: $notificationId)');
+        Debug.info('Scheduling in-memory timer for "$title" in ${delay.inSeconds} seconds (ID: $notificationId)');
         _scheduledTimers[notificationId] = Timer(delay, () {
           _scheduledTimers.remove(notificationId);
           showInstantNotification(
@@ -377,7 +377,7 @@ class LocalNotificationService {
           );
         });
       } else {
-        Debug.msg('Scheduled date for "$title" is in the past, skipping timer (ID: $notificationId)');
+        Debug.info('Scheduled date for "$title" is in the past, skipping timer (ID: $notificationId)');
       }
       return;
     }

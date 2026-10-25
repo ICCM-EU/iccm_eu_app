@@ -104,7 +104,7 @@ class _SendNotificationFormState extends State<SendNotificationForm> {
     final author = _authorController.text.trim();
     final secret = _secretController.text.trim();
 
-    Debug.msg('[SendNotificationForm] User clicked Send: topic="$topic", title="$title", message="$message", author="$author"');
+    Debug.info('[SendNotificationForm] User clicked Send: topic="$topic", title="$title", message="$message", author="$author"');
 
     if (message.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(

@@ -40,25 +40,25 @@ class FcmNotificationsService {
 
   static void _setupMessageListeners() {
     if (_listenersConfigured) {
-      Debug.msg('[FCM] Listeners already configured, skipping.');
+      Debug.info('[FCM] Listeners already configured, skipping.');
       return;
     }
     try {
-      Debug.msg('[FCM] Setting up FirebaseMessaging.onMessage and onMessageOpenedApp listeners...');
+      Debug.info('[FCM] Setting up FirebaseMessaging.onMessage and onMessageOpenedApp listeners...');
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         Debug.msg('[FCM Stream] >>> FOREGROUND MESSAGE RECEIVED <<<');
-        Debug.msg('[FCM Stream] Message ID: ${message.messageId}');
-        Debug.msg('[FCM Stream] From (topic): ${message.from}');
-        Debug.msg('[FCM Stream] Notification Title: "${message.notification?.title}"');
-        Debug.msg('[FCM Stream] Notification Body: "${message.notification?.body}"');
-        Debug.msg('[FCM Stream] Data payload: ${message.data}');
+        Debug.info('[FCM Stream] Message ID: ${message.messageId}');
+        Debug.info('[FCM Stream] From (topic): ${message.from}');
+        Debug.info('[FCM Stream] Notification Title: "${message.notification?.title}"');
+        Debug.info('[FCM Stream] Notification Body: "${message.notification?.body}"');
+        Debug.info('[FCM Stream] Data payload: ${message.data}');
         handleIncomingRemoteMessage(message);
       });
 
       FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
         Debug.msg('[FCM Stream] >>> MESSAGE OPENED APP EVENT <<<');
-        Debug.msg('[FCM Stream] Message ID: ${message.messageId}');
-        Debug.msg('[FCM Stream] Data payload: ${message.data}');
+        Debug.info('[FCM Stream] Message ID: ${message.messageId}');
+        Debug.info('[FCM Stream] Data payload: ${message.data}');
         handleIncomingRemoteMessage(message);
       });
 
@@ -67,19 +67,19 @@ class FcmNotificationsService {
         if (newToken.isNotEmpty && token != newToken) {
           token = newToken;
           await PreferencesProvider.setFcmToken(newToken);
-          Debug.msg('[FCM Stream] Saved registered FCM token to preferences: "$token"');
+          Debug.info('[FCM Stream] Saved registered FCM token to preferences: "$token"');
         }
       });
 
       _listenersConfigured = true;
-      Debug.msg('[FCM] FirebaseMessaging listeners successfully configured.');
+      Debug.info('[FCM] FirebaseMessaging listeners successfully configured.');
     } catch (e) {
       Debug.msg('[FCM] Error setting up FirebaseMessaging listeners: $e');
     }
   }
 
   static Future<void> handleIncomingRemoteMessage(RemoteMessage message) async {
-    Debug.msg('[FCM] handleIncomingRemoteMessage triggered for MessageID="${message.messageId}"');
+    Debug.info('[FCM] handleIncomingRemoteMessage triggered for MessageID="${message.messageId}"');
     _messageStreamController.add(message);
 
     final String title = message.notification?.title ?? message.data['title'] ?? 'Announcement';
@@ -91,10 +91,10 @@ class FcmNotificationsService {
       fullBody = '$fullBody\n\n($author)';
     }
 
-    Debug.msg('[FCM] Extracted fields -> Title: "$title", Author: "$author"');
+    Debug.info('[FCM] Extracted fields -> Title: "$title", Author: "$author"');
 
     if (title.isNotEmpty || fullBody.isNotEmpty) {
-      Debug.msg('[FCM] Forwarding message to LocalNotificationService.showInstantNotification...');
+      Debug.info('[FCM] Forwarding message to LocalNotificationService.showInstantNotification...');
       await LocalNotificationService.showInstantNotification(
         id: message.messageId?.hashCode ?? DateTime.now().millisecondsSinceEpoch ~/ 1000,
         title: title,
@@ -106,7 +106,7 @@ class FcmNotificationsService {
         ),
       );
     } else {
-      Debug.msg('[FCM] Message title and body were both empty, skipping local notification display.');
+      Debug.info('[FCM] Message title and body were both empty, skipping local notification display.');
     }
   }
 
@@ -166,41 +166,41 @@ class FcmNotificationsService {
     required bool userGesture,
     TracksProvider? tracksProvider,
   }) async {
-    Debug.msg('[FCM] initializeFcmNotifications started (userGesture=$userGesture, supportedPlatform=$supportedPlatform)');
+    Debug.info('[FCM] initializeFcmNotifications started (userGesture=$userGesture, supportedPlatform=$supportedPlatform)');
     if (!supportedPlatform) {
-      Debug.msg('[FCM] FCM notifications not supported on this platform.');
+      Debug.info('[FCM] FCM notifications not supported on this platform.');
       return;
     }
     try {
-      Debug.msg('[FCM] Ensuring FCM token...');
+      Debug.info('[FCM] Ensuring FCM token...');
       final tokenRecoveredFromPrefs = await _ensureToken(userGesture: userGesture);
-      Debug.msg('[FCM] Token state -> token="$token", recoveredFromPrefs=$tokenRecoveredFromPrefs');
+      Debug.info('[FCM] Token state -> token="$token", recoveredFromPrefs=$tokenRecoveredFromPrefs');
 
       if (token != null && token!.isNotEmpty) {
         if (tokenRecoveredFromPrefs) {
-          Debug.msg('[FCM] Token was recovered from preferences.');
+          Debug.info('[FCM] Token was recovered from preferences.');
         }
 
         try {
           await PreferencesProvider.loadNotificationTopics(tracksProvider);
-          Debug.msg('[FCM] Notification topics in preferences: ${PreferencesProvider.notificationTopicsNotifier.value}');
+          Debug.info('[FCM] Notification topics in preferences: ${PreferencesProvider.notificationTopicsNotifier.value}');
           for (String topic in PreferencesProvider.notificationTopicsNotifier.value) {
             if (topic.isNotEmpty) {
-              Debug.msg('[FCM] Subscribing to saved topic "$topic"...');
+              Debug.info('[FCM] Subscribing to saved topic "$topic"...');
               await subscribeToTopic(topic, userGesture: userGesture);
             }
           }
           // ensure to unsubscribe from test topic when not listed in preferences
           final normalizedTestTopic = normalizeTopic(testTopic);
           if (!PreferencesProvider.notificationTopicsNotifier.value.contains(normalizedTestTopic)) {
-            Debug.msg('[FCM] Ensuring unsubscription from test topic "$normalizedTestTopic"...');
+            Debug.info('[FCM] Ensuring unsubscription from test topic "$normalizedTestTopic"...');
             await unsubscribeFromTopic(normalizedTestTopic, userGesture: userGesture);
           }
         } catch (e) {
           Debug.msg('[FCM] Error processing topic subscriptions during initialization: $e');
         }
       } else {
-        Debug.msg('[FCM] Token is null or empty after _ensureToken.');
+        Debug.info('[FCM] Token is null or empty after _ensureToken.');
       }
     } catch (e) {
       Debug.msg('[FCM] Error in initializeFcmNotifications: $e');
@@ -256,7 +256,7 @@ class FcmNotificationsService {
       if (Firebase.apps.isEmpty) {
         if (kIsWeb) {
           final webOptions = _getWebFirebaseOptions();
-          Debug.msg('[FCM] Initializing Firebase for Web (webOptions found: ${webOptions != null})...');
+          Debug.info('[FCM] Initializing Firebase for Web (webOptions found: ${webOptions != null})...');
           if (webOptions != null) {
             await Firebase.initializeApp(options: webOptions);
           } else {
@@ -272,7 +272,7 @@ class FcmNotificationsService {
             );
           }
         } else {
-          Debug.msg('[FCM] Initializing Firebase native app...');
+          Debug.info('[FCM] Initializing Firebase native app...');
           await Firebase.initializeApp();
         }
       }
@@ -288,12 +288,12 @@ class FcmNotificationsService {
       required bool userGesture,
       bool forceRefresh = false,
   }) async {
-    Debug.msg('[FCM] _ensureToken called (memory token="$token", userGesture=$userGesture, forceRefresh=$forceRefresh)');
+    Debug.info('[FCM] _ensureToken called (memory token="$token", userGesture=$userGesture, forceRefresh=$forceRefresh)');
 
     await _initFirebaseIfNeeded();
 
     if (!forceRefresh && token != null && token!.isNotEmpty) {
-      Debug.msg('[FCM] Using token already present in memory: "$token"');
+      Debug.info('[FCM] Using token already present in memory: "$token"');
       return true;
     }
 
@@ -301,22 +301,22 @@ class FcmNotificationsService {
       await PreferencesProvider.loadFcmToken();
       if (PreferencesProvider.fcmTokenNotifier.value.isNotEmpty) {
         token = PreferencesProvider.fcmTokenNotifier.value;
-        Debug.msg('[FCM] Token loaded from preferences: "$token"');
+        Debug.info('[FCM] Token loaded from preferences: "$token"');
       }
     }
 
     try {
       if (Firebase.apps.isNotEmpty) {
         NotificationSettings settings = await messaging.getNotificationSettings();
-        Debug.msg('[FCM] Current notification permission status: ${settings.authorizationStatus}');
+        Debug.info('[FCM] Current notification permission status: ${settings.authorizationStatus}');
 
         if (settings.authorizationStatus == AuthorizationStatus.notDetermined) {
           if (userGesture) {
-            Debug.msg('[FCM] Requesting notification permissions...');
+            Debug.info('[FCM] Requesting notification permissions...');
             settings = await messaging.requestPermission();
-            Debug.msg('[FCM] Permission request result: ${settings.authorizationStatus}');
+            Debug.info('[FCM] Permission request result: ${settings.authorizationStatus}');
           } else {
-            Debug.msg('[FCM] Notification permissions not requested because userGesture is false.');
+            Debug.info('[FCM] Notification permissions not requested because userGesture is false.');
           }
         }
 
@@ -324,7 +324,7 @@ class FcmNotificationsService {
             settings.authorizationStatus == AuthorizationStatus.provisional) {
           final vapidKey = _getWebVapidKey() ??
               "BGEz4g_2DgMpiDTsZo6i36iFJOM3nZvOKf_KR_EliLRzJWDmgc25hooKJBoGtlzj-0CaQbs9gVkeOuqEaoPsgTY";
-          Debug.msg('[FCM] Registering FCM with vapidKey="$vapidKey"...');
+          Debug.info('[FCM] Registering FCM with vapidKey="$vapidKey"...');
           final Future<String> onRegisteredFuture = messaging.onRegistered.first;
           await messaging.register(
             vapidKey: vapidKey,
@@ -348,7 +348,7 @@ class FcmNotificationsService {
           }
         }
       } else {
-        Debug.msg('[FCM] Notification permissions not granted, cannot fetch active FCM token.');
+        Debug.info('[FCM] Notification permissions not granted, cannot fetch active FCM token.');
       }
     } catch (e) {
       Debug.msg('[FCM] Exception in _ensureToken: $e');
@@ -366,15 +366,15 @@ class FcmNotificationsService {
       return false;
     }
     final normalizedTopic = normalizeTopic(topic);
-    Debug.msg('[FCM] subscribeToTopic called for topic="$topic" (normalized="$normalizedTopic")');
+    Debug.info('[FCM] subscribeToTopic called for topic="$topic" (normalized="$normalizedTopic")');
     await _ensureToken(userGesture: userGesture);
     if (token == null || token!.isEmpty) {
-      Debug.msg('[FCM] Cannot subscribe to topic "$topic": No FCM token available.');
+      Debug.info('[FCM] Cannot subscribe to topic "$topic": No FCM token available.');
       return false;
     }
     try {
       final url = Uri.parse('$_cleanBackendUrl/subscribe');
-      Debug.msg('[FCM] Posting to subscribe endpoint: $url (token="$token", topic="$normalizedTopic")');
+      Debug.info('[FCM] Posting to subscribe endpoint: $url (token="$token", topic="$normalizedTopic")');
       final http.Response res = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -405,15 +405,15 @@ class FcmNotificationsService {
       return false;
     }
     final normalizedTopic = normalizeTopic(topic);
-    Debug.msg('[FCM] unsubscribeFromTopic called for topic="$topic" (normalized="$normalizedTopic")');
+    Debug.info('[FCM] unsubscribeFromTopic called for topic="$topic" (normalized="$normalizedTopic")');
     await _ensureToken(userGesture: userGesture);
     if (token == null || token!.isEmpty) {
-      Debug.msg('[FCM] Cannot unsubscribe from topic "$topic": No FCM token available.');
+      Debug.info('[FCM] Cannot unsubscribe from topic "$topic": No FCM token available.');
       return false;
     }
     try {
       final url = Uri.parse('$_cleanBackendUrl/unsubscribe');
-      Debug.msg('[FCM] Posting to unsubscribe endpoint: $url (token="$token", topic="$normalizedTopic")');
+      Debug.info('[FCM] Posting to unsubscribe endpoint: $url (token="$token", topic="$normalizedTopic")');
       final http.Response res = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -466,13 +466,13 @@ class FcmNotificationsService {
     }
     final normalizedTopic = normalizeTopic(topic);
 
-    Debug.msg('[FCM] sendMessage called: topic="$topic" (normalized="$normalizedTopic"), title="$title", text="$messageText", author="$author"');
+    Debug.info('[FCM] sendMessage called: topic="$topic" (normalized="$normalizedTopic"), title="$title", text="$messageText", author="$author"');
 
     title = title.isEmpty ? 'Conference Announcement' : title;
 
     // Ensure sender device is subscribed to the topic so FCM includes it in topic broadcasts
     if (!PreferencesProvider.notificationTopicsNotifier.value.contains(normalizedTopic)) {
-      Debug.msg('[FCM] Sender is not currently subscribed to "$normalizedTopic", auto-subscribing...');
+      Debug.info('[FCM] Sender is not currently subscribed to "$normalizedTopic", auto-subscribing...');
       await PreferencesProvider.addNotificationTopic(topic, userGesture: true);
     }
 
@@ -482,7 +482,7 @@ class FcmNotificationsService {
 
     try {
       final url = Uri.parse('$_cleanBackendUrl/send');
-      Debug.msg('[FCM] Posting to send endpoint: $url');
+      Debug.info('[FCM] Posting to send endpoint: $url');
       final http.Response res = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},

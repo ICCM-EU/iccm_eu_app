@@ -58,10 +58,10 @@ class SpeakersProvider with ChangeNotifier  {
       jsonList.map((json) => SpeakerData.fromJson(json)).toList().forEach((item) {
         _cacheAdd(item);
       });
-      Debug.msg('Cache loaded: Speakers');
+      Debug.info('Cache loaded: Speakers');
       _commit();
     } else {
-      Debug.msg('Cache OMITTED: Speakers');
+      Debug.info('Cache OMITTED: Speakers');
     }
   }
 

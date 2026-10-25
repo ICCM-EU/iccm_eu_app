@@ -197,7 +197,7 @@ class GsheetsProvider with ChangeNotifier {
       ) {
         String duration = 'unset';
         duration = now.difference(lastUpdated).inMinutes.toString();
-        Debug.msg('Fetch omitted. (${force ? 'force' : 'noforce'}, '
+        Debug.info('Fetch omitted. (${force ? 'force' : 'noforce'}, '
             '$duration since $now)');
         _isFetchingData = false;
         return;
@@ -222,7 +222,7 @@ class GsheetsProvider with ChangeNotifier {
         // Terminate if data is empty
         if (_countDataObjects(_rawData) == 0) {
           _isFetchingData = false;
-          Debug.msg("Fetch: No data found.");
+          Debug.info("Fetch: No data found.");
           return;
         }
 

@@ -42,7 +42,7 @@ jobs:
         run: flutter build apk --release
 
       - name: Build Android App Bundle (AAB)
-        run: flutter build appbundle
+        run: flutter build appbundle --release
 
       #- name: Upload Artifacts
       #  uses: actions/upload-artifact@v4
@@ -123,7 +123,7 @@ jobs:
 
       # Build
       - name: Build IPA (iOS Build)
-        run: flutter build ipa --no-codesign
+        run: flutter build ipa --no-codesign --release
 
       - name: Compress Archives and IPAs
         run: |

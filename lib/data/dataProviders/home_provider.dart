@@ -49,10 +49,10 @@ class HomeProvider with ChangeNotifier {
       jsonList.map((json) => HomeData.fromJson(json)).toList().forEach((item) {
         _cacheAdd(item);
       });
-      Debug.msg('Cache loaded: Home');
+      Debug.info('Cache loaded: Home');
       _commit();
     } else {
-      Debug.msg('Cache OMITTED: Home');
+      Debug.info('Cache OMITTED: Home');
     }
   }
 

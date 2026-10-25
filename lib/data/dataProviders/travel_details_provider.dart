@@ -48,10 +48,10 @@ class TravelDetailsProvider with ChangeNotifier  {
       jsonList.map((json) => TravelDetailsData.fromJson(json)).toList().forEach((item) {
         _cacheAdd(item);
       });
-      Debug.msg('Cache loaded: Travel Directions');
+      Debug.info('Cache loaded: Travel Directions');
       _commit();
     } else {
-      Debug.msg('Cache OMITTED: Travel Directions');
+      Debug.info('Cache OMITTED: Travel Directions');
     }
   }
 

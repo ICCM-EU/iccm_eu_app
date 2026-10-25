@@ -36,13 +36,13 @@ class TracksProvider with ChangeNotifier {
   void updateCache() {
     if (EventsProvider.showTestDataOption() &&
         PreferencesProvider.useTestDataNotifier.value) {
-      Debug.msg("Updating TrackData cache from TestData ($kDebugMode, ${PreferencesProvider.useTestDataNotifier.value}).");
+      Debug.info("Updating TrackData cache from TestData ($kDebugMode, ${PreferencesProvider.useTestDataNotifier.value}).");
       _cacheClear();
       for (TrackData item in TestData.tracks) {
         _cacheAdd(item);
       }
     } else {
-      Debug.msg("Updating TrackData cache from GSheets ($kDebugMode, ${PreferencesProvider.useTestDataNotifier.value}).");
+      Debug.info("Updating TrackData cache from GSheets ($kDebugMode, ${PreferencesProvider.useTestDataNotifier.value}).");
       // Process raw data from GsheetsProvider and update _tracks
       var data = _gsheetsProvider.getTrackData();
       if (data != null && data.isNotEmpty) {
@@ -64,10 +64,10 @@ class TracksProvider with ChangeNotifier {
       jsonList.map((json) => TrackData.fromJson(json)).toList().forEach((item) {
         _cacheAdd(item);
       });
-      Debug.msg('Cache loaded: Tracks');
+      Debug.info('Cache loaded: Tracks');
       _commit();
     } else {
-      Debug.msg('Cache OMITTED: Tracks');
+      Debug.info('Cache OMITTED: Tracks');
     }
   }
 

@@ -77,10 +77,10 @@ class EventsProvider with ChangeNotifier  {
       jsonList.map((json) => EventData.fromJson(json)).toList().forEach((item) {
         _cacheAdd(item);
       });
-      Debug.msg('Cache loaded: Events');
+      Debug.info('Cache loaded: Events');
       _commit();
     } else {
-      Debug.msg('Cache OMITTED: Events');
+      Debug.info('Cache OMITTED: Events');
     }
   }
 
@@ -128,7 +128,7 @@ class EventsProvider with ChangeNotifier  {
     _notificationIDs.clear();
 
     DateTime now = DateTime.now();
-    Debug.msg('REGISTER after $now');
+    Debug.info('REGISTER after $now');
     for (EventData item in _items.where(
             (event) =>
         (((event.forceNotify ?? false) == true) &&
@@ -140,7 +140,7 @@ class EventsProvider with ChangeNotifier  {
       DateTime notificationTime = LocalNotificationService.scheduleAhead(
         time: item.start,
       );
-      Debug.msg('ANNOUNCE ${item.name} at ${item
+      Debug.info('ANNOUNCE ${item.name} at ${item
           .start} ($notificationTime) with ID ${item.id ?? 0}');
       await LocalNotificationService.scheduleNotification(
           title: 'Upcoming: ${item.name}',

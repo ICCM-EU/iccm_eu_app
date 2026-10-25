@@ -45,10 +45,10 @@ class FavoritesProvider with ChangeNotifier {
           item) {
         _cacheAdd(item);
       });
-      Debug.msg('Cache loaded: Favorites');
+      Debug.info('Cache loaded: Favorites');
       _commit();
     } else {
-      Debug.msg('Cache OMITTED: Favorites');
+      Debug.info('Cache OMITTED: Favorites');
     }
   }
 
@@ -92,7 +92,7 @@ class FavoritesProvider with ChangeNotifier {
   void _registerNotifications() async {
     // Selectively cancel the favorites notifications from this class.
     for (int id in _notificationIDs) {
-      Debug.msg('CANCEL ID $id');
+      Debug.info('CANCEL ID $id');
       await LocalNotificationService.cancelNotification(id, null);
     }
     _notificationIDs.clear();
@@ -109,7 +109,7 @@ class FavoritesProvider with ChangeNotifier {
       DateTime notificationTime = LocalNotificationService.scheduleAhead(
           time: item.start,
       );
-      Debug.msg('NOTIFY ${item.name} at ${item.start} ($notificationTime) with ID ${item.id ?? 0}');
+      Debug.info('NOTIFY ${item.name} at ${item.start} ($notificationTime) with ID ${item.id ?? 0}');
       await LocalNotificationService.scheduleNotification(
         title: 'Upcoming: ${item.name}',
         body: item.details ?? '',

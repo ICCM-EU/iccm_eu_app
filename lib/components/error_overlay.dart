@@ -28,7 +28,7 @@ class _ErrorOverlayState extends State<ErrorOverlay> {
   }
 
   void _onNotificationsChanged() {
-    Debug.msg('[ErrorOverlay] _onNotificationsChanged listener triggered! Total items: ${LocalNotificationService.inAppNotificationsNotifier.value.length}');
+    Debug.info('[ErrorOverlay] _onNotificationsChanged listener triggered! Total items: ${LocalNotificationService.inAppNotificationsNotifier.value.length}');
     setState(() {});
   }
 

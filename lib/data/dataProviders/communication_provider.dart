@@ -49,10 +49,10 @@ class CommunicationProvider with ChangeNotifier {
       jsonList.map((json) => CommunicationData.fromJson(json)).toList().forEach((item) {
         _cacheAdd(item);
       });
-      Debug.msg('Cache loaded: Communication');
+      Debug.info('Cache loaded: Communication');
       _commit();
     } else {
-      Debug.msg('Cache OMITTED: Communication');
+      Debug.info('Cache OMITTED: Communication');
     }
   }
 
