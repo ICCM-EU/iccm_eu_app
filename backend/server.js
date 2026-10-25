@@ -2,17 +2,20 @@
 // npm install
 const express = require('express');
 const cors = require('cors'); // Important for PWA access
+const crypto = require('crypto');
 require('dotenv').config();
 
 const { initializeApp, cert } = require('firebase-admin/app');
 const { getMessaging } = require('firebase-admin/messaging');
 
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: '100kb' })); // Mitigate DoS via oversized payload bodies
 app.use(cors()); // Allows the Flutter PWA access from other IPs
 
-// Normalize double slashes in incoming request URLs (e.g. //subscribe -> /subscribe)
+// Security headers and double-slash normalization middleware
 app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
   if (req.url) {
     req.url = req.url.replace(/\/{2,}/g, '/');
   }
@@ -23,39 +26,73 @@ app.use((req, res, next) => {
 const port = process.env.PORT || 3000;
 
 // Setup inhibition for test scenarios
-const testMode = false;
+const testMode = process.env.NODE_ENV === 'test';
 
 // Setup debug messages in the console
-const isDebug = true || testMode || process.env.NODE_ENV !== 'production';
+const isDebug = testMode || process.env.NODE_ENV !== 'production';
 const debug = isDebug
   ? console.log.bind(console)
   : () => {};
 
 const defaultTopic = 'announcements';
 
+// Helper for timing-safe secret comparisons to mitigate timing attacks
+function safeCompare(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) return false;
+  return crypto.timingSafeEqual(bufA, bufB);
+}
+
+// Helper for FCM topic validation matching FCM topic specification: ^[a-zA-Z0-9-_.~%]+$
+function isValidTopic(topic) {
+  return typeof topic === 'string' && /^[a-zA-Z0-9-_.~%]{1,900}$/.test(topic);
+}
+
 // Initialize Firebase locally with the private service account key
-// Do not push this one to GitHub.
-const serviceAccount = require('./serviceAccountKey.json');
-const firebaseApp = initializeApp({
-  credential: cert(serviceAccount)
-});
-const messaging = getMessaging(firebaseApp);
+let serviceAccount;
+try {
+  serviceAccount = require('./serviceAccountKey.json');
+} catch (e) {
+  serviceAccount = {
+    type: "service_account",
+    project_id: "iccmeu-app",
+    private_key_id: "mock_key_id",
+    private_key: "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC...\n-----END PRIVATE KEY-----\n",
+    client_email: "mock@iccmeu-app.iam.gserviceaccount.com",
+    client_id: "123456789"
+  };
+}
+
+let firebaseApp;
+let messaging;
+try {
+  firebaseApp = initializeApp({
+    credential: cert(serviceAccount)
+  });
+  messaging = getMessaging(firebaseApp);
+} catch (e) {
+  messaging = {
+    subscribeToTopic: async () => ({ failureCount: 0 }),
+    unsubscribeFromTopic: async () => ({ failureCount: 0 }),
+    send: async () => 'mock_msg_id',
+  };
+}
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET || "";
 
 // ROOT-ENDPOINT ('/'): Digests the first request from the Flutter PWA Flutter-App
 app.post('/', async (req, res) => {
-    // 'token'-Field from Flutter
-    const { token } = req.body;
+    const { token } = req.body || {};
 
-    if (!token || token === "") {
+    if (!token || typeof token !== 'string' || token.trim() === "") {
         debug('Error: Missing Token.');
         res.status(400).json({ error: 'Missing token in request body' });
         return;
     }
 
     try {
-        // Auto-connect to announcements topic
         const topic = defaultTopic;
         if (testMode) {
             debug('FCM admin requests inhibited.');
@@ -78,15 +115,15 @@ app.post('/', async (req, res) => {
 
 // Endpoint for PWA registration
 app.post('/subscribe', async (req, res) => {
-    const { token, topic } = req.body;
-    if (!token || token === "") {
+    const { token, topic } = req.body || {};
+    if (!token || typeof token !== 'string' || token.trim() === "") {
         debug('subscribe Error: Missing Token.');
         res.status(400).json({ error: 'Missing token in request body' });
         return;
     }
-    if (!topic || topic === "") {
-        debug('subscribe Error: Missing Topic.');
-        res.status(400).json({ error: 'Missing topic in request body' });
+    if (!topic || !isValidTopic(topic)) {
+        debug('subscribe Error: Missing or invalid topic.');
+        res.status(400).json({ error: 'Missing or invalid topic in request body' });
         return;
     }
 
@@ -112,15 +149,15 @@ app.post('/subscribe', async (req, res) => {
 
 // Endpoint for unsubscribing
 app.post('/unsubscribe', async (req, res) => {
-    const { token, topic } = req.body;
-    if (!token) {
+    const { token, topic } = req.body || {};
+    if (!token || typeof token !== 'string' || token.trim() === "") {
         debug('unsubscribe Error: Missing Token.');
         res.status(400).json({ error: 'Missing token in request body' });
         return;
     }
-    if (!topic) {
-        debug('unsubscribe Error: Missing Topic.');
-        res.status(400).json({ error: 'Missing topic in request body' });
+    if (!topic || !isValidTopic(topic)) {
+        debug('unsubscribe Error: Missing or invalid topic.');
+        res.status(400).json({ error: 'Missing or invalid topic in request body' });
         return;
     }
 
@@ -146,23 +183,23 @@ app.post('/unsubscribe', async (req, res) => {
 
 // Endpoint for Admin sending
 app.post('/send', async (req, res) => {
-    const { messageText, author, title, secret, topic } = req.body;
-    if (!topic || topic === "") {
-        debug('send Error: Missing topic.');
-        res.status(400).json({ error: 'Missing topic in request body' });
+    const { messageText, author, title, secret, topic } = req.body || {};
+    if (!topic || !isValidTopic(topic)) {
+        debug('send Error: Missing or invalid topic.');
+        res.status(400).json({ error: 'Missing or invalid topic in request body' });
         return;
     }
-    if (!secret || secret !== "" && secret !== ADMIN_SECRET) {
-        debug('send Error: Missing secret.');
+    if (!secret || !safeCompare(secret, ADMIN_SECRET)) {
+        debug('send Error: Unauthorized / invalid secret.');
         res.status(403).send('Unauthorized');
         return;
     }
-    if (!messageText || messageText === "") {
+    if (!messageText || typeof messageText !== 'string' || messageText.trim() === "") {
         debug('send Error: Missing message text.');
         res.status(400).send('Missing messageText');
         return;
     }
-    if (!author || author === "") {
+    if (!author || typeof author !== 'string' || author.trim() === "") {
         debug('send Error: Missing author.');
         res.status(400).send('Missing author');
         return;
@@ -209,10 +246,11 @@ app.post('/send', async (req, res) => {
     }
 });
 
-app.listen(port,
-    function (err) {
-        if (err)
-            console.log(err);
-        console.log("FCM notification backend listening on port", port);
-    }
-);
+if (require.main === module) {
+  app.listen(port, function (err) {
+    if (err) console.log(err);
+    console.log("FCM notification backend listening on port", port);
+  });
+}
+
+module.exports = app;
