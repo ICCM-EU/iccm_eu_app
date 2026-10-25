@@ -62,6 +62,15 @@ class FcmNotificationsService {
         handleIncomingRemoteMessage(message);
       });
 
+      messaging.onRegistered.listen((String newToken) async {
+        Debug.msg('[FCM Stream] >>> ON REGISTERED TOKEN EVENT <<< token="$newToken"');
+        if (newToken.isNotEmpty && token != newToken) {
+          token = newToken;
+          await PreferencesProvider.setFcmToken(newToken);
+          Debug.msg('[FCM Stream] Saved registered FCM token to preferences: "$token"');
+        }
+      });
+
       _listenersConfigured = true;
       Debug.msg('[FCM] FirebaseMessaging listeners successfully configured.');
     } catch (e) {
@@ -315,12 +324,22 @@ class FcmNotificationsService {
             settings.authorizationStatus == AuthorizationStatus.provisional) {
           final vapidKey = _getWebVapidKey() ??
               "BGEz4g_2DgMpiDTsZo6i36iFJOM3nZvOKf_KR_EliLRzJWDmgc25hooKJBoGtlzj-0CaQbs9gVkeOuqEaoPsgTY";
-          Debug.msg('[FCM] Fetching active FCM token with vapidKey="$vapidKey"...');
-          String? fetchedToken = await messaging.getToken(
+          Debug.msg('[FCM] Registering FCM with vapidKey="$vapidKey"...');
+          final Future<String> onRegisteredFuture = messaging.onRegistered.first;
+          await messaging.register(
             vapidKey: vapidKey,
             serviceWorkerScriptPath: kIsWeb ? 'firebase-messaging-sw.js' : null,
           );
-          Debug.msg('[FCM] messaging.getToken result: "$fetchedToken"');
+          String? fetchedToken;
+          try {
+            fetchedToken = await onRegisteredFuture.timeout(
+              const Duration(seconds: 3),
+              onTimeout: () => '',
+            );
+          } catch (e) {
+            Debug.msg('[FCM] Exception waiting for onRegistered token: $e');
+          }
+          Debug.msg('[FCM] messaging.register result token: "$fetchedToken"');
           if (fetchedToken != null && fetchedToken.isNotEmpty) {
             final bool tokenChanged = (token != fetchedToken);
             token = fetchedToken;
