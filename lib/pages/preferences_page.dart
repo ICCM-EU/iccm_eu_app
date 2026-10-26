@@ -22,6 +22,7 @@ class PreferencesPage extends StatefulWidget {
 class _PreferencesPageState extends State<PreferencesPage> {
   late final TextEditingController _nicknameController;
   late final TextEditingController _pwdController;
+  final Set<String> _pendingTopics = {};
 
   @override
   void initState() {
@@ -204,23 +205,47 @@ class _PreferencesPageState extends State<PreferencesPage> {
                         final bool isSubscribed =
                             subscribedTopics.contains(topicKey) ||
                             subscribedTopics.contains(topicName);
+                        final bool isPending =
+                            _pendingTopics.contains(topicKey) ||
+                            _pendingTopics.contains(topicName);
                         return ToggleButtonListTile(
                           value: isSubscribed,
-                          onChanged: (bool newValue) {
-                            if (newValue) {
-                              PreferencesProvider.addNotificationTopic(
-                                topicName,
-                                userGesture: true,
-                                tracksProvider: tracksProvider,
-                              );
-                            } else {
-                              PreferencesProvider.removeNotificationTopic(
-                                topicName,
-                                userGesture: true,
-                                tracksProvider: tracksProvider,
-                              );
-                            }
-                          },
+                          onChanged: isPending
+                              ? null
+                              : (bool newValue) async {
+                                  if (_pendingTopics.contains(topicKey) ||
+                                      _pendingTopics.contains(topicName)) {
+                                    return;
+                                  }
+                                  setState(() {
+                                    _pendingTopics.add(topicKey);
+                                    _pendingTopics.add(topicName);
+                                  });
+                                  try {
+                                    if (newValue) {
+                                      await PreferencesProvider.addNotificationTopic(
+                                        topicName,
+                                        userGesture: true,
+                                        tracksProvider: tracksProvider,
+                                      );
+                                    } else {
+                                      await PreferencesProvider.removeNotificationTopic(
+                                        topicName,
+                                        userGesture: true,
+                                        tracksProvider: tracksProvider,
+                                      );
+                                    }
+                                  } catch (e) {
+                                    // Ignore exception to ensure finally block runs cleanly
+                                  } finally {
+                                    if (mounted) {
+                                      setState(() {
+                                        _pendingTopics.remove(topicKey);
+                                        _pendingTopics.remove(topicName);
+                                      });
+                                    }
+                                  }
+                                },
                           title: topicName,
                           toggleTitle: topicName,
                         );

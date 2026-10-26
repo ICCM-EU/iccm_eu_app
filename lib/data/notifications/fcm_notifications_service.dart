@@ -32,6 +32,11 @@ class FcmNotificationsService {
   static String? token;
   static String backendUrl = 'https://iccm-eu-notifications.tappe-info.de';
 
+  static Future<bool> Function(String topic, {required bool userGesture})?
+      subscribeToTopicHandler;
+  static Future<bool> Function(String topic, {required bool userGesture})?
+      unsubscribeFromTopicHandler;
+
   static final StreamController<RemoteMessage> _messageStreamController =
       StreamController<RemoteMessage>.broadcast();
   static Stream<RemoteMessage> get onMessageStream => _messageStreamController.stream;
@@ -362,6 +367,9 @@ class FcmNotificationsService {
       {
         required bool userGesture,
       }) async {
+    if (subscribeToTopicHandler != null) {
+      return subscribeToTopicHandler!(topic, userGesture: userGesture);
+    }
     if (!supportedPlatform) {
       return false;
     }
@@ -401,6 +409,9 @@ class FcmNotificationsService {
       {
         required bool userGesture,
       }) async {
+    if (unsubscribeFromTopicHandler != null) {
+      return unsubscribeFromTopicHandler!(topic, userGesture: userGesture);
+    }
     if (!supportedPlatform) {
       return false;
     }

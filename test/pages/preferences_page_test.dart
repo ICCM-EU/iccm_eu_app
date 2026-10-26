@@ -1,12 +1,16 @@
+import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:iccm_eu_app/components/full_screen_qr_code.dart';
 import 'package:iccm_eu_app/components/qr_scanner.dart';
+import 'package:iccm_eu_app/components/toggle_button.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/appProviders/theme_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
+import 'package:iccm_eu_app/data/notifications/fcm_notifications_service.dart';
 import 'package:iccm_eu_app/pages/preferences_page.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -144,6 +148,182 @@ void main() {
       expect(find.byKey(const Key('share_fcm_pwd_qr_button')), findsOneWidget);
 
       await tester.pumpWidget(const SizedBox.shrink());
+    });
+  });
+
+  group('Topic Subscription Button Inactive & Fallback Tests', () {
+    setUp(() {
+      SharedPreferences.setMockInitialValues({});
+      PreferencesProvider.notificationTopicsNotifier.value = [];
+      FcmNotificationsService.subscribeToTopicHandler = null;
+      FcmNotificationsService.unsubscribeFromTopicHandler = null;
+    });
+
+    tearDown(() {
+      FcmNotificationsService.subscribeToTopicHandler = null;
+      FcmNotificationsService.unsubscribeFromTopicHandler = null;
+    });
+
+    testWidgets('topic selection button becomes inactive while waiting for backend reply and reactivates with new status on success', (WidgetTester tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      try {
+        Completer<bool>? completer;
+        FcmNotificationsService.subscribeToTopicHandler = (topic, {required userGesture}) {
+          completer = Completer<bool>();
+          return completer!.future;
+        };
+
+        await tester.pumpWidget(createWidgetUnderTest());
+        await tester.pumpAndSettle();
+
+        final tileFinder = find.widgetWithText(ToggleButtonListTile, 'Announcements');
+        expect(tileFinder, findsOneWidget);
+
+        ToggleButtonListTile tile = tester.widget<ToggleButtonListTile>(tileFinder);
+        expect(tile.onChanged, isNotNull);
+        expect(tile.value, isFalse);
+
+        // Tap to subscribe
+        await tester.tap(tileFinder);
+        await tester.pump(); // Render frame while backend call is pending
+
+        tile = tester.widget<ToggleButtonListTile>(tileFinder);
+        expect(tile.onChanged, isNull); // Button is inactive while waiting for reply
+
+        // Attempt second tap while inactive
+        await tester.tap(tileFinder);
+        await tester.pump();
+
+        // Complete backend call with SUCCESS
+        completer!.complete(true);
+        await tester.pumpAndSettle();
+
+        tile = tester.widget<ToggleButtonListTile>(tileFinder);
+        expect(tile.onChanged, isNotNull); // Button is reactivated
+        expect(tile.value, isTrue); // Activated status updated to true
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
+
+    testWidgets('topic selection button falls back to original status and reactivates if server call fails', (WidgetTester tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      try {
+        Completer<bool>? completer;
+        FcmNotificationsService.subscribeToTopicHandler = (topic, {required userGesture}) {
+          completer = Completer<bool>();
+          return completer!.future;
+        };
+
+        await tester.pumpWidget(createWidgetUnderTest());
+        await tester.pumpAndSettle();
+
+        final tileFinder = find.widgetWithText(ToggleButtonListTile, 'Announcements');
+        expect(tileFinder, findsOneWidget);
+
+        ToggleButtonListTile tile = tester.widget<ToggleButtonListTile>(tileFinder);
+        expect(tile.onChanged, isNotNull);
+        expect(tile.value, isFalse);
+
+        // Tap switch to subscribe
+        await tester.tap(tileFinder);
+        await tester.pump(); // Render frame while backend call is pending
+
+        tile = tester.widget<ToggleButtonListTile>(tileFinder);
+        expect(tile.onChanged, isNull); // Inactive while waiting for reply
+
+        // Complete backend call with FAILURE (server not available)
+        completer!.complete(false);
+        await tester.pumpAndSettle();
+
+        tile = tester.widget<ToggleButtonListTile>(tileFinder);
+        expect(tile.onChanged, isNotNull); // Returns to activated status
+        expect(tile.value, isFalse); // Falls back to original status (unsubscribed / false)
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
+
+    testWidgets('topic selection button becomes inactive when unsubscribing and falls back to original status if server fails', (WidgetTester tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      try {
+        SharedPreferences.setMockInitialValues({
+          'notificationsTopics': 'announcements',
+        });
+        Completer<bool>? completer;
+        FcmNotificationsService.unsubscribeFromTopicHandler = (topic, {required userGesture}) {
+          completer = Completer<bool>();
+          return completer!.future;
+        };
+
+        await tester.pumpWidget(createWidgetUnderTest());
+        await tester.pumpAndSettle();
+
+        final tileFinder = find.widgetWithText(ToggleButtonListTile, 'Announcements');
+        expect(tileFinder, findsOneWidget);
+
+        ToggleButtonListTile tile = tester.widget<ToggleButtonListTile>(tileFinder);
+        expect(tile.onChanged, isNotNull);
+        expect(tile.value, isTrue);
+
+        // Tap switch to unsubscribe
+        await tester.tap(tileFinder);
+        await tester.pump(); // Frame while backend call is pending
+
+        tile = tester.widget<ToggleButtonListTile>(tileFinder);
+        expect(tile.onChanged, isNull); // Inactive while waiting for reply
+
+        // Complete backend call with FAILURE (server not available)
+        completer!.complete(false);
+        await tester.pumpAndSettle();
+
+        tile = tester.widget<ToggleButtonListTile>(tileFinder);
+        expect(tile.onChanged, isNotNull); // Returns to activated status
+        expect(tile.value, isTrue); // Falls back to original status (subscribed / true)
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
+
+    testWidgets('topic selection button becomes inactive when unsubscribing and updates to OFF on success', (WidgetTester tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      try {
+        SharedPreferences.setMockInitialValues({
+          'notificationsTopics': 'announcements',
+        });
+        Completer<bool>? completer;
+        FcmNotificationsService.unsubscribeFromTopicHandler = (topic, {required userGesture}) {
+          completer = Completer<bool>();
+          return completer!.future;
+        };
+
+        await tester.pumpWidget(createWidgetUnderTest());
+        await tester.pumpAndSettle();
+
+        final tileFinder = find.widgetWithText(ToggleButtonListTile, 'Announcements');
+        expect(tileFinder, findsOneWidget);
+
+        ToggleButtonListTile tile = tester.widget<ToggleButtonListTile>(tileFinder);
+        expect(tile.onChanged, isNotNull);
+        expect(tile.value, isTrue);
+
+        // Tap switch to unsubscribe
+        await tester.tap(tileFinder);
+        await tester.pump(); // Frame while backend call is pending
+
+        tile = tester.widget<ToggleButtonListTile>(tileFinder);
+        expect(tile.onChanged, isNull); // Inactive while waiting for reply
+
+        // Complete backend call with SUCCESS
+        completer!.complete(true);
+        await tester.pumpAndSettle();
+
+        tile = tester.widget<ToggleButtonListTile>(tileFinder);
+        expect(tile.onChanged, isNotNull); // Returns to activated status
+        expect(tile.value, isFalse); // Status updated to unsubscribed / false
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
     });
   });
 }
