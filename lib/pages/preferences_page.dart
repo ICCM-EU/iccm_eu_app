@@ -5,7 +5,6 @@ import 'package:iccm_eu_app/components/toggle_button.dart';
 import 'package:iccm_eu_app/components/toggle_is_dark_mode.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/appProviders/error_provider.dart';
-import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
 import 'package:iccm_eu_app/data/notifications/fcm_notifications_service.dart';
@@ -322,24 +321,23 @@ class _PreferencesPageState extends State<PreferencesPage> {
               );
             },
           ),
-          if (EventsProvider.showTestDataOption())
-            ValueListenableBuilder<bool>(
-              valueListenable: PreferencesProvider.useTestDataNotifier,
-              builder: (context, builderValue, child) {
-                return ToggleButtonListTile(
-                  value: builderValue,
-                  onChanged: (bool newValue) {
-                    PreferencesProvider.setUseTestData(newValue);
-                    Provider.of<GsheetsProvider>(context, listen: false).fetchData(
-                      errorProvider: Provider.of<ErrorProvider>(context, listen: false),
-                      force: true,
-                    );
-                  },
-                  title: 'Inject Test Data',
-                  toggleTitle: 'Test Data',
-                );
-              },
-            ),
+          ValueListenableBuilder<bool>(
+            valueListenable: PreferencesProvider.useTestDataNotifier,
+            builder: (context, builderValue, child) {
+              return ToggleButtonListTile(
+                value: builderValue,
+                onChanged: (bool newValue) {
+                  PreferencesProvider.setUseTestData(newValue);
+                  Provider.of<GsheetsProvider>(context, listen: false).fetchData(
+                    errorProvider: Provider.of<ErrorProvider>(context, listen: false),
+                    force: true,
+                  );
+                },
+                title: 'Inject Test Data',
+                toggleTitle: 'Test Data',
+              );
+            },
+          ),
         ],
       ),
     );

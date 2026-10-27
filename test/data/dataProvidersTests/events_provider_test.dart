@@ -16,10 +16,6 @@ void main() {
       expect(EventsProvider.worksheetTitle, equals('Sessions'));
     });
 
-    test('showTestDataOption returns bool', () {
-      expect(EventsProvider.showTestDataOption(), isA<bool>());
-    });
-
     test('earliestEvent and latestEvent fallback when items are empty', () {
       final gsheets = GsheetsProvider();
       final provider = EventsProvider(gsheetsProvider: gsheets);

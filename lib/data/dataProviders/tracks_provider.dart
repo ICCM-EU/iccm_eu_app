@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
-import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/data/definitions/item_colors_dictionary.dart';
 import 'package:iccm_eu_app/data/model/track_data.dart';
@@ -34,8 +33,7 @@ class TracksProvider with ChangeNotifier {
   }
 
   void updateCache() {
-    if (EventsProvider.showTestDataOption() &&
-        PreferencesProvider.useTestDataNotifier.value) {
+    if (PreferencesProvider.useTestDataNotifier.value) {
       Debug.info("Updating TrackData cache from TestData ($kDebugMode, ${PreferencesProvider.useTestDataNotifier.value}).");
       _cacheClear();
       for (TrackData item in TestData.tracks) {

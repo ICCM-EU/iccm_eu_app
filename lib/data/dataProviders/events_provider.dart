@@ -49,8 +49,7 @@ class EventsProvider with ChangeNotifier  {
   }
 
   void updateCache() {
-    if (EventsProvider.showTestDataOption() &&
-        PreferencesProvider.useTestDataNotifier.value) {
+    if (PreferencesProvider.useTestDataNotifier.value) {
       _cacheClear();
       for (EventData item in TestData.getEvents()) {
         _cacheAdd(item);
@@ -348,12 +347,5 @@ class EventsProvider with ChangeNotifier  {
     } else {
       return next.start;
     }
-  }
-
-  static bool showTestDataOption() {
-    bool value = kDebugMode;
-    // Overwrite during development
-    //value = true;
-    return value;
   }
 }
