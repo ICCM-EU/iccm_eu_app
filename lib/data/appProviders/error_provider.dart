@@ -10,7 +10,7 @@ class ErrorProvider with ChangeNotifier {
   ErrorSignal? get errorSignal => _errorSignal;
 
   void setErrorSignal(ErrorSignal signal) {
-    Debug.msg(signal.message);
+    Debug.msg(DebugLevel.error, signal.message);
     _errorSignal = signal;
     notifyListeners();
   }

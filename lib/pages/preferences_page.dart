@@ -9,6 +9,7 @@ import 'package:iccm_eu_app/data/dataProviders/events_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
 import 'package:iccm_eu_app/data/notifications/fcm_notifications_service.dart';
+import 'package:iccm_eu_app/utils/debug.dart';
 import 'package:iccm_eu_app/utils/text_functions.dart';
 import 'package:provider/provider.dart';
 
@@ -55,6 +56,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
   Future<void> _loadPreferences() async {
     final tracksProvider = Provider.of<TracksProvider>(context, listen: false);
     await PreferencesProvider.loadCalendarColorByRoom();
+    await PreferencesProvider.loadDebugLevel();
     await PreferencesProvider.loadUseTestData();
     await PreferencesProvider.loadNotificationTopics(tracksProvider);
     await PreferencesProvider.loadNotificationsNickname();
@@ -142,39 +144,6 @@ class _PreferencesPageState extends State<PreferencesPage> {
               );
             },
           ),
-          if (EventsProvider.showTestDataOption())
-            const Divider()
-          else
-            const SizedBox.shrink(),
-          if (EventsProvider.showTestDataOption())
-            Text('Test Data',
-              style: Theme
-                  .of(context)
-                  .textTheme
-                  .titleLarge,
-            )
-          else
-            const SizedBox.shrink(),
-          if (EventsProvider.showTestDataOption())
-            ValueListenableBuilder<bool>(
-              valueListenable: PreferencesProvider.useTestDataNotifier,
-              builder: (context, builderValue, child) {
-                return ToggleButtonListTile(
-                  value: builderValue,
-                  onChanged: (bool newValue) {
-                    PreferencesProvider.setUseTestData(newValue);
-                    Provider.of<GsheetsProvider>(context, listen: false).fetchData(
-                      errorProvider: Provider.of<ErrorProvider>(context, listen: false),
-                      force: true,
-                    );
-                  },
-                  title: 'Use Test Data',
-                  toggleTitle: 'Test Data',
-                );
-              },
-            )
-          else
-            const SizedBox.shrink(),
           const Divider(),
           Text('Notification Subscriptions',
             style: Theme
@@ -322,6 +291,55 @@ class _PreferencesPageState extends State<PreferencesPage> {
                 const Text(
                     'Notification topic subscriptions not supported on this platform.'
                 ),
+          const Divider(),
+          Text('Development',
+            style: Theme
+                .of(context)
+                .textTheme
+                .titleLarge,
+          ),
+          ValueListenableBuilder<DebugLevel>(
+            valueListenable: PreferencesProvider.debugLevelNotifier,
+            builder: (context, debugLevel, child) {
+              return ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Debug Log Level'),
+                trailing: DropdownButton<DebugLevel>(
+                  key: const Key('debug_level_dropdown'),
+                  value: debugLevel,
+                  items: DebugLevel.values.map((DebugLevel level) {
+                    return DropdownMenuItem<DebugLevel>(
+                      value: level,
+                      child: Text(level.name.toUpperCase()),
+                    );
+                  }).toList(),
+                  onChanged: (DebugLevel? newLevel) {
+                    if (newLevel != null) {
+                      PreferencesProvider.setDebugLevel(newLevel);
+                    }
+                  },
+                ),
+              );
+            },
+          ),
+          if (EventsProvider.showTestDataOption())
+            ValueListenableBuilder<bool>(
+              valueListenable: PreferencesProvider.useTestDataNotifier,
+              builder: (context, builderValue, child) {
+                return ToggleButtonListTile(
+                  value: builderValue,
+                  onChanged: (bool newValue) {
+                    PreferencesProvider.setUseTestData(newValue);
+                    Provider.of<GsheetsProvider>(context, listen: false).fetchData(
+                      errorProvider: Provider.of<ErrorProvider>(context, listen: false),
+                      force: true,
+                    );
+                  },
+                  title: 'Inject Test Data',
+                  toggleTitle: 'Test Data',
+                );
+              },
+            ),
         ],
       ),
     );

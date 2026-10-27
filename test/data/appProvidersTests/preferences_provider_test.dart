@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 import 'package:iccm_eu_app/data/notifications/fcm_notifications_service.dart';
+import 'package:iccm_eu_app/utils/debug.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TestHttpOverrides extends HttpOverrides {
@@ -55,6 +56,26 @@ void main() {
 
       await PreferencesProvider.loadCalendarColorByRoom();
       expect(PreferencesProvider.calendarColorByRoomNotifier.value, isTrue);
+    });
+
+    test('debugLevel preference loading and setter defaults to warning', () async {
+      expect(PreferencesProvider.debugLevelNotifier.value, equals(DebugLevel.warning));
+
+      await PreferencesProvider.setDebugLevel(DebugLevel.info);
+      expect(PreferencesProvider.debugLevelNotifier.value, equals(DebugLevel.info));
+
+      await PreferencesProvider.loadDebugLevel();
+      expect(PreferencesProvider.debugLevelNotifier.value, equals(DebugLevel.info));
+    });
+
+    test('useTestData preference loading and setter defaults to false', () async {
+      expect(PreferencesProvider.useTestDataNotifier.value, isFalse);
+
+      await PreferencesProvider.setUseTestData(true);
+      expect(PreferencesProvider.useTestDataNotifier.value, isTrue);
+
+      await PreferencesProvider.loadUseTestData();
+      expect(PreferencesProvider.useTestDataNotifier.value, isTrue);
     });
 
     test('inhibitNotifications preference getter and setter', () async {

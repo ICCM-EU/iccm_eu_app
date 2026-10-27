@@ -51,7 +51,7 @@ class FcmNotificationsService {
     try {
       Debug.info('[FCM] Setting up FirebaseMessaging.onMessage and onMessageOpenedApp listeners...');
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        Debug.msg('[FCM Stream] >>> FOREGROUND MESSAGE RECEIVED <<<');
+        Debug.info('[FCM Stream] >>> FOREGROUND MESSAGE RECEIVED <<<');
         Debug.info('[FCM Stream] Message ID: ${message.messageId}');
         Debug.info('[FCM Stream] From (topic): ${message.from}');
         Debug.info('[FCM Stream] Notification Title: "${message.notification?.title}"');
@@ -61,14 +61,14 @@ class FcmNotificationsService {
       });
 
       FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-        Debug.msg('[FCM Stream] >>> MESSAGE OPENED APP EVENT <<<');
+        Debug.info('[FCM Stream] >>> MESSAGE OPENED APP EVENT <<<');
         Debug.info('[FCM Stream] Message ID: ${message.messageId}');
         Debug.info('[FCM Stream] Data payload: ${message.data}');
         handleIncomingRemoteMessage(message);
       });
 
       messaging.onRegistered.listen((String newToken) async {
-        Debug.msg('[FCM Stream] >>> ON REGISTERED TOKEN EVENT <<< token="$newToken"');
+        Debug.info('[FCM Stream] >>> ON REGISTERED TOKEN EVENT <<< token="$newToken"');
         if (newToken.isNotEmpty && token != newToken) {
           token = newToken;
           await PreferencesProvider.setFcmToken(newToken);
@@ -79,7 +79,7 @@ class FcmNotificationsService {
       _listenersConfigured = true;
       Debug.info('[FCM] FirebaseMessaging listeners successfully configured.');
     } catch (e) {
-      Debug.msg('[FCM] Error setting up FirebaseMessaging listeners: $e');
+      Debug.error('[FCM] Error setting up FirebaseMessaging listeners: $e');
     }
   }
 
@@ -124,7 +124,7 @@ class FcmNotificationsService {
       return settings.authorizationStatus == AuthorizationStatus.authorized ||
           settings.authorizationStatus == AuthorizationStatus.provisional;
     } catch (e) {
-      Debug.msg('[FCM] Error checking permission status: $e');
+      Debug.error('[FCM] Error checking permission status: $e');
       return false;
     }
   }
@@ -202,13 +202,13 @@ class FcmNotificationsService {
             await unsubscribeFromTopic(normalizedTestTopic, userGesture: userGesture);
           }
         } catch (e) {
-          Debug.msg('[FCM] Error processing topic subscriptions during initialization: $e');
+          Debug.error('[FCM] Error processing topic subscriptions during initialization: $e');
         }
       } else {
         Debug.info('[FCM] Token is null or empty after _ensureToken.');
       }
     } catch (e) {
-      Debug.msg('[FCM] Error in initializeFcmNotifications: $e');
+      Debug.error('[FCM] Error in initializeFcmNotifications: $e');
     }
   }
 
@@ -237,7 +237,7 @@ class FcmNotificationsService {
         }
       }
     } catch (e) {
-      Debug.msg('[FCM] Error reading window.firebaseConfig: $e');
+      Debug.error('[FCM] Error reading window.firebaseConfig: $e');
     }
     return null;
   }
@@ -251,7 +251,7 @@ class FcmNotificationsService {
         return config['vapidKey']?.toString();
       }
     } catch (e) {
-      Debug.msg('[FCM] Error reading vapidKey from window.firebaseConfig: $e');
+      Debug.error('[FCM] Error reading vapidKey from window.firebaseConfig: $e');
     }
     return null;
   }
@@ -285,7 +285,7 @@ class FcmNotificationsService {
       messaging = FirebaseMessaging.instance;
       _setupMessageListeners();
     } catch (e) {
-      Debug.msg('[FCM] Exception initializing Firebase in _initFirebaseIfNeeded: $e');
+      Debug.error('[FCM] Exception initializing Firebase in _initFirebaseIfNeeded: $e');
     }
   }
 
@@ -342,21 +342,21 @@ class FcmNotificationsService {
               onTimeout: () => '',
             );
           } catch (e) {
-            Debug.msg('[FCM] Exception waiting for onRegistered token: $e');
+            Debug.error('[FCM] Exception waiting for onRegistered token: $e');
           }
-          Debug.msg('[FCM] messaging.register result token: "$fetchedToken"');
+          Debug.info('[FCM] messaging.register result token: "$fetchedToken"');
           if (fetchedToken != null && fetchedToken.isNotEmpty) {
             final bool tokenChanged = (token != fetchedToken);
             token = fetchedToken;
             await PreferencesProvider.setFcmToken(fetchedToken);
-            Debug.msg('[FCM] Saved active FCM token to preferences (tokenChanged=$tokenChanged): "$token"');
+            Debug.info('[FCM] Saved active FCM token to preferences (tokenChanged=$tokenChanged): "$token"');
           }
         }
       } else {
         Debug.info('[FCM] Notification permissions not granted, cannot fetch active FCM token.');
       }
     } catch (e) {
-      Debug.msg('[FCM] Exception in _ensureToken: $e');
+      Debug.error('[FCM] Exception in _ensureToken: $e');
     }
 
     return token != null && token!.isNotEmpty;
@@ -392,14 +392,14 @@ class FcmNotificationsService {
         }),
       );
       if (res.statusCode == 200) {
-        Debug.msg('[FCM] Subscribe SUCCESS for topic "$topic" ($normalizedTopic): HTTP ${res.statusCode}');
+        Debug.info('[FCM] Subscribe SUCCESS for topic "$topic" ($normalizedTopic): HTTP ${res.statusCode}');
         return true;
       } else {
-        Debug.msg('[FCM] Subscribe FAILED for topic "$topic" ($normalizedTopic): HTTP ${res.statusCode} ${res.body}');
+        Debug.error('[FCM] Subscribe FAILED for topic "$topic" ($normalizedTopic): HTTP ${res.statusCode} ${res.body}');
         return false;
       }
     } catch (e) {
-      Debug.msg('[FCM] Subscribe EXCEPTION for topic "$topic" ($normalizedTopic): $e');
+      Debug.error('[FCM] Subscribe EXCEPTION for topic "$topic" ($normalizedTopic): $e');
       return false;
     }
   }
@@ -434,14 +434,14 @@ class FcmNotificationsService {
         }),
       );
       if (res.statusCode == 200) {
-        Debug.msg('[FCM] Unsubscribe SUCCESS for topic "$topic" ($normalizedTopic): HTTP ${res.statusCode}');
+        Debug.info('[FCM] Unsubscribe SUCCESS for topic "$topic" ($normalizedTopic): HTTP ${res.statusCode}');
         return true;
       } else {
-        Debug.msg('[FCM] Unsubscribe FAILED for topic "$topic" ($normalizedTopic): HTTP ${res.statusCode} ${res.body}');
+        Debug.error('[FCM] Unsubscribe FAILED for topic "$topic" ($normalizedTopic): HTTP ${res.statusCode} ${res.body}');
         return false;
       }
     } catch (e) {
-      Debug.msg('[FCM] Unsubscribe EXCEPTION for topic "$topic" ($normalizedTopic): $e');
+      Debug.error('[FCM] Unsubscribe EXCEPTION for topic "$topic" ($normalizedTopic): $e');
       return false;
     }
   }
@@ -506,7 +506,7 @@ class FcmNotificationsService {
         }),
       );
       if (res.statusCode == 200) {
-        Debug.msg('[FCM] Send message SUCCESS from backend: HTTP ${res.statusCode}');
+        Debug.info('[FCM] Send message SUCCESS from backend: HTTP ${res.statusCode}');
 
         // Immediately trigger local notification display for the sender
         final String msgId = 'send_local_${DateTime.now().millisecondsSinceEpoch}';
@@ -528,11 +528,11 @@ class FcmNotificationsService {
 
         return true;
       } else {
-        Debug.msg('[FCM] Send message FAILED from backend: HTTP ${res.statusCode} ${res.body}');
+        Debug.error('[FCM] Send message FAILED from backend: HTTP ${res.statusCode} ${res.body}');
         return false;
       }
     } catch (e) {
-      Debug.msg('[FCM] Send message EXCEPTION: $e');
+      Debug.error('[FCM] Send message EXCEPTION: $e');
       return false;
     }
   }

@@ -12,6 +12,7 @@ import 'package:iccm_eu_app/data/dataProviders/gsheets_provider.dart';
 import 'package:iccm_eu_app/data/dataProviders/tracks_provider.dart';
 import 'package:iccm_eu_app/data/notifications/fcm_notifications_service.dart';
 import 'package:iccm_eu_app/pages/preferences_page.dart';
+import 'package:iccm_eu_app/utils/debug.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -146,6 +147,34 @@ void main() {
       // Verify password was updated in PreferencesProvider and TextField
       expect(PreferencesProvider.fcmAdminPwdNotifier.value, 'scanned_pwd_789');
       expect(find.byKey(const Key('share_fcm_pwd_qr_button')), findsOneWidget);
+
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+
+    testWidgets('renders Development section with Debug Log Level dropdown', (WidgetTester tester) async {
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pumpAndSettle();
+
+      final devSectionFinder = find.text('Development');
+      expect(devSectionFinder, findsOneWidget);
+      await tester.ensureVisible(devSectionFinder);
+
+      expect(find.text('Debug Log Level'), findsOneWidget);
+      final dropdownFinder = find.byKey(const Key('debug_level_dropdown'));
+      expect(dropdownFinder, findsOneWidget);
+
+      // Verify default value is WARNING
+      expect(find.text('WARNING'), findsOneWidget);
+
+      // Change dropdown selection to DEBUG
+      await tester.tap(dropdownFinder);
+      await tester.pumpAndSettle();
+
+      final debugMenuItemFinder = find.text('DEBUG').last;
+      await tester.tap(debugMenuItemFinder);
+      await tester.pumpAndSettle();
+
+      expect(PreferencesProvider.debugLevelNotifier.value, equals(DebugLevel.debug));
 
       await tester.pumpWidget(const SizedBox.shrink());
     });

@@ -68,11 +68,11 @@ class LocalNotificationService {
         final String timeZoneName = timezone.identifier;
         tz.setLocalLocation(tz.getLocation(timeZoneName));
       } catch (e) {
-        Debug.msg('Fallback timezone to UTC: $e');
+        Debug.warning('Fallback timezone to UTC: $e');
         tz.setLocalLocation(tz.getLocation('UTC'));
       }
     } catch (e) {
-      Debug.msg('Timezone initialization skipped/failed: $e');
+      Debug.warning('Timezone initialization skipped/failed: $e');
     }
 
     bool isDesktop = !kIsWeb && (
@@ -88,9 +88,9 @@ class LocalNotificationService {
           shortcutPolicy: ShortcutPolicy.requireCreate,
         );
         _isDesktopNotifierInitialized = true;
-        Debug.msg('localNotifier setup succeeded on desktop');
+        Debug.info('localNotifier setup succeeded on desktop');
       } catch (e) {
-        Debug.msg('localNotifier setup failed: $e');
+        Debug.error('localNotifier setup failed: $e');
       }
     }
 
@@ -137,17 +137,17 @@ class LocalNotificationService {
             settings: initializationSettings,
           );
         } catch (e) {
-          Debug.msg('flutterLocalNotificationsPlugin.initialize exception: $e');
+          Debug.error('flutterLocalNotificationsPlugin.initialize exception: $e');
         }
 
         _isNativePluginInitialized = initialized ?? false;
-        Debug.msg('LocalNotificationService native plugin initialized: $_isNativePluginInitialized (result: $initialized)');
+        Debug.info('LocalNotificationService native plugin initialized: $_isNativePluginInitialized (result: $initialized)');
 
         if (channelData != null && _isNativePluginInitialized) {
           await _createChannel(channelData);
         }
       } catch (e) {
-        Debug.msg('LocalNotificationService plugin setup failed: $e');
+        Debug.error('LocalNotificationService plugin setup failed: $e');
         _isNativePluginInitialized = false;
       }
     } else {
@@ -165,9 +165,9 @@ class LocalNotificationService {
             ?.requestNotificationsPermission();
         final status = await Permission.notification.status;
         if (status != PermissionStatus.granted) {
-          Debug.info('WARN: Notification permission not granted');
+          Debug.warning('WARN: Notification permission not granted');
         } else {
-          Debug.msg('OK: Notification permission granted');
+          Debug.info('OK: Notification permission granted');
         }
 
         AndroidNotificationChannel channel = AndroidNotificationChannel(
@@ -183,7 +183,7 @@ class LocalNotificationService {
             ?.createNotificationChannel(channel);
       }
     } catch (e) {
-      Debug.msg('Failed to create notification channel: $e');
+      Debug.error('Failed to create notification channel: $e');
     }
   }
 
@@ -256,7 +256,7 @@ class LocalNotificationService {
     await _ensureInitialized();
 
     Debug.info('[LocalNotification] showInstantNotification triggered: id=$id, title="$title", body="$body"');
-    Debug.msg('SHOW NOTIFICATION [$id]: $title - $body');
+    Debug.info('SHOW NOTIFICATION [$id]: $title - $body');
 
     bool isDesktop = !kIsWeb && (
       defaultTargetPlatform == TargetPlatform.windows ||
@@ -283,7 +283,7 @@ class LocalNotificationService {
           Debug.info('[LocalNotification Web] window.Notification property is missing.');
         }
       } catch (e) {
-        Debug.msg('[LocalNotification Web] Native web notification exception: $e');
+        Debug.error('[LocalNotification Web] Native web notification exception: $e');
       }
     }
 
@@ -295,9 +295,9 @@ class LocalNotificationService {
           body: body,
         );
         await notification.show();
-        Debug.msg('Desktop native OS notification shown: $title - $body');
+        Debug.info('Desktop native OS notification shown: $title - $body');
       } catch (e) {
-        Debug.msg('Desktop native notification failed: $e');
+        Debug.error('Desktop native notification failed: $e');
       }
     } else if (_isNativePluginInitialized) {
       try {
@@ -327,7 +327,7 @@ class LocalNotificationService {
         );
         Debug.info('[LocalNotification] Native plugin show notification completed.');
       } catch (e) {
-        Debug.msg('Native notification failed ($e), falling back for: $title - $body');
+        Debug.error('Native notification failed ($e), falling back for: $title - $body');
       }
     }
 
@@ -366,7 +366,7 @@ class LocalNotificationService {
     if (kIsWeb || isDesktop || !_isNativePluginInitialized) {
       final Duration delay = scheduledDate.difference(DateTime.now());
       if (!delay.isNegative) {
-        Debug.msg('Scheduling in-memory timer for "$title" in ${delay.inSeconds} seconds (ID: $notificationId)');
+        Debug.info('Scheduling in-memory timer for "$title" in ${delay.inSeconds} seconds (ID: $notificationId)');
         _scheduledTimers[notificationId] = Timer(delay, () {
           _scheduledTimers.remove(notificationId);
           showInstantNotification(
@@ -417,7 +417,7 @@ class LocalNotificationService {
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       );
     } catch (e) {
-      Debug.msg('Failed to schedule native notification ($e) for: $title');
+      Debug.error('Failed to schedule native notification ($e) for: $title');
     }
   }
 
@@ -445,7 +445,7 @@ class LocalNotificationService {
         );
         await notification.show();
       } catch (e) {
-        Debug.msg('Desktop native notification failed: $e');
+        Debug.error('Desktop native notification failed: $e');
       }
     } else if (_isNativePluginInitialized) {
       try {
@@ -483,7 +483,7 @@ class LocalNotificationService {
           notificationDetails: notificationDetails,
         );
       } catch (e) {
-        Debug.msg('Failed to show big picture notification: $e');
+        Debug.error('Failed to show big picture notification: $e');
       }
     }
 
@@ -514,7 +514,7 @@ class LocalNotificationService {
         );
         await notification.show();
       } catch (e) {
-        Debug.msg('Desktop native notification failed: $e');
+        Debug.error('Desktop native notification failed: $e');
       }
     } else if (_isNativePluginInitialized) {
       try {
@@ -541,7 +541,7 @@ class LocalNotificationService {
           payload: payload,
         );
       } catch (e) {
-        Debug.msg('Failed to show instant notification with payload: $e');
+        Debug.error('Failed to show instant notification with payload: $e');
       }
     }
 
@@ -561,7 +561,7 @@ class LocalNotificationService {
       try {
         await flutterLocalNotificationsPlugin.cancelAll();
       } catch (e) {
-        Debug.msg('Failed to cancel all notifications: $e');
+        Debug.error('Failed to cancel all notifications: $e');
       }
     }
   }
@@ -583,7 +583,7 @@ class LocalNotificationService {
           tag: tag,
         );
       } catch (e) {
-        Debug.msg('Failed to cancel notification: $e');
+        Debug.error('Failed to cancel notification: $e');
       }
     }
   }

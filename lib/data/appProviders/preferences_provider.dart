@@ -72,6 +72,33 @@ class PreferencesProvider {
   }
 
   // ---------------------------------------------------------
+  static const String _debugLevelKey = 'debugLevel';
+  static final ValueNotifier<DebugLevel> debugLevelNotifier =
+    ValueNotifier(DebugLevel.warning);
+
+  static Future<void> loadDebugLevel() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? levelStr = prefs.getString(_debugLevelKey);
+    if (levelStr != null) {
+      try {
+        debugLevelNotifier.value = DebugLevel.values.firstWhere(
+          (e) => e.name.toLowerCase() == levelStr.toLowerCase(),
+        );
+      } catch (_) {
+        debugLevelNotifier.value = DebugLevel.warning;
+      }
+    } else {
+      debugLevelNotifier.value = DebugLevel.warning;
+    }
+  }
+
+  static Future<void> setDebugLevel(DebugLevel value) async {
+    debugLevelNotifier.value = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_debugLevelKey, value.name);
+  }
+
+  // ---------------------------------------------------------
   static const String _useTestDataKey = 'useTestData';
   static final ValueNotifier<bool> useTestDataNotifier =
     ValueNotifier(false);
@@ -148,7 +175,7 @@ class PreferencesProvider {
     final validTopics = _getValidNormalizedTopics(tracksProvider);
 
     if (!validTopics.contains(normalizedTopic)) {
-      Debug.msg('Cannot add topic $value ($normalizedTopic): Not in valid topics.');
+      Debug.msg(DebugLevel.warning, 'Cannot add topic $value ($normalizedTopic): Not in valid topics.');
       return;
     }
 

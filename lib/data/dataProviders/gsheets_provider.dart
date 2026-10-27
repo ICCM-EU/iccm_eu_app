@@ -93,7 +93,7 @@ class GsheetsProvider with ChangeNotifier {
         }
       } catch (e, stackTrace) {
         if (attempt == maxAttempts) {
-          Debug.msg("_triggerWebAPP Exception for worksheet '$worksheetName': $e\n$stackTrace");
+          Debug.msg(DebugLevel.error, "_triggerWebAPP Exception for worksheet '$worksheetName': $e\n$stackTrace");
         }
       }
 
@@ -154,7 +154,7 @@ class GsheetsProvider with ChangeNotifier {
         _rawData[worksheetTitle] = tableRows;
       } catch (e) {
       //} catch (e, stackTrace) {
-        Debug.msg("_readWorksheets Exception loading '$worksheetTitle': $e");
+        Debug.msg(DebugLevel.error, "_readWorksheets Exception loading '$worksheetTitle': $e");
         //final RegExp regExp = RegExp(r'#0 +(\S+) \((\S+):([0-9]+)\)');
         //final Match? match = regExp.firstMatch(stackTrace.toString());
         //final fileName = match?.group(2) ?? 'unknown';
@@ -235,9 +235,9 @@ class GsheetsProvider with ChangeNotifier {
         }
       }
       notifyListeners();
-      Debug.msg("Fetch completed successfully.");
+      Debug.info("Fetch completed successfully.");
     } catch (e, stackTrace) {
-      Debug.msg("fetchData Exception: $e\n$stackTrace");
+      Debug.error("fetchData Exception: $e\n$stackTrace");
     } finally {
       _isFetchingData = false;
     }

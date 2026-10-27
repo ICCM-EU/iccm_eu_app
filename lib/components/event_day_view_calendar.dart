@@ -112,7 +112,7 @@ class EventDayViewCalendarState extends State<EventDayViewCalendar> {
                               final room = roomsProvider.getDataByName(item.room!);
                               if (room?.colors != null) {
                                 backgroundColor = room!.colors!.primary;
-                                textColor = room!.colors!.secondary;
+                                textColor = room.colors!.secondary;
                               }
                             }
                           } else {
@@ -121,7 +121,7 @@ class EventDayViewCalendarState extends State<EventDayViewCalendar> {
                               final track = tracksProvider.getDataByName(item.track!);
                               if (track?.colors != null) {
                                 backgroundColor = track!.colors!.primary;
-                                textColor = track!.colors!.secondary;
+                                textColor = track.colors!.secondary;
                               }
                             }
                           }

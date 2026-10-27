@@ -1,22 +1,23 @@
 import 'package:flutter/foundation.dart';
+import 'package:iccm_eu_app/data/appProviders/preferences_provider.dart';
 
-class Debug {
-  /// Outputs a DEBUG message prefixed with [DEBUG].
-  /// Intended for major status successes (e.g. acquiring a token, loading fresh data)
-  /// and error cases that require debugging. These are NOT suppressed in production mode.
-  static void msg(String message) {
-    debugPrint('[DEBUG] $message');
-  }
-
-  /// Alias for [msg].
-  static void debug(String message) => msg(message);
-
-  /// Outputs an INFO message prefixed with [INFO].
-  /// Intended for routine informational messages. These ARE suppressed in production mode (`kReleaseMode`).
-  static void info(String message) {
-    if (kDebugMode) {
-      debugPrint('[INFO] $message');
-    }
-  }
+enum DebugLevel {
+  silent,
+  error,
+  warning,
+  info,
+  debug,
 }
 
+class Debug {
+  static void msg(DebugLevel level, String message) {
+    if (level.index <= PreferencesProvider.debugLevelNotifier.value.index) {
+      debugPrint('[${level.name.toUpperCase()}] $message');
+    }
+  }
+
+  static void info(String message) => msg(DebugLevel.info, message);
+  static void debug(String message) => msg(DebugLevel.debug, message);
+  static void warning(String message) => msg(DebugLevel.warning, message);
+  static void error(String message) => msg(DebugLevel.error, message);
+}
