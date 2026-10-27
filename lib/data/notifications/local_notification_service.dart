@@ -335,6 +335,57 @@ class LocalNotificationService {
     _showInAppNotification(title: title, body: body);
   }
 
+  @visibleForTesting
+  static const Duration maxTimerDuration = Duration(milliseconds: 2147483647);
+
+  static void _scheduleInMemoryTimer({
+    required int notificationId,
+    required String title,
+    required String body,
+    required DateTime scheduledDate,
+    required NotificationChannelData channelData,
+  }) {
+    _scheduledTimers[notificationId]?.cancel();
+    _scheduledTimers.remove(notificationId);
+
+    final Duration delay = scheduledDate.difference(DateTime.now());
+    if (delay.isNegative) {
+      Debug.info('Scheduled date for "$title" is in the past, skipping timer (ID: $notificationId)');
+      return;
+    }
+
+    final Duration timerDelay = delay > maxTimerDuration ? maxTimerDuration : delay;
+
+    if (delay > maxTimerDuration) {
+      Debug.info(
+        'Scheduling capped in-memory timer (${maxTimerDuration.inDays} days) for "$title" (target in ${delay.inSeconds} seconds, ID: $notificationId)',
+      );
+    } else {
+      Debug.info('Scheduling in-memory timer for "$title" in ${delay.inSeconds} seconds (ID: $notificationId)');
+    }
+
+    _scheduledTimers[notificationId] = Timer(timerDelay, () {
+      _scheduledTimers.remove(notificationId);
+      final Duration remaining = scheduledDate.difference(DateTime.now());
+      if (remaining.inMilliseconds > 1000) {
+        _scheduleInMemoryTimer(
+          notificationId: notificationId,
+          title: title,
+          body: body,
+          scheduledDate: scheduledDate,
+          channelData: channelData,
+        );
+      } else {
+        showInstantNotification(
+          id: notificationId,
+          title: title,
+          body: body,
+          channelData: channelData,
+        );
+      }
+    });
+  }
+
   static Future<void> scheduleNotification({
     required String title,
     required String body,
@@ -364,21 +415,13 @@ class LocalNotificationService {
     );
 
     if (kIsWeb || isDesktop || !_isNativePluginInitialized) {
-      final Duration delay = scheduledDate.difference(DateTime.now());
-      if (!delay.isNegative) {
-        Debug.info('Scheduling in-memory timer for "$title" in ${delay.inSeconds} seconds (ID: $notificationId)');
-        _scheduledTimers[notificationId] = Timer(delay, () {
-          _scheduledTimers.remove(notificationId);
-          showInstantNotification(
-            id: notificationId,
-            title: title,
-            body: body,
-            channelData: channelData,
-          );
-        });
-      } else {
-        Debug.info('Scheduled date for "$title" is in the past, skipping timer (ID: $notificationId)');
-      }
+      _scheduleInMemoryTimer(
+        notificationId: notificationId,
+        title: title,
+        body: body,
+        scheduledDate: scheduledDate,
+        channelData: channelData,
+      );
       return;
     }
 
@@ -413,7 +456,6 @@ class LocalNotificationService {
         ),
         scheduledDate: tz.TZDateTime.from(scheduledDate, tz.local),
         notificationDetails: notificationDetails,
-        matchDateTimeComponents: DateTimeComponents.time,
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       );
     } catch (e) {

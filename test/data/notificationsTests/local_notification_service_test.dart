@@ -72,5 +72,46 @@ void main() {
       await LocalNotificationService.cancelNotification(1, null);
       await LocalNotificationService.cancelAllNotifications();
     });
+
+    test('scheduleNotification with past date does not trigger notification', () async {
+      final channel = NotificationChannelData(
+        id: 'test_channel',
+        name: 'Test Channel',
+        description: 'Testing channel',
+      );
+
+      await LocalNotificationService.scheduleNotification(
+        id: 99,
+        title: 'Past Title',
+        body: 'Past Body',
+        scheduledDate: DateTime.now().subtract(const Duration(days: 1)),
+        channelData: channel,
+      );
+
+      final notifications = LocalNotificationService.inAppNotificationsNotifier.value;
+      expect(notifications, isEmpty);
+    });
+
+    test('scheduleNotification with far future date (>24.8 days) caps timer and does not trigger immediately', () async {
+      final channel = NotificationChannelData(
+        id: 'test_channel',
+        name: 'Test Channel',
+        description: 'Testing channel',
+      );
+
+      // Schedule 90 days in the future (far exceeding max 32-bit signed int JS timeout of 2,147,483,647 ms)
+      await LocalNotificationService.scheduleNotification(
+        id: 100,
+        title: 'Future Title',
+        body: 'Future Body',
+        scheduledDate: DateTime.now().add(const Duration(days: 90)),
+        channelData: channel,
+      );
+
+      final notifications = LocalNotificationService.inAppNotificationsNotifier.value;
+      expect(notifications, isEmpty);
+
+      await LocalNotificationService.cancelNotification(100, null);
+    });
   });
 }
