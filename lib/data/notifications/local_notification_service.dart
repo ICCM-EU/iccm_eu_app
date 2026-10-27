@@ -366,7 +366,7 @@ class LocalNotificationService {
     if (kIsWeb || isDesktop || !_isNativePluginInitialized) {
       final Duration delay = scheduledDate.difference(DateTime.now());
       if (!delay.isNegative) {
-        Debug.info('Scheduling in-memory timer for "$title" in ${delay.inSeconds} seconds (ID: $notificationId)');
+        Debug.msg('Scheduling in-memory timer for "$title" in ${delay.inSeconds} seconds (ID: $notificationId)');
         _scheduledTimers[notificationId] = Timer(delay, () {
           _scheduledTimers.remove(notificationId);
           showInstantNotification(
