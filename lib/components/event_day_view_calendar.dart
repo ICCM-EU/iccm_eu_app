@@ -32,6 +32,8 @@ class EventDayViewCalendarState extends State<EventDayViewCalendar> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Column(
         children: [
           Expanded(
@@ -69,14 +71,39 @@ class EventDayViewCalendarState extends State<EventDayViewCalendar> {
                         initialTime: initialTime,
                         dates: dates,
                         userZoomable: false,
+                        style: WeekViewStyle(
+                          dayViewSeparatorColor: theme.colorScheme.tertiary.withAlpha(100),
+                        ),
+                        dayViewStyleBuilder: (date) => DayViewStyle(
+                          backgroundColor: theme.colorScheme.surface,
+                          backgroundRulesColor: theme.colorScheme.secondary.withAlpha(40),
+                          currentTimeRuleColor: theme.colorScheme.primary,
+                          currentTimeCircleColor: theme.colorScheme.primary,
+                        ),
+                        dayBarStyleBuilder: (date) => DayBarStyle(
+                          color: theme.colorScheme.tertiary.withAlpha(60),
+                          textStyle: TextStyle(
+                            color: theme.colorScheme.onSurface,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13.0,
+                          ),
+                        ),
+                        hourColumnStyle: HourColumnStyle(
+                          color: theme.colorScheme.surface,
+                          textStyle: TextStyle(
+                            color: theme.colorScheme.secondary,
+                            fontSize: 11.0,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                         // 1. Provide the raw list of events.
                         events: Provider.of<EventsProvider>(context, listen: false).items(),
                         // 2. Use the eventWidgetBuilder with the requested signature.
                         eventWidgetBuilder: (event, height, width) {
                           // The `event` is already the correct type here.
                           final item = event;
-                          Color? backgroundColor = Colors.red;
-                          Color? textColor = Colors.black;
+                          Color backgroundColor = theme.colorScheme.primaryContainer;
+                          Color textColor = theme.colorScheme.onPrimaryContainer;
 
                           // Logic to determine color based on Room or Track
                           if (builderValue) {
@@ -84,8 +111,8 @@ class EventDayViewCalendarState extends State<EventDayViewCalendar> {
                               final roomsProvider = Provider.of<RoomsProvider>(context, listen: false);
                               final room = roomsProvider.getDataByName(item.room!);
                               if (room?.colors != null) {
-                                backgroundColor = room?.colors?.primary;
-                                textColor = room?.colors?.secondary;
+                                backgroundColor = room!.colors!.primary;
+                                textColor = room!.colors!.secondary;
                               }
                             }
                           } else {
@@ -93,8 +120,8 @@ class EventDayViewCalendarState extends State<EventDayViewCalendar> {
                               final tracksProvider = Provider.of<TracksProvider>(context, listen: false);
                               final track = tracksProvider.getDataByName(item.track!);
                               if (track?.colors != null) {
-                                backgroundColor = track?.colors?.primary;
-                                textColor = track?.colors?.secondary;
+                                backgroundColor = track!.colors!.primary;
+                                textColor = track!.colors!.secondary;
                               }
                             }
                           }
@@ -109,22 +136,70 @@ class EventDayViewCalendarState extends State<EventDayViewCalendar> {
                                 ),
                               );
                             },
-                            // Since `position` is no longer provided, we use a simple Container
-                            // and let the WeekView handle the positioning.
                             child: Container(
                               height: height,
                               width: width,
+                              margin: const EdgeInsets.all(1.0),
                               decoration: BoxDecoration(
                                 color: backgroundColor,
-                                borderRadius: BorderRadius.circular(4.0), // Optional: for rounded corners
+                                borderRadius: BorderRadius.circular(6.0),
+                                border: Border.all(
+                                  color: textColor.withAlpha(40),
+                                  width: 1.0,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withAlpha(12),
+                                    blurRadius: 2,
+                                    offset: const Offset(0, 1),
+                                  ),
+                                ],
                               ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(4.0),
-                                child: Text(
-                                  item.title,
-                                  style: TextStyle(color: textColor),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 2,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(6.0),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    Container(
+                                      width: 4.0,
+                                      color: textColor.withAlpha(180),
+                                    ),
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              item.title,
+                                              style: TextStyle(
+                                                color: textColor,
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 12.0,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: height > 40 ? 2 : 1,
+                                            ),
+                                            if (height > 55 && (item.room != null || item.track != null)) ...[
+                                              const SizedBox(height: 2.0),
+                                              Text(
+                                                builderValue ? (item.room ?? '') : (item.track ?? ''),
+                                                style: TextStyle(
+                                                  color: textColor.withAlpha(200),
+                                                  fontWeight: FontWeight.normal,
+                                                  fontSize: 10.0,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                              ),
+                                            ],
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
