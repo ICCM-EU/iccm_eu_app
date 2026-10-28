@@ -17,7 +17,7 @@ void main() {
       SharedPreferences.setMockInitialValues({});
     });
 
-    testWidgets('renders EventsPage with title and actions', (WidgetTester tester) async {
+    testWidgets('renders EventsPage with title and day navigation actions in day view', (WidgetTester tester) async {
       await tester.pumpWidget(
         MultiProvider(
           providers: [
@@ -49,6 +49,19 @@ void main() {
 
       expect(find.byType(EventsPage), findsOneWidget);
       expect(find.text('Events'), findsOneWidget);
+
+      // In Day View, Previous day and Next day buttons should be visible
+      expect(find.byTooltip('Previous day'), findsOneWidget);
+      expect(find.byTooltip('Next day'), findsOneWidget);
+
+      // Toggle to List View
+      await tester.tap(find.byIcon(Icons.list));
+      await tester.pumpAndSettle();
+
+      // In List View, day navigation buttons should be hidden and filter button shown
+      expect(find.byTooltip('Previous day'), findsNothing);
+      expect(find.byTooltip('Next day'), findsNothing);
+      expect(find.byTooltip('Filter only future events'), findsOneWidget);
 
       await tester.pumpWidget(const SizedBox.shrink());
     });

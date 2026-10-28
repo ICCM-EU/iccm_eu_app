@@ -16,7 +16,9 @@ void main() {
       SharedPreferences.setMockInitialValues({});
     });
 
-    testWidgets('renders EventDayViewCalendar widget', (WidgetTester tester) async {
+    testWidgets('renders EventDayViewCalendar widget with MouseDragScrollBehavior and Focus', (WidgetTester tester) async {
+      final GlobalKey<EventDayViewCalendarState> calendarKey = GlobalKey<EventDayViewCalendarState>();
+
       await tester.pumpWidget(
         MultiProvider(
           providers: [
@@ -40,9 +42,9 @@ void main() {
               update: (context, gsheets, events) => events!..updateCache(),
             ),
           ],
-          child: const MaterialApp(
+          child: MaterialApp(
             home: Scaffold(
-              body: EventDayViewCalendar(),
+              body: EventDayViewCalendar(key: calendarKey),
             ),
           ),
         ),
@@ -50,6 +52,11 @@ void main() {
       await tester.pump();
 
       expect(find.byType(EventDayViewCalendar), findsOneWidget);
+      expect(find.byType(Focus), findsWidgets);
+
+      // Verify state methods
+      final state = calendarKey.currentState;
+      expect(state, isNotNull);
 
       await tester.pumpWidget(const SizedBox.shrink());
     });

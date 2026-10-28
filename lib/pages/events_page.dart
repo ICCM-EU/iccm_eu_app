@@ -17,6 +17,8 @@ class EventsPage extends StatefulWidget {
 
 class _EventsPageState extends State<EventsPage> {
   late bool _isDayView = true;
+  final GlobalKey<EventDayViewCalendarState> _calendarKey =
+      GlobalKey<EventDayViewCalendarState>();
 
   @override
   void initState() {
@@ -66,20 +68,39 @@ class _EventsPageState extends State<EventsPage> {
                 .appBarTheme
                 .foregroundColor,
             actions: [
-              _isDayView ? const SizedBox.shrink() :
-              IconButton(
-                icon: Icon(
-                    futureEvents ? Icons.filter_alt : Icons.filter_alt_off),
-                color: Theme
-                    .of(context)
-                    .colorScheme
-                    .onSurface,
-                onPressed: () {
-                  futureEvents = !futureEvents;
-                  PreferencesProvider.setFutureEvents(futureEvents);
-                },
-                tooltip: 'Filter only future events',
-              ),
+              if (_isDayView) ...[
+                IconButton(
+                  icon: const Icon(Icons.chevron_left),
+                  color: Theme.of(context).colorScheme.onSurface,
+                  tooltip: 'Previous day',
+                  onPressed: (_calendarKey.currentState?.canGoPrevious ?? true)
+                      ? () {
+                          _calendarKey.currentState?.previousDay();
+                        }
+                      : null,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.chevron_right),
+                  color: Theme.of(context).colorScheme.onSurface,
+                  tooltip: 'Next day',
+                  onPressed: (_calendarKey.currentState?.canGoNext ?? true)
+                      ? () {
+                          _calendarKey.currentState?.nextDay();
+                        }
+                      : null,
+                ),
+              ],
+              if (!_isDayView)
+                IconButton(
+                  icon: Icon(
+                      futureEvents ? Icons.filter_alt : Icons.filter_alt_off),
+                  color: Theme.of(context).colorScheme.onSurface,
+                  onPressed: () {
+                    futureEvents = !futureEvents;
+                    PreferencesProvider.setFutureEvents(futureEvents);
+                  },
+                  tooltip: 'Filter only future events',
+                ),
               Consumer<ExpandContentProvider>(
                 builder: (context, fullscreenProvider, child) {
                   return IconButton(
@@ -112,8 +133,12 @@ class _EventsPageState extends State<EventsPage> {
               ),
             ],
           ),
-          body: _isDayView ? EventDayViewCalendar() : EventList(
-              futureEvents: futureEvents),
+          body: _isDayView
+              ? EventDayViewCalendar(
+                  key: _calendarKey,
+                  onDateChanged: () => setState(() {}),
+                )
+              : EventList(futureEvents: futureEvents),
         );
       },
     );
