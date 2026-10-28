@@ -179,15 +179,37 @@ class EventDayViewCalendarState extends State<EventDayViewCalendar> {
                 return ValueListenableBuilder<bool>(
                     valueListenable: PreferencesProvider.calendarColorByRoomNotifier,
                     builder: (context, builderValue, child) {
-                      return ScrollConfiguration(
-                        behavior: MouseDragScrollBehavior(),
-                        child: WeekView(
-                          key: ValueKey(_selectedDate),
-                          minimumTime: const TimeOfDay(hour: 7, minute: 0),
-                          maximumTime: const TimeOfDay(hour: 23, minute: 0),
-                          initialTime: targetInitialTime,
-                          dates: dates,
-                          userZoomable: false,
+                      return NotificationListener<ScrollNotification>(
+                        onNotification: (ScrollNotification notification) {
+                          if (notification is ScrollEndNotification &&
+                              notification.metrics.axis == Axis.horizontal &&
+                              _dates.length > 1) {
+                            double maxScroll = notification.metrics.maxScrollExtent;
+                            if (maxScroll > 0) {
+                              double itemWidth = maxScroll / (_dates.length - 1);
+                              int newIndex = (notification.metrics.pixels / itemWidth)
+                                  .round()
+                                  .clamp(0, _dates.length - 1);
+                              if (_selectedDate != null &&
+                                  newIndex != _findDateIndex(_selectedDate!)) {
+                                setState(() {
+                                  _selectedDate = _dates[newIndex];
+                                });
+                                widget.onDateChanged?.call();
+                              }
+                            }
+                          }
+                          return false;
+                        },
+                        child: ScrollConfiguration(
+                          behavior: MouseDragScrollBehavior(),
+                          child: WeekView(
+                            key: ValueKey(_selectedDate),
+                            minimumTime: const TimeOfDay(hour: 7, minute: 0),
+                            maximumTime: const TimeOfDay(hour: 23, minute: 0),
+                            initialTime: targetInitialTime,
+                            dates: dates,
+                            userZoomable: false,
                             style: WeekViewStyle(
                               dayViewSeparatorColor: theme.colorScheme.tertiary.withAlpha(100),
                             ),
@@ -331,9 +353,10 @@ class EventDayViewCalendarState extends State<EventDayViewCalendar> {
                               );
                             },
                           ),
-                        );
-                      },
-                    );
+                        ),
+                      );
+                    },
+                  );
               },
             ),
           ),
